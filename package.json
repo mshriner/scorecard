@@ -9,7 +9,6 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
-  "homepage": "",
   "private": true,
   "dependencies": {
     "@angular/animations": "^18.2.0",
