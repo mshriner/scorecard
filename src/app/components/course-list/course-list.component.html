@@ -1,0 +1,26 @@
+<div class="full-width-center">
+  <button mat-stroked-button (click)="addNewCourse()">New Course</button>
+</div>
+@if(courses().length) {
+<br />
+<table mat-table [dataSource]="courses()">
+  <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
+    <th mat-header-cell *matHeaderCellDef>Course</th>
+    <td mat-cell *matCellDef="let course" matRipple>
+      {{ course.name }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="{{ COURSE_PAR_COL }}">
+    <th mat-header-cell *matHeaderCellDef>Par</th>
+    <td mat-cell *matCellDef="let course" matRipple>
+      {{ course | par }}
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="COURSE_TABLE_COLUMNS; sticky: true"></tr>
+  <tr
+    mat-row
+    *matRowDef="let course; columns: COURSE_TABLE_COLUMNS"
+    (click)="viewCourse(course.id)"
+  ></tr>
+</table>
+}

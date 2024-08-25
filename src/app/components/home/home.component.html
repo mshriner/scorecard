@@ -1,0 +1,32 @@
+<div class="full-width-center">
+  <button mat-stroked-button (click)="addNewRound()">New Round</button>
+</div>
+@if(rounds().length) {
+<br />
+<table mat-table [dataSource]="rounds()">
+  <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
+    <th mat-header-cell *matHeaderCellDef>Date</th>
+    <td mat-cell *matCellDef="let round">
+      {{ round.dateStringISO }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
+    <th mat-header-cell *matHeaderCellDef>Course</th>
+    <td mat-cell *matCellDef="let round">
+      {{ courseService.getCourseName(round.courseId) }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
+    <th mat-header-cell *matHeaderCellDef>Score</th>
+    <td mat-cell *matCellDef="let round">
+      {{ round | scoreToPar }}
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"></tr>
+  <tr
+    mat-row
+    *matRowDef="let round; columns: ROUND_TABLE_COLUMNS"
+    (click)="viewRound(round.id)"
+  ></tr>
+</table>
+}

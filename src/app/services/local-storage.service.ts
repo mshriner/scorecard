@@ -7,37 +7,46 @@ export class LocalStorageService {
   constructor() {}
 
   // Set a value in local storage
-  public setItem(key: string, value: unknown): void {
-    if (value === null) {
-      this.removeItem(key);
-      return;
+  public setItem(key: string, value: unknown): boolean {
+    try {
+      if (value === null) {
+        this.removeItem(key);
+        return true;
+      }
+      // Note: this will not properly store / retrieve any complex types like Date()
+      localStorage.setItem(key, JSON.stringify(value));
+
+      console.log('set', value, 'at key', key, this.auditLocalStorageSize());
+      return true;
+    } catch (err: any) {
+      console.error(`couldn't store key ${key}`, err);
+      return false;
     }
-    // Note: this will not properly store / retrieve any complex types like Date()
-    localStorage.setItem(key, JSON.stringify(value));
-    this.auditLocalStorageSize();
   }
 
   // Get a value from local storage
   public getItem(key: string): any {
     const retrieved = localStorage.getItem(key);
-    if (retrieved === null) {
+    console.log('retrieved', retrieved, 'at key', key);
+    if (retrieved === null || !retrieved?.length) {
       return null;
     }
-    return JSON.parse(retrieved);
+    return JSON.parse(retrieved || '');
   }
 
   // Remove a value from local storage
   public removeItem(key: string): void {
     localStorage.removeItem(key);
-    this.auditLocalStorageSize();
+    console.log('removed', key, this.auditLocalStorageSize());
   }
 
   // Clear all items from local storage
   public clear(): void {
     localStorage.clear();
+    console.log('cleared all storage');
   }
 
-  private auditLocalStorageSize(): void {
-    console.log('storage size: ', localStorage.length);
+  private auditLocalStorageSize(): string {
+    return `storage size: ${localStorage.length}`;
   }
 }

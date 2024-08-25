@@ -1,0 +1,68 @@
+<form>
+  <div class="full-width-center">
+    <mat-form-field>
+      <mat-label>Course Name</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="editingCourse.name"
+        [ngModelOptions]="{ standalone: true }"
+        autofocus="true"
+      />
+    </mat-form-field>
+  </div>
+
+  <table mat-table [dataSource]="editingCourse.par">
+    @for (column of COURSE_TABLE_COLUMNS; track $index) {
+    <ng-container [matColumnDef]="column.columnDef">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ column.header }}
+      </th>
+      <td mat-cell *matCellDef="let row; let index = index">
+        @switch (column.holeNumberColumn) { @case (true) {
+        {{ index + 1 }}
+        } @case (false) {
+        <div class="hole-par-adjustment">
+          <button
+            mat-icon-button
+            class="plusminus"
+            (click)="parMinusOne(index)"
+          >
+            <mat-icon>remove</mat-icon>
+          </button>
+          <mat-form-field class="par-value" subscriptSizing="dynamic">
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="editingCourse.par[index]"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          </mat-form-field>
+          <button mat-icon-button class="plusminus" (click)="parPlusOne(index)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        } }
+      </td>
+    </ng-container>
+    }
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="COURSE_TABLE_COLUMN_IDS; sticky: true"
+    ></tr>
+    <tr mat-row *matRowDef="let row; columns: COURSE_TABLE_COLUMN_IDS"></tr>
+  </table>
+
+  <br />
+  <div class="full-width-center">
+    <button
+      mat-stroked-button
+      (click)="saveCourse()"
+      [disabled]="disableSaveButton"
+    >
+      Save
+    </button>
+  </div>
+</form>
+<br />

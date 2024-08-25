@@ -1,26 +1,39 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { LocalStorageService } from './local-storage.service';
+import { BehaviorSubject } from 'rxjs';
+import { User } from '../models/user';
+import { STORAGE_KEYS } from '../models/constants';
+import { UserService } from './user.service';
+import { Course } from '../models/course';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AppStateService {
-  private readonly CURRENT_USER_KEY = 'CURRENT_USER';
+export class AppStateService  {
 
-  private _currentUser = '';
+  private _currentUser: User | null = null;
+  public pageTitle: WritableSignal<string> = signal('');
 
-  constructor(private localStorageService: LocalStorageService) {}
+  constructor(private userService: UserService) {
+  }
 
-  public get currentUser(): string {
+  public get currentUser(): User | null {
     if (!this._currentUser) {
-      this._currentUser =
-        this.localStorageService.getItem(this.CURRENT_USER_KEY) || '';
+      this._currentUser = this.userService.getCurrentUser();
     }
     return this._currentUser;
   }
 
-  public set currentUser(nextUser: string) {
+  public saveCurrentUser() {
+    this.currentUser = this._currentUser;
+  }
+
+  public set currentUser(nextUser: User | null) {
     this._currentUser = nextUser;
-    this.localStorageService.setItem(this.CURRENT_USER_KEY, nextUser);
+    this.userService.setCurrentUser(nextUser);
+  }
+
+  public setPageTitle(newTitle: string): void {
+    this.pageTitle.set(newTitle);
   }
 }

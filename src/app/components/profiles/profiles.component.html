@@ -1,0 +1,55 @@
+@if (appStateService.currentUser) {
+<mat-card appearance="outlined">
+  <mat-card-content>
+    Welcome, {{ appStateService.currentUser.name }}!
+  </mat-card-content>
+</mat-card>
+} @if(profiles().length) {
+<table mat-table [dataSource]="profiles()">
+  <ng-container matColumnDef="username">
+    <th mat-header-cell *matHeaderCellDef>Profile</th>
+    <td
+      mat-cell
+      mat-ripple
+      *matCellDef="let user"
+      (click)="selectProfile(user)"
+    >
+      {{ user.name }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="delete">
+    <th mat-header-cell *matHeaderCellDef style="width: 48px"></th>
+    <td mat-cell *matCellDef="let user" style="text-align: right; width: 48px">
+      <button
+        mat-icon-button
+        aria-label="Remove profile"
+        (click)="deleteProfile(user.id)"
+      >
+        <mat-icon>do_not_disturb_on</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+  <tr
+    mat-header-row
+    *matHeaderRowDef="['username', 'delete']; sticky: true"
+  ></tr>
+  <tr mat-row *matRowDef="let row; columns: ['username', 'delete']"></tr>
+</table>
+}
+<br />
+<div class="full-width-center">
+  <button mat-stroked-button (click)="addNewProfile()">Add Profile</button>
+</div>
+<div class="full-width-center">
+  <br />
+  <br />
+  <br />
+  <br />
+  Advanced Options
+</div>
+<mat-divider></mat-divider>
+<div class="full-width-center">
+  <br />
+  <button mat-stroked-button (click)="clearAllData()">Clear ALL Data</button>
+  <br />
+</div>
