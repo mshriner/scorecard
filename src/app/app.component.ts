@@ -1,18 +1,15 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { AppStateService } from './services/app-state.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { APP_ROUTES } from './models/constants';
-import { SnackBarService } from './services/snack-bar.service';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
+import { APP_ROUTES } from './models/constants';
+import { AppStateService } from './services/app-state.service';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +21,6 @@ import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
     MatInputModule,
     RouterOutlet,
     MatDialogModule,
-    MatTableModule,
     MatIconModule,
     MatButtonModule,
     SnackBarComponent,
@@ -32,31 +28,12 @@ import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit, OnDestroy {
-  private hotSubscriptions!: Subscription;
-
+export class AppComponent {
   constructor(public appStateService: AppStateService, private router: Router) {
-    this.hotSubscriptions = new Subscription();
     if (!this.appStateService.currentUser) {
       this.logout();
     }
   }
-
-  ngOnInit(): void {
-    // this.initializeSubscriptions();
-  }
-
-  ngOnDestroy(): void {
-    // this.hotSubscriptions.unsubscribe();
-  }
-
-  // private initializeSubscriptions(): void {
-  //   this.hotSubscriptions.add(
-  //     this.appStateService.pageTitle$?.subscribe(
-  //       (newTitle) => (this.title = newTitle)
-  //     )
-  //   );
-  // }
 
   public logout(): void {
     this.appStateService.currentUser = null;

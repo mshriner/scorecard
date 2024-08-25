@@ -1,15 +1,16 @@
 import { Component } from '@angular/core';
-import { CourseService } from '../../services/course.service';
-import { Router } from '@angular/router';
-import { NAVIGATION_STATE_KEYS, APP_ROUTES } from '../../models/constants';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
-import { Course } from '../../models/course';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
+import { Course } from '../../models/course';
 import { AppStateService } from '../../services/app-state.service';
+import { CourseService } from '../../services/course.service';
+import { ParPipe } from '../../pipes/par.pipe';
 
 @Component({
   selector: 'app-edit-course',
@@ -21,6 +22,7 @@ import { AppStateService } from '../../services/app-state.service';
     MatTableModule,
     MatIconModule,
     MatInputModule,
+    ParPipe,
   ],
   templateUrl: './edit-course.component.html',
   styleUrl: './edit-course.component.scss',
@@ -73,9 +75,11 @@ export class EditCourseComponent {
   public parPlusOne(index: number) {
     this.editingCourse.par[index]++;
   }
-
+  
   public parMinusOne(index: number) {
-    this.editingCourse.par[index]--;
+    if (this.editingCourse.par[index]) {
+      this.editingCourse.par[index]--;
+    }
   }
 
   public get disableSaveButton(): boolean {

@@ -1,20 +1,23 @@
-import { Component } from '@angular/core';
-import { CourseService } from '../../services/course.service';
-import { Router } from '@angular/router';
-import { NAVIGATION_STATE_KEYS, APP_ROUTES } from '../../models/constants';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
-import { Course } from '../../models/course';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { AppStateService } from '../../services/app-state.service';
-import { Round } from '../../models/round';
-import { RoundService } from '../../services/round.service';
-import { MatSelectModule } from '@angular/material/select';
-import { ParPipe } from '../../pipes/par.pipe';
 import { DatePipe } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
+import { Course } from '../../models/course';
+import { Round } from '../../models/round';
+import { ParPipe } from '../../pipes/par.pipe';
+import { AppStateService } from '../../services/app-state.service';
+import { CourseService } from '../../services/course.service';
+import { RoundService } from '../../services/round.service';
+import { TotalPuttsPipe } from '../../pipes/total-putts.pipe';
+import { ScoreToParPipe } from '../../pipes/score-to-par.pipe';
+import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
 
 @Component({
   selector: 'app-edit-round',
@@ -27,8 +30,11 @@ import { DatePipe } from '@angular/common';
     MatIconModule,
     MatInputModule,
     ParPipe,
+    ScoreToParPipe,
     MatSelectModule,
     DatePipe,
+    TotalRoundScorePipe,
+    TotalPuttsPipe,
   ],
   providers: [DatePipe],
   templateUrl: './edit-round.component.html',
@@ -37,6 +43,7 @@ import { DatePipe } from '@angular/common';
 export class EditRoundComponent {
   public editingRound: Round;
   public coursesToChooseFrom: Course[];
+  public currentCourse: Course | null = null;
   private roundIdToEdit: string;
   public readonly HOLE_COL = 'hole';
   public readonly STROKES_COL = 'par';
@@ -64,7 +71,7 @@ export class EditRoundComponent {
     private courseService: CourseService,
     private roundService: RoundService,
     private router: Router,
-    private datePipe: DatePipe
+    datePipe: DatePipe
   ) {
     this.coursesToChooseFrom = this.courseService.getAllCoursesForCurrentUser();
     this.roundIdToEdit =
@@ -80,6 +87,7 @@ export class EditRoundComponent {
       this.appStateService.setPageTitle(
         `Editing ${datePipe.transform(retrieved?.dateStringISO)}`
       );
+      this.updateCurrentCourse(this.editingRound.courseId);
     } else {
       this.editingRound = {
         id: `round-${crypto.randomUUID()}`,
@@ -92,12 +100,19 @@ export class EditRoundComponent {
     }
   }
 
+  public updateCurrentCourse(newCourseId: string): void {
+    console.log('selected course', newCourseId);
+    this.currentCourse = this.courseService.getCourse(newCourseId);
+  }
+
   public strokesPlusOne(index: number) {
     this.editingRound.strokes[index]++;
   }
 
   public strokesMinusOne(index: number) {
-    this.editingRound.strokes[index]--;
+    if (this.editingRound.strokes[index]) {
+      this.editingRound.strokes[index]--;
+    }
   }
 
   public puttsPlusOne(index: number) {

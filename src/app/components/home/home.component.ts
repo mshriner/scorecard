@@ -22,7 +22,7 @@ import { SnackBarService } from '../../services/snack-bar.service';
     ScoreToParPipe,
     DatePipe,
     MatButtonModule,
-    MatRippleModule
+    MatRippleModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

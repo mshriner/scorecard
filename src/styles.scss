@@ -30,11 +30,24 @@ body {
   justify-content: center;
 }
 
-.par-value {
-  width: 50px;
-  height: 48px;
+.par-value-box {
+  border-radius: 8px;
+  border: 1px gray solid;
+  padding: 4px;
+  width: 30px;
+  align-items: center;
+  display: grid;
 }
 
-th.center-text {
+th.center-text,
+td.center-text {
   text-align: center;
+}
+
+td.border-top {
+  border-top: solid 0.8px;
+  border-top-color: var(
+    --mat-table-row-item-outline-color,
+    var(--mat-app-outline, rgba(0, 0, 0, 0.12))
+  );
 }

@@ -5,20 +5,20 @@
 <br />
 <table mat-table [dataSource]="rounds()">
   <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
-    <th mat-header-cell *matHeaderCellDef>Date</th>
-    <td mat-cell *matCellDef="let round" matRipple>
+    <th mat-header-cell *matHeaderCellDef  class="center-text">Date</th>
+    <td mat-cell *matCellDef="let round" matRipple  class="center-text">
       {{ round.dateStringISO | date }}
     </td>
   </ng-container>
   <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
-    <th mat-header-cell *matHeaderCellDef>Course</th>
-    <td mat-cell *matCellDef="let round" matRipple>
+    <th mat-header-cell *matHeaderCellDef  class="center-text">Course</th>
+    <td mat-cell *matCellDef="let round" matRipple  class="center-text">
       {{ courseService.getCourseName(round.courseId) }}
     </td>
   </ng-container>
   <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
-    <th mat-header-cell *matHeaderCellDef>Score</th>
-    <td mat-cell *matCellDef="let round" matRipple>
+    <th mat-header-cell *matHeaderCellDef class="center-text">Score</th>
+    <td mat-cell *matCellDef="let round" matRipple class="center-text">
       {{ round | scoreToPar }}
     </td>
   </ng-container>

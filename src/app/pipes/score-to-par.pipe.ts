@@ -1,11 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Round } from '../models/round';
-import { Course } from '../models/course';
 import { CourseService } from '../services/course.service';
 
 @Pipe({
   name: 'scoreToPar',
   standalone: true,
+  pure: false,
 })
 export class ScoreToParPipe implements PipeTransform {
   constructor(private courseService: CourseService) {}
