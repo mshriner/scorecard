@@ -93,6 +93,10 @@ export class ProfilesComponent {
     );
   }
 
+  public reload(): void {
+    window.location.reload();
+  }
+
   public clearAllData(): void {
     this.router.navigateByUrl(APP_ROUTES.CLEAR_DATA);
   }
@@ -118,7 +122,11 @@ export class NewProfileDialog {
   readonly data = inject<string | null>(MAT_DIALOG_DATA);
   readonly profileName = model(this.data);
 
-  onNoClick(): void {
+  public onNoClick(): void {
     this.dialogRef.close();
+  }
+
+  public handleEnterKey(): void {
+    this.dialogRef.close(this.profileName());
   }
 }

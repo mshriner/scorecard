@@ -1,17 +1,14 @@
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course } from '../../models/course';
 import { ParPipe } from '../../pipes/par.pipe';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
-import { RoundService } from '../../services/round.service';
-import { SnackBarService } from '../../services/snack-bar.service';
-import { UserService } from '../../services/user.service';
-import { NAVIGATION_STATE_KEYS, APP_ROUTES } from '../../models/constants';
-import { MatRippleModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-course-list',
@@ -38,10 +35,7 @@ export class CourseListComponent implements OnInit {
 
   constructor(
     private appStateService: AppStateService,
-    private userService: UserService,
-    private roundService: RoundService,
     public courseService: CourseService,
-    private snackBarService: SnackBarService,
     private router: Router
   ) {}
 
@@ -50,6 +44,10 @@ export class CourseListComponent implements OnInit {
       `${this.appStateService.currentUser?.name}'s Courses`
     );
     this.courses.set(this.courseService.getAllCoursesForCurrentUser());
+  }
+
+  public addNewRound(): void {
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND);
   }
 
   public addNewCourse(): void {

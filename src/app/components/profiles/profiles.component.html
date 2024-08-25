@@ -35,12 +35,18 @@
   ></tr>
   <tr mat-row *matRowDef="let row; columns: ['username', 'delete']"></tr>
 </table>
+} @else {
+<div class="full-width-center">No profiles found</div>
 }
 <br />
 <div class="full-width-center">
-  <button mat-stroked-button (click)="addNewProfile()">Add Profile</button>
+  <button mat-stroked-button (click)="addNewProfile()">
+    <mat-icon>add</mat-icon>
+    Add Profile
+  </button>
 </div>
 <div class="full-width-center">
+  <br />
   <br />
   <br />
   <br />
@@ -48,8 +54,18 @@
   Advanced Options
 </div>
 <mat-divider></mat-divider>
+<br />
 <div class="full-width-center">
-  <br />
-  <button mat-stroked-button (click)="clearAllData()">Clear ALL Data</button>
-  <br />
+  <button mat-stroked-button (click)="reload()">
+    <mat-icon>refresh</mat-icon>
+    Check for Updates
+  </button>
 </div>
+<br />
+<div class="full-width-center">
+  <button mat-stroked-button (click)="clearAllData()">
+    <mat-icon>delete_forever</mat-icon>
+    Clear ALL App Data
+  </button>
+</div>
+<br />

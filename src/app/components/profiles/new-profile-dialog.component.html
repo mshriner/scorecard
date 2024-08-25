@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Add a new profile</h2>
 <mat-dialog-content>
-  <mat-form-field (keyup.enter)="profileName()">
+  <mat-form-field (keyup.enter)="handleEnterKey()">
     <mat-label>Profile Name</mat-label>
     <input matInput [(ngModel)]="profileName" />
   </mat-form-field>

@@ -1,8 +1,17 @@
-<div class="full-width-center">
-  <button mat-stroked-button (click)="addNewCourse()">New Course</button>
+<div class="full-width-center space-evenly">
+  <button mat-stroked-button (click)="addNewCourse()">
+    <mat-icon>add</mat-icon>
+    New Course
+  </button>
+  @if (courses().length) {
+  <button mat-stroked-button (click)="addNewRound()">
+    <mat-icon>add</mat-icon>
+    New Round
+  </button>
+  }
 </div>
-@if(courses().length) {
 <br />
+@if(courses().length) {
 <table mat-table [dataSource]="courses()">
   <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
     <th mat-header-cell *matHeaderCellDef>Course</th>
@@ -23,4 +32,6 @@
     (click)="viewCourse(course.id)"
   ></tr>
 </table>
+} @else {
+<div class="full-width-center">No golf courses created</div>
 }
