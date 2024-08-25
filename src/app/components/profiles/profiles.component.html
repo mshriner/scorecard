@@ -29,7 +29,7 @@
         aria-label="Remove profile"
         (click)="deleteProfile(user.id)"
       >
-        <mat-icon>do_not_disturb_on</mat-icon>
+        <mat-icon>delete</mat-icon>
       </button>
     </td>
   </ng-container>
@@ -40,6 +40,7 @@
   <tr mat-row *matRowDef="let row; columns: ['username', 'delete']"></tr>
 </table>
 } @else {
+<br />
 <div class="full-width-center">No profiles found</div>
 }
 <br />
