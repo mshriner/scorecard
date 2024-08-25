@@ -32,6 +32,7 @@ import {
 import { User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { UserService } from '../../services/user.service';
+import { SwUpdate } from '@angular/service-worker';
 
 @Component({
   selector: 'app-profiles',
@@ -55,7 +56,8 @@ export class ProfilesComponent {
   constructor(
     public appStateService: AppStateService,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private serviceWorker: SwUpdate
   ) {
     this.appStateService.setPageTitle('Profiles');
     this.profiles.set(this.userService.getAllUsers());
@@ -99,7 +101,9 @@ export class ProfilesComponent {
   }
 
   public reload(): void {
-    window.location.reload();
+    this.serviceWorker.checkForUpdate().finally(() => {
+      window.location.reload();
+    })
   }
 
   public clearAllData(): void {
