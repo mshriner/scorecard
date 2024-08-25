@@ -16,3 +16,5 @@ export const NAVIGATION_STATE_KEYS = {
   COURSE_ID_TO_EDIT: 'course-id-to-edit',
   ROUND_ID_TO_EDIT: 'round-id-to-edit',
 };
+
+export const CLEAR_ALL_APP_DATA = 'Clear ALL App Data'
