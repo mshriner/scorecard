@@ -1,10 +1,14 @@
-@if (appStateService.currentUser) {
-<mat-card appearance="outlined">
-  <mat-card-content>
-    Welcome, {{ appStateService.currentUser.name }}!
-  </mat-card-content>
-</mat-card>
-} @if(profiles().length) {
+<div class="full-width-center">
+  <mat-card appearance="outlined" class="center-text">
+    <mat-card-content>
+      @if (appStateService.currentUser) { Welcome,
+      {{ appStateService.currentUser.name }}! } @else { Welcome to the
+      {{ APP_NAME }} app! }
+    </mat-card-content>
+  </mat-card>
+</div>
+
+@if(profiles().length) {
 <table mat-table [dataSource]="profiles()">
   <ng-container matColumnDef="username">
     <th mat-header-cell *matHeaderCellDef>Profile</th>

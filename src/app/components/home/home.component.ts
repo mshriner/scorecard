@@ -58,6 +58,10 @@ export class HomeComponent implements OnInit {
     );
   }
 
+  public addNewCourse(): void {
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
+  }
+
   public addNewRound(): void {
     if (!this.courseService.getAllCoursesForCurrentUser()?.length) {
       this.snackBarService.openTemporarySnackBar('Please add a course first.');

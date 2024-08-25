@@ -51,11 +51,7 @@ export class CourseListComponent implements OnInit {
   }
 
   public addNewCourse(): void {
-    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
-      state: {
-        action: 'new course',
-      },
-    });
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
   }
 
   public viewCourse(courseId: string): void {

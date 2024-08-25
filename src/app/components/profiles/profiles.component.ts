@@ -24,7 +24,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { APP_ROUTES, CLEAR_ALL_APP_DATA } from '../../models/constants';
+import {
+  APP_NAME,
+  APP_ROUTES,
+  CLEAR_ALL_APP_DATA,
+} from '../../models/constants';
 import { User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { UserService } from '../../services/user.service';
@@ -46,6 +50,7 @@ import { UserService } from '../../services/user.service';
 export class ProfilesComponent {
   readonly profiles: WritableSignal<User[]> = signal([]);
   readonly dialog = inject(MatDialog);
+  readonly APP_NAME = APP_NAME;
 
   constructor(
     public appStateService: AppStateService,

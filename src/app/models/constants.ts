@@ -1,3 +1,5 @@
+export const APP_NAME = 'Scorecard';
+
 export const STORAGE_KEYS = {
   CURRENT_USER_ID: 'CURRENT_USER',
   ALL_USERS: 'ALL_USERS',
@@ -17,4 +19,4 @@ export const NAVIGATION_STATE_KEYS = {
   ROUND_ID_TO_EDIT: 'round-id-to-edit',
 };
 
-export const CLEAR_ALL_APP_DATA = 'Clear ALL App Data'
+export const CLEAR_ALL_APP_DATA = 'Clear ALL App Data';
