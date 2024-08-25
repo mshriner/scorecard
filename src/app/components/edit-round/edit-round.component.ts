@@ -11,6 +11,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AppStateService } from '../../services/app-state.service';
 import { Round } from '../../models/round';
+import { RoundService } from '../../services/round.service';
+import { MatSelectModule } from '@angular/material/select';
+import { ParPipe } from '../../pipes/par.pipe';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-edit-round',
@@ -22,77 +26,108 @@ import { Round } from '../../models/round';
     MatTableModule,
     MatIconModule,
     MatInputModule,
+    ParPipe,
+    MatSelectModule,
+    DatePipe,
   ],
+  providers: [DatePipe],
   templateUrl: './edit-round.component.html',
-  styleUrl: './edit-round.component.scss'
+  styleUrl: './edit-round.component.scss',
 })
 export class EditRoundComponent {
   public editingRound: Round;
-  private courseIdToEdit: string;
+  public coursesToChooseFrom: Course[];
+  private roundIdToEdit: string;
   public readonly HOLE_COL = 'hole';
   public readonly PAR_COL = 'par';
-  public readonly COURSE_TABLE_COLUMNS = [
+  public readonly PUTTS_COL = 'putts';
+  public readonly ROUND_TABLE_COLUMNS = [
     {
       columnDef: this.HOLE_COL,
       header: 'Hole',
-      holeNumberColumn: true,
     },
     {
       columnDef: this.PAR_COL,
       header: 'Par',
-      holeNumberColumn: false,
+    },
+    {
+      columnDef: this.PUTTS_COL,
+      header: 'Putts',
     },
   ];
-  public readonly COURSE_TABLE_COLUMN_IDS = this.COURSE_TABLE_COLUMNS.map(
+  public readonly ROUND_TABLE_COLUMN_IDS = this.ROUND_TABLE_COLUMNS.map(
     (def) => def.columnDef
   );
 
   constructor(
     private appStateService: AppStateService,
     private courseService: CourseService,
-    private router: Router
+    private roundService: RoundService,
+    private router: Router,
+    private datePipe: DatePipe
   ) {
-    this.courseIdToEdit =
+    this.coursesToChooseFrom = this.courseService.getAllCoursesForCurrentUser();
+    this.roundIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
-        NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
+        NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT
       ];
-    console.log(this.courseIdToEdit);
-    if (this.courseIdToEdit) {
-      const retrieved = this.courseService.getCourse(this.courseIdToEdit);
+    console.log(this.roundIdToEdit);
+    if (this.roundIdToEdit) {
+      const retrieved = this.roundService.getRoundsByIds([
+        this.roundIdToEdit,
+      ])[0];
       this.editingRound = JSON.parse(JSON.stringify(retrieved));
-      this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
+      this.appStateService.setPageTitle(
+        `Editing ${datePipe.transform(retrieved?.dateStringISO)}`
+      );
     } else {
       this.editingRound = {
-        id: `course-${crypto.randomUUID()}`,
-        par: new Array(18).fill(4),
-        name: '',
+        id: `round-${crypto.randomUUID()}`,
+        strokes: new Array(18).fill(0),
+        putts: new Array(18).fill(undefined),
+        courseId: '',
+        dateStringISO: new Date().toISOString(), // TODO: make editable
       };
-      this.appStateService.setPageTitle(`Create Course`);
+      this.appStateService.setPageTitle(`Create Round`);
     }
   }
 
-  public parPlusOne(index: number) {
-    this.editingRound.par[index]++;
+  public strokesPlusOne(index: number) {
+    this.editingRound.strokes[index]++;
   }
 
-  public parMinusOne(index: number) {
-    this.editingRound.par[index]--;
+  public strokesMinusOne(index: number) {
+    this.editingRound.strokes[index]--;
+  }
+
+  public puttsPlusOne(index: number) {
+    if (!this.editingRound.putts[index]) {
+      this.editingRound.putts[index] = 0;
+    }
+    this.editingRound.putts[index]++;
+  }
+
+  public puttsMinusOne(index: number) {
+    if (!this.editingRound.putts[index]) {
+      this.editingRound.putts[index] = 0;
+    } else {
+      this.editingRound.putts[index]--;
+    }
   }
 
   public get disableSaveButton(): boolean {
     return (
-      !this.editingRound.name.length ||
-      this.editingRound.par.some((hole) => (hole || 0) <= 0)
+      !this.editingRound.courseId.length ||
+      this.editingRound.strokes.some((hole) => (hole || 0) <= 0)
     );
   }
 
-  public saveCourse(): void {
-    if (!this.courseIdToEdit) {
-      this.appStateService.currentUser?.courseIds.push(this.editingRound.id);
+  public saveRound(): void {
+    if (!this.roundIdToEdit) {
+      this.appStateService.currentUser?.roundIds.push(this.editingRound.id);
     }
     this.appStateService.saveCurrentUser();
-    this.courseService.setCourse(this.editingRound);
-    this.router.navigateByUrl(APP_ROUTES.COURSES);
+    this.roundService.saveRounds([this.editingRound]);
+    this.router.navigateByUrl(APP_ROUTES.HOME);
   }
 }
-

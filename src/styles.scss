@@ -25,10 +25,15 @@ body {
 .hole-par-adjustment {
   text-wrap: nowrap;
   padding: 4px;
+  display: flex;
+  justify-content: center;
 }
 
 .par-value {
-  width: 100px;
+  width: 50px;
   height: 48px;
 }
 
+th.center-text {
+  text-align: center;
+}

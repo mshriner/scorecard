@@ -2,10 +2,10 @@ import { Routes } from '@angular/router';
 import { ClearDataComponent } from './components/clear-data/clear-data.component';
 import { CourseListComponent } from './components/course-list/course-list.component';
 import { EditCourseComponent } from './components/edit-course/edit-course.component';
+import { EditRoundComponent } from './components/edit-round/edit-round.component';
 import { HomeComponent } from './components/home/home.component';
 import { ProfilesComponent } from './components/profiles/profiles.component';
 import { APP_ROUTES } from './models/constants';
-import { EditRoundComponent } from './components/edit-round/edit-round.component';
 
 export const routes: Routes = [
   { path: APP_ROUTES.PROFILES, component: ProfilesComponent },

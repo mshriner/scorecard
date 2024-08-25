@@ -16,7 +16,13 @@ import { MatRippleModule } from '@angular/material/core';
 @Component({
   selector: 'app-course-list',
   standalone: true,
-  imports: [MatTableModule, MatIconModule, MatButtonModule, ParPipe, MatRippleModule],
+  imports: [
+    MatTableModule,
+    MatIconModule,
+    MatButtonModule,
+    ParPipe,
+    MatRippleModule,
+  ],
   templateUrl: './course-list.component.html',
   styleUrl: './course-list.component.scss',
 })
@@ -49,16 +55,16 @@ export class CourseListComponent implements OnInit {
   public addNewCourse(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
       state: {
-        action: 'new course'
-      }
+        action: 'new course',
+      },
     });
   }
 
   public viewCourse(courseId: string): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
       state: {
-        [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: courseId
-      }
-    })
+        [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: courseId,
+      },
+    });
   }
 }
