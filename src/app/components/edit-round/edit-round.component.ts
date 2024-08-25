@@ -39,7 +39,7 @@ export class EditRoundComponent {
   public coursesToChooseFrom: Course[];
   private roundIdToEdit: string;
   public readonly HOLE_COL = 'hole';
-  public readonly PAR_COL = 'par';
+  public readonly STROKES_COL = 'par';
   public readonly PUTTS_COL = 'putts';
   public readonly ROUND_TABLE_COLUMNS = [
     {
@@ -47,8 +47,8 @@ export class EditRoundComponent {
       header: 'Hole',
     },
     {
-      columnDef: this.PAR_COL,
-      header: 'Par',
+      columnDef: this.STROKES_COL,
+      header: 'Strokes',
     },
     {
       columnDef: this.PUTTS_COL,

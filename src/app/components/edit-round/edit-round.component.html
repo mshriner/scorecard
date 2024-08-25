@@ -21,7 +21,7 @@
       <td mat-cell *matCellDef="let row; let index = index" style="text-align: center; padding-inline: 4px;">
         @switch (column.columnDef) { @case (HOLE_COL) {
         {{ index + 1 }}
-        } @case (PAR_COL) {
+        } @case (STROKES_COL) {
         <div class="hole-par-adjustment ">
           <button
             mat-icon-button
