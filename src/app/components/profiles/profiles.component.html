@@ -62,8 +62,11 @@
 <br />
 <div class="full-width-center">
   <button mat-stroked-button (click)="reload()">
+    @if (showSpinner()) {
+    <mat-icon class="rotate">refresh</mat-icon>
+    } @else {
     <mat-icon>refresh</mat-icon>
-    Check for Updates
+    } Check for Updates
   </button>
 </div>
 <br />

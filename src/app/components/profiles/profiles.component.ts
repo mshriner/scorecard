@@ -24,6 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { SwUpdate } from '@angular/service-worker';
 import {
   APP_NAME,
   APP_ROUTES,
@@ -31,9 +32,8 @@ import {
 } from '../../models/constants';
 import { User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
-import { UserService } from '../../services/user.service';
-import { SwUpdate } from '@angular/service-worker';
 import { SnackBarService } from '../../services/snack-bar.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-profiles',
@@ -53,6 +53,7 @@ export class ProfilesComponent {
   readonly profiles: WritableSignal<User[]> = signal([]);
   readonly dialog = inject(MatDialog);
   readonly APP_NAME = APP_NAME;
+  public showSpinner = signal(false);
 
   constructor(
     public appStateService: AppStateService,
@@ -103,6 +104,7 @@ export class ProfilesComponent {
   }
 
   public reload(): void {
+    this.showSpinner.set(true);
     this.serviceWorker
       .checkForUpdate()
       .then(() => {
@@ -112,10 +114,8 @@ export class ProfilesComponent {
         this.snackBarService.openTemporarySnackBar(
           `Failed to refresh -- ${err}`
         );
-        setTimeout(() => {
-          window.location.reload();
-        }, 5000);
-      });
+      })
+      .finally(() => this.showSpinner.set(false));
   }
 
   public clearAllData(): void {
