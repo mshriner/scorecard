@@ -53,6 +53,7 @@ export class ProfilesComponent {
   readonly profiles: WritableSignal<User[]> = signal([]);
   readonly dialog = inject(MatDialog);
   readonly APP_NAME = APP_NAME;
+  readonly CLEAR_ALL = CLEAR_ALL_APP_DATA;
   public showSpinner = signal(false);
 
   constructor(
