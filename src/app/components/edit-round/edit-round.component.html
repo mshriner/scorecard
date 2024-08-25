@@ -98,7 +98,13 @@
   </table>
 
   <br />
-  <div class="full-width-center">
+  <div class="full-width-center space-evenly">
+    @if (roundIdToEdit) {
+    <button mat-stroked-button (click)="deleteRound()">
+      <mat-icon>delete</mat-icon>
+      Delete Round
+    </button>
+    }
     <button
       mat-stroked-button
       (click)="saveRound()"

@@ -44,7 +44,7 @@ export class EditRoundComponent {
   public editingRound: Round;
   public coursesToChooseFrom: Course[];
   public currentCourse: Course | null = null;
-  private roundIdToEdit: string;
+  public roundIdToEdit: string;
   public readonly HOLE_COL = 'hole';
   public readonly STROKES_COL = 'par';
   public readonly PUTTS_COL = 'putts';
@@ -135,6 +135,16 @@ export class EditRoundComponent {
       !this.editingRound.courseId.length ||
       this.editingRound.strokes.some((hole) => (hole || 0) <= 0)
     );
+  }
+
+  public deleteRound(): void {
+    const updatedCurrentUser = this.appStateService.currentUser;
+    if (updatedCurrentUser) {
+      updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(roundId => roundId !== this.roundIdToEdit);
+    }
+    this.appStateService.currentUser = updatedCurrentUser;
+    this.roundService.deleteRounds([this.roundIdToEdit]);
+    this.router.navigateByUrl(APP_ROUTES.HOME);
   }
 
   public saveRound(): void {

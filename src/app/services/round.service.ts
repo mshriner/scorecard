@@ -27,4 +27,10 @@ export class RoundService {
       ?.map((round) => this.localStorageService.setItem(round?.id, round))
       ?.every((result) => !!result);
   }
+
+  public deleteRounds(roundIdsToDelete: string[]): void {
+    roundIdsToDelete?.forEach((roundId) =>
+      this.localStorageService.removeItem(roundId)
+    );
+  }
 }
