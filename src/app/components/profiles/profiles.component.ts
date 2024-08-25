@@ -33,6 +33,7 @@ import { User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { UserService } from '../../services/user.service';
 import { SwUpdate } from '@angular/service-worker';
+import { SnackBarService } from '../../services/snack-bar.service';
 
 @Component({
   selector: 'app-profiles',
@@ -55,6 +56,7 @@ export class ProfilesComponent {
 
   constructor(
     public appStateService: AppStateService,
+    private snackBarService: SnackBarService,
     private userService: UserService,
     private router: Router,
     private serviceWorker: SwUpdate
@@ -101,9 +103,19 @@ export class ProfilesComponent {
   }
 
   public reload(): void {
-    this.serviceWorker.checkForUpdate().finally(() => {
-      window.location.reload();
-    })
+    this.serviceWorker
+      .checkForUpdate()
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((err) => {
+        this.snackBarService.openTemporarySnackBar(
+          `Failed to refresh -- ${err}`
+        );
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      });
   }
 
   public clearAllData(): void {

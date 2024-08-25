@@ -1,13 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet } from '@angular/router';
-import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { APP_ROUTES } from './models/constants';
 import { AppStateService } from './services/app-state.service';
 
@@ -23,12 +23,13 @@ import { AppStateService } from './services/app-state.service';
     MatDialogModule,
     MatIconModule,
     MatButtonModule,
-    SnackBarComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
+  private _snackBar = inject(MatSnackBar);
+
   constructor(public appStateService: AppStateService, private router: Router) {
     if (!this.appStateService.currentUser) {
       this.logout();
