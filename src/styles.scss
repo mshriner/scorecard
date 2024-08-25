@@ -44,8 +44,14 @@ body {
   display: grid;
 }
 
-.center-text {
+@mixin text-centering {
   text-align: center;
+}
+
+th.center-text,
+td.center-text,
+mat-card.center-text {
+  @include text-centering;
 }
 
 td.border-top {

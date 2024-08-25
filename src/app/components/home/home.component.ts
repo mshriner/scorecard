@@ -12,6 +12,7 @@ import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { SnackBarService } from '../../services/snack-bar.service';
+import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
 
 @Component({
   selector: 'app-home',
@@ -21,6 +22,7 @@ import { SnackBarService } from '../../services/snack-bar.service';
     MatIconModule,
     ScoreToParPipe,
     DatePipe,
+    TotalRoundScorePipe,
     MatButtonModule,
     MatRippleModule,
   ],
