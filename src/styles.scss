@@ -66,3 +66,7 @@ mat-form-field.almost-full-width-input {
   width: 90vw;
   max-width: 500px;
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
