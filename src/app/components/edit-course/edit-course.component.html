@@ -20,7 +20,9 @@
       </th>
       <td mat-cell *matCellDef="let row; let index = index" class="center-text">
         @switch (column.holeNumberColumn) { @case (true) {
-        {{ index + 1 }}
+        <b>
+          {{ index + 1 }}
+        </b>
         } @case (false) {
         <div class="hole-par-adjustment">
           <button
@@ -40,10 +42,12 @@
         } }
       </td>
       <td mat-footer-cell *matFooterCellDef class="center-text border-top">
-        @switch (column.holeNumberColumn) { @case (true) { Total } @case (false)
-        {
-        {{ editingCourse | par }}
-        } }
+        <b>
+          @switch (column.holeNumberColumn) { @case (true) { Total } @case
+          (false) {
+          {{ editingCourse | par }}
+          } }
+        </b>
       </td>
     </ng-container>
     }

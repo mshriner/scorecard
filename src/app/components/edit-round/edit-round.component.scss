@@ -1,7 +1,12 @@
 $score-graphic-size: 24px;
 
+@mixin smooth-transition {
+  transition: 0.2s;
+}
+
 .par-value-box {
   div.score-graphic {
+    @include smooth-transition;
     width: $score-graphic-size;
     height: $score-graphic-size;
     align-content: center;
