@@ -18,7 +18,7 @@ export class ClearDataComponent {
     this.localStorageService.clear();
     this.appStateService.setPageTitle('App Data Cleared! Reloading...');
     setTimeout(() => {
-      window.location.reload()
-    }, 3000)
+      window.location.reload();
+    }, 1750);
   }
 }
