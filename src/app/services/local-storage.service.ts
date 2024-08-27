@@ -27,7 +27,6 @@ export class LocalStorageService {
   // Get a value from local storage
   public getItem(key: string): any {
     const retrieved = localStorage.getItem(key);
-    console.log('retrieved', retrieved, 'at key', key);
     if (retrieved === null || !retrieved?.length) {
       return null;
     }

@@ -20,13 +20,15 @@
   <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
     <th mat-header-cell *matHeaderCellDef class="center-text">Course</th>
     <td mat-cell *matCellDef="let round" matRipple class="center-text">
-      {{ courseService.getCourseName(round.courseId) }}
+      {{ courseMap.get(round.courseId)?.name }}
     </td>
   </ng-container>
   <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
     <th mat-header-cell *matHeaderCellDef class="center-text">Score</th>
     <td mat-cell *matCellDef="let round" matRipple class="center-text">
-      {{ round | totalRoundScore }} ({{ round | scoreToPar }})
+      {{ round | totalRoundScore }} ({{
+        round | scoreToPar : courseMap.get(round.courseId)
+      }})
     </td>
   </ng-container>
   <tr mat-header-row *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"></tr>

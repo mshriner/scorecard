@@ -13,6 +13,7 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
+import { Course } from '../../models/course';
 
 @Component({
   selector: 'app-home',
@@ -31,6 +32,7 @@ import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
 })
 export class HomeComponent implements OnInit {
   public rounds: WritableSignal<Round[]> = signal([]);
+  public courseMap: Map<string, Course | null> = new Map();
 
   public readonly COURSE_NAME_COL = 'courseName';
   public readonly ROUND_DATE_COL = 'roundDate';
@@ -58,6 +60,12 @@ export class HomeComponent implements OnInit {
         this.appStateService.currentUser?.roundIds || []
       )
     );
+    this.rounds().forEach(round => {
+      if (!this.courseMap.has(round.courseId)) {
+        const course = this.courseService.getCourse(round.courseId);
+        this.courseMap.set(round.courseId, course)
+      }
+    })
   }
 
   public addNewCourse(): void {
