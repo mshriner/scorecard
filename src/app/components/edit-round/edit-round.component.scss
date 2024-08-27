@@ -1,0 +1,26 @@
+$score-graphic-size: 24px;
+
+.par-value-box {
+  div.score-graphic {
+    width: $score-graphic-size;
+    height: $score-graphic-size;
+    align-content: center;
+    justify-content: center;
+    &.double-bogey-or-worse {
+      border-radius: 0;
+      border: 6px double white;
+    }
+    &.bogey-score {
+      border-radius: 0;
+      border: 2px solid white;
+    }
+    &.birdie-score {
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+    &.eagle-or-better {
+      border-radius: 50%;
+      border: 6px double white;
+    }
+  }
+}

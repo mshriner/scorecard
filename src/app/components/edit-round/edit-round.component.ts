@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,7 @@ import { RoundService } from '../../services/round.service';
 import { TotalPuttsPipe } from '../../pipes/total-putts.pipe';
 import { ScoreToParPipe } from '../../pipes/score-to-par.pipe';
 import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
+import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 
 @Component({
   selector: 'app-edit-round',
@@ -35,6 +36,8 @@ import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
     DatePipe,
     TotalRoundScorePipe,
     TotalPuttsPipe,
+    CommonModule,
+    TypedTemplateDirective
   ],
   providers: [DatePipe],
   templateUrl: './edit-round.component.html',
@@ -65,6 +68,10 @@ export class EditRoundComponent {
   public readonly ROUND_TABLE_COLUMN_IDS = this.ROUND_TABLE_COLUMNS.map(
     (def) => def.columnDef
   );
+  public SCORE_GRAPHIC_TYPES!: {
+    score: number,
+    scoreToPar: number
+  }
 
   constructor(
     private appStateService: AppStateService,

@@ -42,7 +42,20 @@
             <mat-icon>remove</mat-icon>
           </button>
           <div class="par-value-box">
+            @if(editingRound.strokes[index] && currentCourse?.par?.[index]) {
+            <ng-container
+              *ngTemplateOutlet="
+                scoreGraphic;
+                context: {
+                  scoreToPar:
+                    editingRound.strokes[index] - currentCourse!.par[index],
+                  score: editingRound.strokes[index]
+                }
+              "
+            ></ng-container>
+            } @else {
             {{ editingRound.strokes[index] }}
+            }
           </div>
           <button
             mat-icon-button
@@ -116,3 +129,22 @@
   </div>
 </form>
 <br />
+
+<ng-template
+  #scoreGraphic
+  let-scoreToPar="scoreToPar"
+  let-score="score"
+  [typedTemplate]="SCORE_GRAPHIC_TYPES"
+>
+  <div
+    class="score-graphic"
+    [ngClass]="{
+      'double-bogey-or-worse': scoreToPar >= 2,
+      'bogey-score': scoreToPar === 1,
+      'birdie-score': scoreToPar === -1,
+      'eagle-or-better': scoreToPar <= -2
+    }"
+  >
+    {{ score }}
+  </div>
+</ng-template>
