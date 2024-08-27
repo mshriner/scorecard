@@ -1,5 +1,6 @@
 import { Directive, Input, TemplateRef } from '@angular/core';
 
+// https://stackoverflow.com/a/68318283
 @Directive({ selector: 'ng-template[typedTemplate]', standalone: true })
 export class TypedTemplateDirective<TypeToken> {
   // how you tell the directive what the type should be
