@@ -1,21 +1,19 @@
-import { Injectable, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
-import { LocalStorageService } from './local-storage.service';
-import { BehaviorSubject } from 'rxjs';
+import {
+  Injectable,
+  signal,
+  WritableSignal
+} from '@angular/core';
 import { User } from '../models/user';
-import { STORAGE_KEYS } from '../models/constants';
 import { UserService } from './user.service';
-import { Course } from '../models/course';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AppStateService  {
-
+export class AppStateService {
   private _currentUser: User | null = null;
   public pageTitle: WritableSignal<string> = signal('');
 
-  constructor(private userService: UserService) {
-  }
+  constructor(private userService: UserService) {}
 
   public get currentUser(): User | null {
     if (!this._currentUser) {
