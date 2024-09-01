@@ -2,9 +2,16 @@
 @import "@angular/material";
 @import "@angular/material/prebuilt-themes/cyan-orange.css";
 
+@supports (font: -apple-system-body) {
+  html {
+    font: -apple-system-body;
+  }
+}
+
 html,
 body {
   height: 100%;
+  font-size: 1rem;
   overscroll-behavior: none;
 }
 body {
