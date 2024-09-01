@@ -1,0 +1,72 @@
+/* You can add global styles to this file, and also import other style files */
+@import "@angular/material";
+@import "@angular/material/prebuilt-themes/cyan-orange.css";
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: var(
+    --mat-toolbar-container-background-color,
+    var(--mat-app-surface)
+  );
+  color: var(--mat-app-text-color);
+}
+
+.full-width-center {
+  width: 100%;
+  display: grid;
+  justify-content: center;
+}
+
+.space-evenly {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.hole-par-adjustment {
+  text-wrap: nowrap;
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+}
+
+.par-value-box {
+  border-radius: 8px;
+  border: 1px gray solid;
+  width: 40px;
+  align-items: center;
+  justify-content: center;
+  display: grid;
+}
+
+@mixin text-centering {
+  text-align: center;
+}
+
+th.center-text,
+td.center-text,
+mat-card.center-text {
+  @include text-centering;
+}
+
+td.border-top {
+  border-top: solid 0.8px;
+  border-top-color: var(
+    --mat-table-row-item-outline-color,
+    var(--mat-app-outline, rgba(0, 0, 0, 0.12))
+  );
+}
+
+mat-form-field.almost-full-width-input {
+  width: 90vw;
+  max-width: 500px;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}

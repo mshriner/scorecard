@@ -1,0 +1,25 @@
+<mat-toolbar color="primary">
+  @if (!isOnHomeScreen && appStateService.currentUser) {
+  <button mat-icon-button (click)="goToHome()">
+    <mat-icon>home</mat-icon>
+  </button>
+  }
+  <span class="title">
+    {{ appStateService.pageTitle() }}
+  </span>
+  <span class="spacer"> </span>
+  @if (appStateService.currentUser) { @if (!isOnCoursesScreen) {
+  <button mat-icon-button (click)="viewCourses()">
+    <mat-icon>golf_course</mat-icon>
+  </button>
+  &nbsp; }
+  <button mat-icon-button (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+  }
+</mat-toolbar>
+<div class="under-toolbar"></div>
+<div class="main-content">
+  <div class="main-content-padding"></div>
+  <router-outlet />
+</div>

@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>Add a new profile</h2>
+<mat-dialog-content>
+  <mat-form-field (keyup.enter)="handleEnterKey()">
+    <mat-label>Profile Name</mat-label>
+    <input matInput [(ngModel)]="profileName" cdkFocusInitial />
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button
+    mat-button
+    [disabled]="!profileName()?.length"
+    [mat-dialog-close]="profileName()"
+  >
+    Save
+  </button>
+</mat-dialog-actions>

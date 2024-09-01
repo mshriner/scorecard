@@ -1,0 +1,33 @@
+$main-padding: 8px;
+
+mat-toolbar {
+  padding-inline: 6px;
+  position: fixed;
+  height: var(--mat-toolbar-mobile-height);
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.title {
+  padding-left: 8px;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+}
+
+div.under-toolbar {
+  height: var(--mat-toolbar-mobile-height);
+}
+
+div.main-content {
+  height: calc(100% - var(--mat-toolbar-mobile-height));
+  overflow-y: auto;
+  div.main-content-padding {
+    padding-top: $main-padding;
+  }
+}
