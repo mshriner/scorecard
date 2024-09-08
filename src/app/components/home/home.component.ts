@@ -14,6 +14,7 @@ import { RoundService } from '../../services/round.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
 import { Course } from '../../models/course';
+import { PipesModule } from '../../pipes/pipes.module';
 
 @Component({
   selector: 'app-home',
@@ -21,9 +22,8 @@ import { Course } from '../../models/course';
   imports: [
     MatTableModule,
     MatIconModule,
-    ScoreToParPipe,
+    PipesModule,
     DatePipe,
-    TotalRoundScorePipe,
     MatButtonModule,
     MatRippleModule,
   ],

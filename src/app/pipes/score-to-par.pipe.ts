@@ -1,15 +1,18 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { Course } from '../models/course';
 import { Round } from '../models/round';
 import { CourseService } from '../services/course.service';
-import { Course } from '../models/course';
+import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 @Pipe({
   name: 'scoreToPar',
-  standalone: true,
   pure: false,
 })
 export class ScoreToParPipe implements PipeTransform {
-  constructor(private courseService: CourseService) {}
+  constructor(
+    private courseService: CourseService,
+    private roundVarietyScores: RoundVarietyScoresPipe
+  ) {}
 
   transform(round: Round, course?: Course | null): string {
     if (!course) {
@@ -18,7 +21,8 @@ export class ScoreToParPipe implements PipeTransform {
     if (!course) {
       throw new Error(`course with ID ${round.courseId} not found`);
     }
-    const toPar = round.strokes
+    const toPar = this.roundVarietyScores
+      .transform(round.strokes, round.roundVariety)
       .map(
         (holeScore, index) =>
           (holeScore || course.par[index]) - course.par[index]

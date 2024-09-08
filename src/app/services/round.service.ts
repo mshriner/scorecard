@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Round } from '../models/round';
+import { Round, RoundVariety } from '../models/round';
 import { LocalStorageService } from './local-storage.service';
 
 @Injectable({
@@ -24,7 +24,26 @@ export class RoundService {
 
   public saveRounds(updatedRounds: Round[]): boolean {
     return updatedRounds
-      ?.map((round) => this.localStorageService.setItem(round?.id, round))
+      ?.map((round) => {
+        // clear strokes and putts not used
+        switch (round?.roundVariety) {
+          case RoundVariety.BACK_NINE: {
+            for (let index = 0; index < 9; index++) {
+              delete round.putts[index];
+              round.strokes[index] = 0;
+            }
+            break;
+          }
+          case RoundVariety.FRONT_NINE: {
+            for (let index = 9; index < 18; index++) {
+              delete round.putts[index];
+              round.strokes[index] = 0;
+            }
+            break;
+          }
+        }
+        return this.localStorageService.setItem(round?.id, round);
+      })
       ?.every((result) => !!result);
   }
 

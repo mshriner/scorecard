@@ -11,6 +11,7 @@ import { Course } from '../../models/course';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { ParPipe } from '../../pipes/par.pipe';
+import { PipesModule } from '../../pipes/pipes.module';
 
 @Component({
   selector: 'app-edit-course',
@@ -22,7 +23,7 @@ import { ParPipe } from '../../pipes/par.pipe';
     MatTableModule,
     MatIconModule,
     MatInputModule,
-    ParPipe,
+    PipesModule,
   ],
   templateUrl: './edit-course.component.html',
   styleUrl: './edit-course.component.scss',
