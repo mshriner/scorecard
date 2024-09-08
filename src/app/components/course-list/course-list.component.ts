@@ -9,6 +9,7 @@ import { Course } from '../../models/course';
 import { ParPipe } from '../../pipes/par.pipe';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
+import { PipesModule } from '../../pipes/pipes.module';
 
 @Component({
   selector: 'app-course-list',
@@ -17,7 +18,7 @@ import { CourseService } from '../../services/course.service';
     MatTableModule,
     MatIconModule,
     MatButtonModule,
-    ParPipe,
+    PipesModule,
     MatRippleModule,
   ],
   templateUrl: './course-list.component.html',

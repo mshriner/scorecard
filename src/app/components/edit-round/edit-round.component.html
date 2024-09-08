@@ -13,9 +13,42 @@
         }
       </mat-select>
     </mat-form-field>
+    <mat-form-field class="almost-full-width-input">
+      <mat-label>Select Holes Played</mat-label>
+      <mat-select
+        [(value)]="editingRound.roundVariety"
+        (selectionChange)="updateRoundVariety($event.value)"
+      >
+        @for (variety of ROUND_VARIETIES; track $index) {
+        <mat-option value="{{ variety }}">{{
+          variety | roundVariety
+        }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="almost-full-width-input">
+      <mat-label>Change Date</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker3"
+        [value]="editingRound.dateStringISO"
+        (dateInput)="addEvent($event)"
+      />
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker3"
+      ></mat-datepicker-toggle>
+      <mat-datepicker touchUi #picker3></mat-datepicker>
+    </mat-form-field>
   </div>
 
-  <table mat-table [dataSource]="editingRound.strokes">
+  <table
+    mat-table
+    [dataSource]="
+      editingRound.strokes | roundVarietyScores : editingRound.roundVariety
+    "
+  >
     @for (column of ROUND_TABLE_COLUMNS; track $index) {
     <ng-container [matColumnDef]="column.columnDef">
       <th mat-header-cell *matHeaderCellDef class="center-text">
@@ -27,65 +60,16 @@
         class="center-text"
         style="padding-inline: 4px"
       >
-        @switch (column.columnDef) { @case (HOLE_COL) {
-        <b>{{ index + 1 }}</b>
-        @if (currentCourse?.par?.length) {
-        <br />
-        Par {{ currentCourse!.par[index] }}
-        } } @case (STROKES_COL) {
-        <div class="hole-par-adjustment">
-          <button
-            mat-icon-button
-            class="plusminus"
-            (click)="strokesMinusOne(index)"
-          >
-            <mat-icon>remove</mat-icon>
-          </button>
-          <div class="par-value-box">
-            @if(currentCourse?.par?.[index]) {
-            <ng-container
-              *ngTemplateOutlet="
-                scoreGraphic;
-                context: {
-                  scoreToPar:
-                    editingRound.strokes[index] - currentCourse!.par[index],
-                  score: editingRound.strokes[index]
-                }
-              "
-            ></ng-container>
-            } @else {
-            {{ editingRound.strokes[index] }}
+        <ng-container
+          *ngTemplateOutlet="
+            editRoundRow;
+            context: {
+              holeIndex:
+                index + (editingRound.roundVariety === BACK_NINE ? 9 : 0),
+              column: column
             }
-          </div>
-          <button
-            mat-icon-button
-            class="plusminus"
-            (click)="strokesPlusOne(index)"
-          >
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
-        } @case (PUTTS_COL) {
-        <div class="hole-par-adjustment">
-          <button
-            mat-icon-button
-            class="plusminus"
-            (click)="puttsMinusOne(index)"
-          >
-            <mat-icon>remove</mat-icon>
-          </button>
-          <div class="par-value-box">
-            {{ editingRound.putts[index] }}
-          </div>
-          <button
-            mat-icon-button
-            class="plusminus"
-            (click)="puttsPlusOne(index)"
-          >
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
-        } }
+          "
+        ></ng-container>
       </td>
       <td mat-footer-cell *matFooterCellDef class="center-text border-top">
         <b>
@@ -150,4 +134,67 @@
   >
     {{ score }}
   </div>
+</ng-template>
+
+<ng-template
+  #editRoundRow
+  let-holeIndex="holeIndex"
+  let-column="column"
+  [typedTemplate]="HOLE_ROW_TYPES"
+>
+  @switch (column.columnDef) { @case (HOLE_COL) {
+  <b>{{ holeIndex + 1 }}</b>
+  @if (currentCourse?.par?.length) {
+  <br />
+  Par {{ currentCourse!.par[holeIndex] }}
+  } } @case (STROKES_COL) {
+  <div class="hole-par-adjustment">
+    <button
+      mat-icon-button
+      class="plusminus"
+      (click)="strokesMinusOne(holeIndex)"
+    >
+      <mat-icon>remove</mat-icon>
+    </button>
+    <div class="par-value-box">
+      @if(currentCourse?.par?.[holeIndex]) {
+      <ng-container
+        *ngTemplateOutlet="
+          scoreGraphic;
+          context: {
+            scoreToPar:
+              editingRound.strokes[holeIndex] - currentCourse!.par[holeIndex],
+            score: editingRound.strokes[holeIndex]
+          }
+        "
+      ></ng-container>
+      } @else {
+      {{ editingRound.strokes[holeIndex] }}
+      }
+    </div>
+    <button
+      mat-icon-button
+      class="plusminus"
+      (click)="strokesPlusOne(holeIndex)"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+  } @case (PUTTS_COL) {
+  <div class="hole-par-adjustment">
+    <button
+      mat-icon-button
+      class="plusminus"
+      (click)="puttsMinusOne(holeIndex)"
+    >
+      <mat-icon>remove</mat-icon>
+    </button>
+    <div class="par-value-box">
+      {{ editingRound.putts[holeIndex] }}
+    </div>
+    <button mat-icon-button class="plusminus" (click)="puttsPlusOne(holeIndex)">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+  } }
 </ng-template>

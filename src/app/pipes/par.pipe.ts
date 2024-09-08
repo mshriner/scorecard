@@ -3,7 +3,6 @@ import { Course } from '../models/course';
 
 @Pipe({
   name: 'par',
-  standalone: true,
   pure: false,
 })
 export class ParPipe implements PipeTransform {

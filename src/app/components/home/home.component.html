@@ -40,4 +40,28 @@
 </table>
 } @else {
 <div class="full-width-center">No rounds of golf recorded</div>
+} @if (currentUser) {
+<br />
+<div class="full-width-center">
+  <mat-card appearance="outlined" class="center-text">
+    <mat-card-content>
+      <div>Set Font Size</div>
+      <mat-slider
+        class="font-slider"
+        max="2"
+        min="0"
+        discrete
+        showTickMarks
+        [displayWith]="formatLabel"
+      >
+        <input
+          matSliderThumb
+          [(ngModel)]="currentUser.appFontScaling"
+          #slider
+          (valueChange)="saveUser()"
+        />
+      </mat-slider>
+    </mat-card-content>
+  </mat-card>
+</div>
 }

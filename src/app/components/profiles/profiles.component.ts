@@ -29,11 +29,13 @@ import {
   APP_NAME,
   APP_ROUTES,
   CLEAR_ALL_APP_DATA,
+  DELETE_PROFILE,
 } from '../../models/constants';
 import { User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { UserService } from '../../services/user.service';
+import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
   selector: 'app-profiles',
@@ -45,6 +47,7 @@ import { UserService } from '../../services/user.service';
     MatCardModule,
     MatRippleModule,
     MatDividerModule,
+    AreYouSureDialogComponent,
   ],
   templateUrl: './profiles.component.html',
   styleUrl: './profiles.component.scss',
@@ -83,6 +86,7 @@ export class ProfilesComponent {
             name: newProfileName,
             roundIds: [],
             courseIds: [],
+            appFontScaling: 0,
           };
           this.profiles.set([...this.profiles(), newProfile]);
           this.userService.setUser(newProfile);
@@ -92,10 +96,19 @@ export class ProfilesComponent {
   }
 
   public deleteProfile(idToDelete: string): void {
-    this.profiles.set(
-      this.profiles().filter((profile) => profile.id !== idToDelete)
-    );
-    this.saveProfileList();
+    this.dialog
+      .open(AreYouSureDialogComponent, {
+        data: DELETE_PROFILE,
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.profiles.set(
+            this.profiles().filter((profile) => profile.id !== idToDelete)
+          );
+          this.saveProfileList();
+        }
+      });
   }
 
   private saveProfileList(): void {
@@ -121,46 +134,15 @@ export class ProfilesComponent {
 
   public clearAllData(): void {
     this.dialog
-      .open(ClearAllAppDataDialog)
+      .open(AreYouSureDialogComponent, {
+        data: CLEAR_ALL_APP_DATA,
+      })
       .afterClosed()
       .subscribe((confirmed) => {
         if (confirmed) {
           this.router.navigateByUrl(APP_ROUTES.CLEAR_DATA);
         }
       });
-  }
-}
-
-@Component({
-  selector: 'clear-all-dialog',
-  template: `
-    <h2 mat-dialog-title>{{ MESSAGE }}</h2>
-    <mat-dialog-content>
-      Are you sure? This will clear ALL profiles.
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-button (click)="onNoClick()" cdkFocusInitial>Cancel</button>
-      <button mat-button (click)="clear()">Clear All</button>
-    </mat-dialog-actions>
-  `,
-  standalone: true,
-  imports: [
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-  ],
-})
-export class ClearAllAppDataDialog {
-  readonly dialogRef = inject(MatDialogRef<ClearAllAppDataDialog>);
-  readonly MESSAGE = CLEAR_ALL_APP_DATA;
-
-  public onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  public clear(): void {
-    this.dialogRef.close(true);
   }
 }
 
