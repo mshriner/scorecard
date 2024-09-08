@@ -10,7 +10,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { TypedTemplateDirective } from '../../directives/typed-template.directive';
-import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
+import {
+  APP_ROUTES,
+  DELETE_ROUND,
+  NAVIGATION_STATE_KEYS,
+} from '../../models/constants';
 import { Course } from '../../models/course';
 import { Round, RoundVariety } from '../../models/round';
 import { PipesModule } from '../../pipes/pipes.module';
@@ -22,6 +26,8 @@ import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
 } from '@angular/material/datepicker';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 interface ColumnDef {
   columnDef: string;
@@ -44,6 +50,7 @@ interface ColumnDef {
     DatePipe,
     CommonModule,
     TypedTemplateDirective,
+    MatDialogModule,
   ],
   providers: [DatePipe, provideNativeDateAdapter()],
   templateUrl: './edit-round.component.html',
@@ -90,6 +97,7 @@ export class EditRoundComponent {
     private courseService: CourseService,
     private roundService: RoundService,
     private router: Router,
+    private dialog: MatDialog,
     datePipe: DatePipe
   ) {
     this.coursesToChooseFrom = this.courseService.getAllCoursesForCurrentUser();
@@ -178,15 +186,24 @@ export class EditRoundComponent {
   }
 
   public deleteRound(): void {
-    const updatedCurrentUser = this.appStateService.currentUser;
-    if (updatedCurrentUser) {
-      updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(
-        (roundId) => roundId !== this.roundIdToEdit
-      );
-    }
-    this.appStateService.currentUser = updatedCurrentUser;
-    this.roundService.deleteRounds([this.roundIdToEdit]);
-    this.router.navigateByUrl(APP_ROUTES.HOME);
+    this.dialog
+      .open(AreYouSureDialogComponent, {
+        data: DELETE_ROUND,
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          const updatedCurrentUser = this.appStateService.currentUser;
+          if (updatedCurrentUser) {
+            updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(
+              (roundId) => roundId !== this.roundIdToEdit
+            );
+          }
+          this.appStateService.currentUser = updatedCurrentUser;
+          this.roundService.deleteRounds([this.roundIdToEdit]);
+          this.router.navigateByUrl(APP_ROUTES.HOME);
+        }
+      });
   }
 
   public saveRound(): void {
