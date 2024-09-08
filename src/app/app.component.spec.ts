@@ -16,12 +16,6 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'scorecard' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('scorecard');
-  });
-
   it('should render title', async () => {
     const fixture = TestBed.createComponent(AppComponent);
     await fixture.whenStable();

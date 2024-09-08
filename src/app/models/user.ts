@@ -4,4 +4,5 @@ export interface User extends StorageObject {
   name: string;
   roundIds: string[];
   courseIds: string[];
+  appFontScaling: number;
 }

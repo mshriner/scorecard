@@ -86,6 +86,7 @@ export class ProfilesComponent {
             name: newProfileName,
             roundIds: [],
             courseIds: [],
+            appFontScaling: 0,
           };
           this.profiles.set([...this.profiles(), newProfile]);
           this.userService.setUser(newProfile);

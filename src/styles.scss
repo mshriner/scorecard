@@ -1,6 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 @import "@angular/material";
-@import "@angular/material/prebuilt-themes/cyan-orange.css";
+
+// :root {
+//   @include mat.all-component-themes($angular-material-theming-css-vars-theme);
+
+//   @include mat.typography-hierarchy($angular-material-theming-css-vars-theme);
+
+//   @include mat.system-level-colors($angular-material-theming-css-vars-theme);
+//   @include mat.system-level-typography($angular-material-theming-css-vars-theme);
+// }
 
 html,
 body {
