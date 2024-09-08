@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  signal,
-  WritableSignal
-} from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { User } from '../models/user';
 import { UserService } from './user.service';
 
@@ -18,6 +14,7 @@ export class AppStateService {
   public get currentUser(): User | null {
     if (!this._currentUser) {
       this._currentUser = this.userService.getCurrentUser();
+      this.updateFontSize();
     }
     return this._currentUser;
   }
@@ -28,7 +25,14 @@ export class AppStateService {
 
   public set currentUser(nextUser: User | null) {
     this._currentUser = nextUser;
+    this.updateFontSize();
     this.userService.setCurrentUser(nextUser);
+  }
+
+  private updateFontSize(): void {
+    document.documentElement.style.fontSize = `${
+      100 + 15 * (this._currentUser?.appFontScaling || 0)
+    }%`;
   }
 
   public setPageTitle(newTitle: string): void {
