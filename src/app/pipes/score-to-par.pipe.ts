@@ -22,11 +22,11 @@ export class ScoreToParPipe implements PipeTransform {
       throw new Error(`course with ID ${round.courseId} not found`);
     }
     const toPar = this.roundVarietyScores
-      .transform(round.strokes, round.roundVariety)
-      .map(
+      .transform(round.strokes.map(
         (holeScore, index) =>
           (holeScore || course.par[index]) - course.par[index]
-      )
+      ), round.roundVariety)
+      
       .reduce((prev, curr) => prev + curr);
     if (toPar > 0) {
       return `+${toPar}`;

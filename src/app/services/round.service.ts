@@ -19,7 +19,13 @@ export class RoundService {
           return retrieved as Round;
         })
         ?.filter((value) => !!value) || ([] as Round[])
-    );
+    ).map((round) => {
+      // setting defult values
+      if (!round.roundVariety) {
+        round.roundVariety = RoundVariety.EIGHTEEN;
+      }
+      return round;
+    });
   }
 
   public saveRounds(updatedRounds: Round[]): boolean {
