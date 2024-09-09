@@ -173,15 +173,7 @@ export class EditRoundComponent {
     return (
       !this.editingRound.dateStringISO ||
       !this.editingRound.roundVariety ||
-      !this.editingRound.courseId.length ||
-      this.editingRound.strokes.some(
-        (hole, index) =>
-          (hole || 0) <= 0 &&
-          ((index < 9 &&
-            this.editingRound.roundVariety !== RoundVariety.BACK_NINE) ||
-            (index >= 9 &&
-              this.editingRound.roundVariety !== RoundVariety.FRONT_NINE))
-      )
+      !this.editingRound.courseId.length
     );
   }
 

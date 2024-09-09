@@ -95,6 +95,8 @@ export class HomeComponent implements OnInit {
 
   public formatLabel(value?: number): string {
     switch (value) {
+      case 3:
+        return 'XL';
       case 2:
         return 'L';
       case 1:

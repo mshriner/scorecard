@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Round } from '../models/round';
+import { Round, RoundVariety } from '../models/round';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 @Pipe({
@@ -9,9 +9,22 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 export class TotalRoundScorePipe implements PipeTransform {
   constructor(private roundVarietyScores: RoundVarietyScoresPipe) {}
 
-  transform(round: Round): number {
-    return this.roundVarietyScores
-      .transform(round.strokes, round.roundVariety)
-      .reduce((prev, curr) => prev + curr);
+  transform(round: Round): string {
+    const validStrokes = this.roundVarietyScores.transform(
+      round.strokes,
+      round.roundVariety
+    );
+    const numberOfUncompletedHoles = validStrokes.filter(
+      (hole) => (hole || 0) <= 0
+    ).length;
+    if (numberOfUncompletedHoles) {
+      return `Thru ${
+        round.roundVariety != RoundVariety.EIGHTEEN
+          ? 9 - numberOfUncompletedHoles
+          : 18 - numberOfUncompletedHoles
+      }`;
+    }
+
+    return `${validStrokes.reduce((prev, curr) => prev + curr)}`;
   }
 }
