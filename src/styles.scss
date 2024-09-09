@@ -5,7 +5,10 @@ html,
 body {
   height: 100%;
   overscroll-behavior: none;
-  -webkit-text-size-adjust: 100%;
+  -webkit-text-size-adjust: none;
+  font-size-adjust: none;
+  width: 100vw;
+  zoom: 1.0;
 }
 body {
   margin: 0;
