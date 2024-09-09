@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
-      `${this.appStateService.currentUser?.name}`
+      `${this.appStateService.currentUser?.name?.trim()}'s Rounds`
     );
     this.rounds.set(
       this.roundService.getRoundsByIds(
@@ -95,6 +95,8 @@ export class HomeComponent implements OnInit {
 
   public formatLabel(value?: number): string {
     switch (value) {
+      case 3:
+        return 'XL';
       case 2:
         return 'L';
       case 1:

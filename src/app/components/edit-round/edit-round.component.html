@@ -76,9 +76,9 @@
           @switch (column.columnDef) { @case (HOLE_COL) { Total } @case
           (STROKES_COL) {
           {{ editingRound | totalRoundScore }}
-          @if (currentCourse) { ({{
-            editingRound | scoreToPar : currentCourse
-          }}) } } @case (PUTTS_COL) {
+          @if (currentCourse) { <br />
+          ({{ editingRound | scoreToPar : currentCourse }}) } } @case
+          (PUTTS_COL) {
           {{ editingRound | totalPutts }}
           } }
         </b>
