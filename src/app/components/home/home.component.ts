@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
-      `${this.appStateService.currentUser?.name}`
+      `${this.appStateService.currentUser?.name?.trim()}'s Rounds`
     );
     this.rounds.set(
       this.roundService.getRoundsByIds(
