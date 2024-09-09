@@ -32,7 +32,7 @@ export class AppComponent {
 
   constructor(public appStateService: AppStateService, private router: Router) {
     document.body.style.zoom = '1.0';
-    // document.body.style.webkitTextSizeAdjust = '100%'
+    document.body.style.webkitTextSizeAdjust = '100%'
     if (!this.appStateService.currentUser) {
       this.logout();
     }
