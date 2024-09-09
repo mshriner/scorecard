@@ -39,6 +39,7 @@ export class HomeComponent implements OnInit {
   public rounds: WritableSignal<Round[]> = signal([]);
   public courseMap: Map<string, Course | null> = new Map();
   public currentUser: User | null;
+  public smallerButtons: boolean;
 
   public readonly COURSE_NAME_COL = 'courseName';
   public readonly ROUND_DATE_COL = 'roundDate';
@@ -57,6 +58,7 @@ export class HomeComponent implements OnInit {
     private router: Router
   ) {
     this.currentUser = this.appStateService.currentUser;
+    this.smallerButtons = this.appStateService.useSmallerButtons;
   }
 
   ngOnInit(): void {

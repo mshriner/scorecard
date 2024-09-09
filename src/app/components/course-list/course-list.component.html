@@ -1,12 +1,12 @@
 <div class="full-width-center space-evenly">
   <button mat-stroked-button (click)="addNewCourse()">
     <mat-icon>add</mat-icon>
-    New Course
+    @if(!smallerButtons){ New } Course
   </button>
   @if (courses().length) {
   <button mat-stroked-button (click)="addNewRound()">
     <mat-icon>add</mat-icon>
-    New Round
+    @if(!smallerButtons){ New } Round
   </button>
   }
 </div>

@@ -29,6 +29,10 @@ export class AppStateService {
     this.userService.setCurrentUser(nextUser);
   }
 
+  public get useSmallerButtons(): boolean {
+    return (this.currentUser?.appFontScaling || 0) > 2;
+  }
+
   private updateFontSize(): void {
     document.documentElement.style.fontSize = `${
       100 + 15 * (this._currentUser?.appFontScaling || 0)

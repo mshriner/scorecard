@@ -6,10 +6,9 @@ import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course } from '../../models/course';
-import { ParPipe } from '../../pipes/par.pipe';
+import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
-import { PipesModule } from '../../pipes/pipes.module';
 
 @Component({
   selector: 'app-course-list',
@@ -26,6 +25,7 @@ import { PipesModule } from '../../pipes/pipes.module';
 })
 export class CourseListComponent implements OnInit {
   public courses: WritableSignal<Course[]> = signal([]);
+  public smallerButtons: boolean;
 
   public readonly COURSE_NAME_COL = 'courseName';
   public readonly COURSE_PAR_COL = 'coursePar';
@@ -38,7 +38,9 @@ export class CourseListComponent implements OnInit {
     private appStateService: AppStateService,
     public courseService: CourseService,
     private router: Router
-  ) {}
+  ) {
+    this.smallerButtons = this.appStateService.useSmallerButtons;
+  }
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
