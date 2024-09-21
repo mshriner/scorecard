@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,11 +12,10 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet } from '@angular/router';
+import { SwUpdate } from '@angular/service-worker';
 import { APP_ROUTES } from './models/constants';
 import { AppStateService } from './services/app-state.service';
 import { SnackBarService } from './services/snack-bar.service';
-import { Location } from '@angular/common';
-import { SwUpdate } from '@angular/service-worker';
 
 @Component({
   selector: 'app-root',
