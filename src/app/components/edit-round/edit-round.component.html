@@ -45,10 +45,12 @@
 
   <table
     mat-table
+    multiTemplateDataRows
     [dataSource]="
       editingRound.strokes | roundVarietyScores : editingRound.roundVariety
     "
   >
+    <!-- score rows -->
     @for (column of ROUND_TABLE_COLUMNS; track $index) {
     <ng-container [matColumnDef]="column.columnDef">
       <th mat-header-cell *matHeaderCellDef class="center-text">
@@ -56,32 +58,63 @@
       </th>
       <td
         mat-cell
-        *matCellDef="let row; let index = index"
+        *matCellDef="let row; let rowIndex = dataIndex"
         class="center-text"
-        style="padding-inline: 4px"
       >
         <ng-container
           *ngTemplateOutlet="
             editRoundRow;
             context: {
               holeIndex:
-                index + (editingRound.roundVariety === BACK_NINE ? 9 : 0),
+                rowIndex + (editingRound.roundVariety === BACK_NINE ? 9 : 0),
               column: column
             }
           "
         ></ng-container>
       </td>
-      <td mat-footer-cell *matFooterCellDef class="center-text border-top">
+      <td
+        mat-footer-cell
+        *matFooterCellDef
+        class="center-text border-top thick-top-border"
+      >
+        @switch (column.columnDef) { @case (HOLE_COL) { <b> Total </b> @if
+        (currentCourse) { <br />
+        <div>Par {{ currentCourse | par : editingRound }}</div>
+        } } @case (STROKES_COL) {
         <b>
-          @switch (column.columnDef) { @case (HOLE_COL) { Total } @case
-          (STROKES_COL) {
           {{ editingRound | totalRoundScore }}
-          @if (currentCourse) { <br />
-          ({{ editingRound | scoreToPar : currentCourse }}) } } @case
-          (PUTTS_COL) {
-          {{ editingRound | totalPutts }}
-          } }
         </b>
+        @if (currentCourse) { <br />
+        <b> ({{ editingRound | scoreToPar : currentCourse }}) </b>
+        } } @case (PUTTS_COL) {
+        <b>
+          {{ editingRound | totalPutts }}
+        </b>
+        } }
+      </td>
+    </ng-container>
+    }
+
+    <!-- summary row -->
+    @for (column of ROUND_TABLE_SUMMARY_COLUMN_IDS; track $index) {
+    <ng-container [matColumnDef]="column">
+      <td
+        mat-cell
+        *matCellDef="let row; let rowIndex = dataIndex"
+        class="center-text thick-bottom-border"
+      >
+        <ng-container
+          *ngTemplateOutlet="
+            roundSummaryRow;
+            context: {
+              outOrIn:
+                rowIndex === 17 || editingRound.roundVariety === BACK_NINE
+                  ? BACK_NINE
+                  : FRONT_NINE,
+              columnId: column
+            }
+          "
+        ></ng-container>
       </td>
     </ng-container>
     }
@@ -90,7 +123,18 @@
       mat-header-row
       *matHeaderRowDef="ROUND_TABLE_COLUMN_IDS; sticky: true"
     ></tr>
-    <tr mat-row *matRowDef="let row; columns: ROUND_TABLE_COLUMN_IDS"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ROUND_TABLE_COLUMN_IDS; when: returnTrue"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="
+        let row;
+        columns: ROUND_TABLE_SUMMARY_COLUMN_IDS;
+        when: showSummaryRow
+      "
+    ></tr>
     <tr
       mat-footer-row
       *matFooterRowDef="ROUND_TABLE_COLUMN_IDS; sticky: true"
@@ -196,5 +240,26 @@
       <mat-icon>add</mat-icon>
     </button>
   </div>
+  } }
+</ng-template>
+
+<ng-template
+  #roundSummaryRow
+  let-outOrIn="outOrIn"
+  let-columnId="columnId"
+  [typedTemplate]="SUMMARY_ROW_TYPES"
+>
+  @switch (columnId) { @case (HOLE_SUMMARY_COL) { @if (outOrIn === FRONT_NINE) {
+  Out } @else { In } @if (currentCourse) { <br />
+  <div>
+    Par
+    {{ currentCourse | par : editingRound : outOrIn }}
+  </div>
+  } } @case (STROKES_SUMMARY_COL) {
+  {{ editingRound | totalRoundScore : outOrIn }}
+  @if (currentCourse) { <br />
+  ({{ editingRound | scoreToPar : currentCourse : outOrIn }}) } } @case
+  (PUTTS_SUMMARY_COL) {
+  {{ editingRound | totalPutts : outOrIn }}
   } }
 </ng-template>

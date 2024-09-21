@@ -12,6 +12,7 @@ import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { ParPipe } from '../../pipes/par.pipe';
 import { PipesModule } from '../../pipes/pipes.module';
+import { RoundVariety } from '../../models/round';
 
 @Component({
   selector: 'app-edit-course',
@@ -31,23 +32,26 @@ import { PipesModule } from '../../pipes/pipes.module';
 export class EditCourseComponent {
   public editingCourse: Course;
   private courseIdToEdit: string;
+  public readonly BACK_NINE = RoundVariety.BACK_NINE;
+  public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
   public readonly HOLE_COL = 'hole';
   public readonly PAR_COL = 'par';
+  public readonly HOLE_SUMMARY_COL = 'holeSummary';
+  public readonly PAR_SUMMARY_COL = 'parSummary';
   public readonly COURSE_TABLE_COLUMNS = [
     {
       columnDef: this.HOLE_COL,
       header: 'Hole',
-      holeNumberColumn: true,
     },
     {
       columnDef: this.PAR_COL,
       header: 'Par',
-      holeNumberColumn: false,
     },
   ];
   public readonly COURSE_TABLE_COLUMN_IDS = this.COURSE_TABLE_COLUMNS.map(
     (def) => def.columnDef
   );
+  public readonly COURSE_TABLE_SUMMARY_COLUMN_IDS = [this.HOLE_SUMMARY_COL, this.PAR_SUMMARY_COL];
 
   constructor(
     private appStateService: AppStateService,
@@ -76,11 +80,19 @@ export class EditCourseComponent {
   public parPlusOne(index: number) {
     this.editingCourse.par[index]++;
   }
-  
+
   public parMinusOne(index: number) {
     if (this.editingCourse.par[index]) {
       this.editingCourse.par[index]--;
     }
+  }
+
+  public showSummaryRow(index: number): boolean {
+    return (index + 1) % 9 === 0;
+  }
+
+  public returnTrue(): boolean {
+    return true;
   }
 
   public get disableSaveButton(): boolean {

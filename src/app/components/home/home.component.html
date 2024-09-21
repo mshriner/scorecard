@@ -1,11 +1,11 @@
 <div class="full-width-center space-evenly">
   <button mat-stroked-button (click)="addNewCourse()">
     <mat-icon>add</mat-icon>
-    @if(!smallerButtons){ New } Course
+    @if(!appStateService.useSmallerButtons()){ New } Course
   </button>
   <button mat-stroked-button (click)="addNewRound()">
     <mat-icon>add</mat-icon>
-    @if(!smallerButtons){ New } Round
+    @if(!appStateService.useSmallerButtons()){ New } Round
   </button>
 </div>
 <br />
@@ -45,7 +45,7 @@
 <div class="full-width-center">
   <mat-card appearance="outlined" class="center-text">
     <mat-card-content>
-      <div>Set Font Size</div>
+      <div>Set Text Size</div>
       <mat-slider
         class="font-slider"
         max="3"

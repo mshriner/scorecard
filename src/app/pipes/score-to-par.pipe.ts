@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Course } from '../models/course';
-import { Round } from '../models/round';
+import { Round, RoundVariety } from '../models/round';
 import { CourseService } from '../services/course.service';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
@@ -14,7 +14,7 @@ export class ScoreToParPipe implements PipeTransform {
     private roundVarietyScores: RoundVarietyScoresPipe
   ) {}
 
-  transform(round: Round, course?: Course | null): string {
+  transform(round: Round, course?: Course | null, half?: RoundVariety): string {
     if (!course) {
       course = this.courseService.getCourse(round.courseId);
     }
@@ -27,7 +27,7 @@ export class ScoreToParPipe implements PipeTransform {
           (holeScore, index) =>
             (holeScore || course.par[index]) - course.par[index]
         ),
-        round.roundVariety
+        half || round.roundVariety
       )
       .reduce((prev, curr) => prev + curr);
     if (toPar > 0) {
