@@ -29,6 +29,13 @@ body {
 .space-evenly {
   display: flex;
   justify-content: space-evenly;
+
+  &.padding-inline-4 {
+    div,
+    mat-card {
+      margin-inline: 4px;
+    }
+  }
 }
 
 .hole-par-adjustment {

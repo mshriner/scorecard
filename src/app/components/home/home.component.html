@@ -10,6 +10,34 @@
 </div>
 <br />
 @if(rounds().length) {
+
+<div class="full-width-center space-evenly padding-inline-4">
+  <mat-card appearance="outlined" class="center-text">
+    <mat-card-title></mat-card-title>
+    <mat-card-content>
+      <sub>Avg. 9-Hole Score:</sub>
+      <h6>
+        {{ rounds() | averageScore : 9 }} ({{
+          rounds() | averageScoreToPar : courseMap : 9
+        }})
+      </h6>
+    </mat-card-content>
+  </mat-card>
+  <mat-card appearance="outlined" class="center-text">
+    <mat-card-title></mat-card-title>
+    <mat-card-content>
+      <sub>Avg. 18-Hole Score:</sub>
+      <h6>
+        {{ rounds() | averageScore : 18 }} ({{
+          rounds() | averageScoreToPar : courseMap : 18
+        }})
+      </h6>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<br />
+
 <table mat-table [dataSource]="rounds()">
   <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
     <th mat-header-cell *matHeaderCellDef class="center-text">Date</th>
