@@ -58,6 +58,8 @@
     </mat-form-field>
   </div>
 
+  <ng-container *ngTemplateOutlet="saveActions"></ng-container>
+
   <table
     mat-table
     multiTemplateDataRows
@@ -157,22 +159,7 @@
   </table>
 
   <br />
-  <div class="full-width-center space-evenly">
-    @if (roundIdToEdit) {
-    <button mat-stroked-button (click)="deleteRound()">
-      <mat-icon>delete</mat-icon>
-      Delete Round
-    </button>
-    }
-    <button
-      mat-stroked-button
-      (click)="saveRound()"
-      [disabled]="disableSaveButton"
-    >
-      <mat-icon>save</mat-icon>
-      Save
-    </button>
-  </div>
+  <ng-container *ngTemplateOutlet="saveActions"></ng-container>
 </form>
 <br />
 
@@ -277,4 +264,23 @@
   (PUTTS_SUMMARY_COL) {
   {{ editingRound | totalPutts : outOrIn }}
   } }
+</ng-template>
+
+<ng-template #saveActions>
+  <div class="full-width-center space-evenly">
+    @if (roundIdToEdit) {
+    <button mat-stroked-button (click)="deleteRound()">
+      <mat-icon>delete</mat-icon>
+      Delete Round
+    </button>
+    }
+    <button
+      mat-stroked-button
+      (click)="saveRound()"
+      [disabled]="disableSaveButton"
+    >
+      <mat-icon>save</mat-icon>
+      Save
+    </button>
+  </div>
 </ng-template>
