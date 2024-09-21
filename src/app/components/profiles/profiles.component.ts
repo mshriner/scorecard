@@ -57,6 +57,7 @@ export class ProfilesComponent {
   readonly dialog = inject(MatDialog);
   readonly APP_NAME = APP_NAME;
   readonly CLEAR_ALL = CLEAR_ALL_APP_DATA;
+  public readonly PROFILE_TABLE_COLUMNS = ['username', 'delete'];
   public showSpinner = signal(false);
 
   constructor(

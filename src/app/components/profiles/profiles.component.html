@@ -10,8 +10,17 @@
 
 @if(profiles().length) {
 <table mat-table [dataSource]="profiles()">
+  <ng-container matColumnDef="header">
+    <th
+      mat-header-cell
+      [attr.colspan]="PROFILE_TABLE_COLUMNS.length"
+      *matHeaderCellDef
+    >
+      Please select a profile below.
+    </th>
+  </ng-container>
+
   <ng-container matColumnDef="username">
-    <th mat-header-cell *matHeaderCellDef>Please select a profile below.</th>
     <td
       mat-cell
       mat-ripple
@@ -33,11 +42,8 @@
       </button>
     </td>
   </ng-container>
-  <tr
-    mat-header-row
-    *matHeaderRowDef="['username', 'delete']; sticky: true"
-  ></tr>
-  <tr mat-row *matRowDef="let row; columns: ['username', 'delete']"></tr>
+  <tr mat-header-row *matHeaderRowDef="['header']; sticky: true"></tr>
+  <tr mat-row *matRowDef="let row; columns: PROFILE_TABLE_COLUMNS"></tr>
 </table>
 } @else {
 <br />

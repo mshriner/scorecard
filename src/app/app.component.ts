@@ -14,6 +14,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { APP_ROUTES } from './models/constants';
 import { AppStateService } from './services/app-state.service';
 import { SnackBarService } from './services/snack-bar.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -43,6 +44,7 @@ export class AppComponent {
   constructor(
     public appStateService: AppStateService,
     private router: Router,
+    private location: Location,
     private snackBarService: SnackBarService
   ) {
     if (!this.isOnProfilesScreen && !this.appStateService.currentUser) {
@@ -55,6 +57,10 @@ export class AppComponent {
     this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
       this.sidenav.close();
     });
+  }
+
+  public goBack(): void {
+    this.location.back();
   }
 
   public goToHome(): void {
@@ -79,6 +85,10 @@ export class AppComponent {
 
   public get isOnProfilesScreen(): boolean {
     return this.router.url === `/${APP_ROUTES.PROFILES}`;
+  }
+
+  public get isOnWipeDataScreen(): boolean {
+    return this.router.url === `/${APP_ROUTES.CLEAR_DATA}`;
   }
 
   public addNewCourse(): void {
