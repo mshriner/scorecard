@@ -46,14 +46,6 @@ export class CourseListComponent implements OnInit {
     this.courses.set(this.courseService.getAllCoursesForCurrentUser());
   }
 
-  public addNewRound(): void {
-    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND);
-  }
-
-  public addNewCourse(): void {
-    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
-  }
-
   public viewCourse(courseId: string): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
       state: {

@@ -31,3 +31,34 @@ div.main-content {
     padding-top: $main-padding;
   }
 }
+
+div.flex-menu-option {
+  display: inline-flex;
+  justify-items: center;
+  align-items: center;
+  * {
+    padding: 8px;
+  }
+  width: 100%;
+}
+
+.sidenav {
+  max-width: 75vw;
+  display: block;
+}
+
+mat-divider {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+h6 {
+  margin: 0;
+}
+
+.logout-option {
+  display: block;
+  position: absolute;
+  bottom: 0;
+  width: calc(100% - 16px);
+}

@@ -1,15 +1,8 @@
-<div class="full-width-center space-evenly">
-  <button mat-stroked-button (click)="addNewCourse()">
-    <mat-icon>add</mat-icon>
-    @if(!appStateService.useSmallerButtons()){ New } Course
-  </button>
-  <button mat-stroked-button (click)="addNewRound()">
-    <mat-icon>add</mat-icon>
-    @if(!appStateService.useSmallerButtons()){ New } Round
-  </button>
-</div>
-<br />
 @if(rounds().length) {
+
+<div class="full-width-center">
+  <h6>Scoring Stats</h6>
+</div>
 
 <div class="full-width-center space-evenly padding-inline-4">
   <mat-card appearance="outlined" class="center-text">
@@ -43,6 +36,10 @@
 </div>
 
 <br />
+
+<div class="full-width-center">
+  <h6 class="no-margin">Recorded Rounds</h6>
+</div>
 
 <table mat-table [dataSource]="rounds()">
   <ng-container matColumnDef="{{ ROUND_DATE_COL }}">

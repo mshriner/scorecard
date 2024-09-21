@@ -16,7 +16,6 @@ import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
-import { SnackBarService } from '../../services/snack-bar.service';
 
 @Component({
   selector: 'app-home',
@@ -53,7 +52,6 @@ export class HomeComponent implements OnInit {
     public appStateService: AppStateService,
     private roundService: RoundService,
     public courseService: CourseService,
-    private snackBarService: SnackBarService,
     private router: Router
   ) {
     this.currentUser = this.appStateService.currentUser;
@@ -61,7 +59,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
-      `${this.appStateService.currentUser?.name?.trim()}'s Rounds`
+      `${this.appStateService.currentUser?.name?.trim()}'s Results`
     );
     this.rounds.set(
       this.roundService.getRoundsByIds(
@@ -74,18 +72,6 @@ export class HomeComponent implements OnInit {
         this.courseMap.set(round.courseId, course);
       }
     });
-  }
-
-  public addNewCourse(): void {
-    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
-  }
-
-  public addNewRound(): void {
-    if (!this.courseService.getAllCoursesForCurrentUser()?.length) {
-      this.snackBarService.openTemporarySnackBar('Please add a course first.');
-    } else {
-      this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND);
-    }
   }
 
   public saveUser(): void {
