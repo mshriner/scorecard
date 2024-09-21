@@ -62,9 +62,13 @@ export class EditRoundComponent {
   public currentCourse: Course | null = null;
   public roundIdToEdit: string;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
+  public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
   public readonly HOLE_COL = 'hole';
   public readonly STROKES_COL = 'par';
   public readonly PUTTS_COL = 'putts';
+  public readonly HOLE_SUMMARY_COL = 'holeSummary';
+  public readonly STROKES_SUMMARY_COL = 'parSummary';
+  public readonly PUTTS_SUMMARY_COL = 'puttsSummary';
   public readonly ROUND_TABLE_COLUMNS: ColumnDef[] = [
     {
       columnDef: this.HOLE_COL,
@@ -79,9 +83,16 @@ export class EditRoundComponent {
       header: 'Putts',
     },
   ];
-  public readonly ROUND_TABLE_COLUMN_IDS = this.ROUND_TABLE_COLUMNS.map(
-    (def) => def.columnDef
-  );
+  public readonly ROUND_TABLE_COLUMN_IDS = [
+    this.HOLE_COL,
+    this.STROKES_COL,
+    this.PUTTS_COL,
+  ];
+  public readonly ROUND_TABLE_SUMMARY_COLUMN_IDS = [
+    this.HOLE_SUMMARY_COL,
+    this.STROKES_SUMMARY_COL,
+    this.PUTTS_SUMMARY_COL,
+  ];
   public SCORE_GRAPHIC_TYPES!: {
     score: number;
     scoreToPar: number;
@@ -90,7 +101,12 @@ export class EditRoundComponent {
     holeIndex: number;
     column: ColumnDef;
   };
+  public SUMMARY_ROW_TYPES!: {
+    outOrIn: RoundVariety;
+    columnId: string;
+  };
   public readonly ROUND_VARIETIES = Object.values(RoundVariety);
+  public readonly ROUND_VARIETY_ENUM = RoundVariety;
 
   constructor(
     private appStateService: AppStateService,
@@ -161,6 +177,14 @@ export class EditRoundComponent {
     } else {
       this.editingRound.putts[index]--;
     }
+  }
+
+  public showSummaryRow(index: number): boolean {
+    return (index + 1) % 9 === 0;
+  }
+
+  public returnTrue(): boolean {
+    return true;
   }
 
   public addEvent(event: MatDatepickerInputEvent<Date>): void {

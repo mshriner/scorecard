@@ -8,7 +8,7 @@ body {
   -webkit-text-size-adjust: none;
   font-size-adjust: none;
   width: 100vw;
-  zoom: 1.0;
+  zoom: 1;
 }
 body {
   margin: 0;
@@ -63,6 +63,14 @@ td.border-top {
     --mat-table-row-item-outline-color,
     var(--mat-app-outline, rgba(0, 0, 0, 0.12))
   );
+}
+
+td.thick-bottom-border {
+  border-bottom-width: 3px;
+}
+
+td.thick-top-border {
+  border-top-width: 3px;
 }
 
 mat-form-field.almost-full-width-input {

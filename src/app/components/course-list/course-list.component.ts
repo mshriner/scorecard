@@ -25,7 +25,6 @@ import { CourseService } from '../../services/course.service';
 })
 export class CourseListComponent implements OnInit {
   public courses: WritableSignal<Course[]> = signal([]);
-  public smallerButtons: boolean;
 
   public readonly COURSE_NAME_COL = 'courseName';
   public readonly COURSE_PAR_COL = 'coursePar';
@@ -35,12 +34,10 @@ export class CourseListComponent implements OnInit {
   ];
 
   constructor(
-    private appStateService: AppStateService,
+    public appStateService: AppStateService,
     public courseService: CourseService,
     private router: Router
-  ) {
-    this.smallerButtons = this.appStateService.useSmallerButtons;
-  }
+  ) {}
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
