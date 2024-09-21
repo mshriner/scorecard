@@ -1,15 +1,46 @@
-<div class="full-width-center space-evenly">
-  <button mat-stroked-button (click)="addNewCourse()">
-    <mat-icon>add</mat-icon>
-    @if(!appStateService.useSmallerButtons()){ New } Course
-  </button>
-  <button mat-stroked-button (click)="addNewRound()">
-    <mat-icon>add</mat-icon>
-    @if(!appStateService.useSmallerButtons()){ New } Round
-  </button>
-</div>
-<br />
 @if(rounds().length) {
+
+<div class="full-width-center">
+  <h6>Scoring Stats</h6>
+</div>
+
+<div class="full-width-center space-evenly padding-inline-4">
+  <mat-card appearance="outlined" class="center-text">
+    <mat-card-title></mat-card-title>
+    <mat-card-content class="padding-inline-8">
+      <sub>
+        @if (appStateService.useSmallerButtons()) { Avg. } @else { Average } 9
+        Holes</sub
+      >
+      <h6>
+        {{ rounds() | averageScore : 9 }} ({{
+          rounds() | averageScoreToPar : courseMap : 9
+        }})
+      </h6>
+    </mat-card-content>
+  </mat-card>
+  <mat-card appearance="outlined" class="center-text">
+    <mat-card-title></mat-card-title>
+    <mat-card-content class="padding-inline-8">
+      <sub>
+        @if (appStateService.useSmallerButtons()) { Avg. } @else { Average } 18
+        Holes</sub
+      >
+      <h6>
+        {{ rounds() | averageScore : 18 }} ({{
+          rounds() | averageScoreToPar : courseMap : 18
+        }})
+      </h6>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<br />
+
+<div class="full-width-center">
+  <h6 class="no-margin">Recorded Rounds</h6>
+</div>
+
 <table mat-table [dataSource]="rounds()">
   <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
     <th mat-header-cell *matHeaderCellDef class="center-text">Date</th>

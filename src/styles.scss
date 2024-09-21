@@ -29,6 +29,13 @@ body {
 .space-evenly {
   display: flex;
   justify-content: space-evenly;
+
+  &.padding-inline-4 {
+    div,
+    mat-card {
+      margin-inline: 4px;
+    }
+  }
 }
 
 .hole-par-adjustment {
@@ -76,6 +83,14 @@ td.thick-top-border {
 mat-form-field.almost-full-width-input {
   width: 90vw;
   max-width: 500px;
+}
+
+.padding-inline-8 {
+  padding-inline: 8px !important;
+}
+
+.no-margin {
+  margin: 0 !important;
 }
 
 ::-webkit-scrollbar {

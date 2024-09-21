@@ -1,16 +1,3 @@
-<div class="full-width-center space-evenly">
-  <button mat-stroked-button (click)="addNewCourse()">
-    <mat-icon>add</mat-icon>
-    @if(!appStateService.useSmallerButtons()){ New } Course
-  </button>
-  @if (courses().length) {
-  <button mat-stroked-button (click)="addNewRound()">
-    <mat-icon>add</mat-icon>
-    @if(!appStateService.useSmallerButtons()){ New } Round
-  </button>
-  }
-</div>
-<br />
 @if(courses().length) {
 <table mat-table [dataSource]="courses()">
   <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
