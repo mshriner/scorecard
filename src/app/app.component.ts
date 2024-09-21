@@ -114,8 +114,15 @@ export class AppComponent {
     this.showSpinner.set(true);
     this.serviceWorker
       .checkForUpdate()
-      .then(() => {
-        window.location.reload();
+      .then((newUpdate) => {
+        if (newUpdate) {
+          this.snackBarService.openTemporarySnackBar(`Loading update...`);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else {
+          this.snackBarService.openTemporarySnackBar(`No new updates found.`);
+        }
       })
       .catch((err) => {
         this.snackBarService.openTemporarySnackBar(
