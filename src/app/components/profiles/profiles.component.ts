@@ -24,7 +24,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { SwUpdate } from '@angular/service-worker';
 import {
   APP_NAME,
   APP_ROUTES,
@@ -33,7 +32,6 @@ import {
 } from '../../models/constants';
 import { User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
-import { SnackBarService } from '../../services/snack-bar.service';
 import { UserService } from '../../services/user.service';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
@@ -58,14 +56,11 @@ export class ProfilesComponent {
   readonly APP_NAME = APP_NAME;
   readonly CLEAR_ALL = CLEAR_ALL_APP_DATA;
   public readonly PROFILE_TABLE_COLUMNS = ['username', 'delete'];
-  public showSpinner = signal(false);
 
   constructor(
     public appStateService: AppStateService,
-    private snackBarService: SnackBarService,
     private userService: UserService,
-    private router: Router,
-    private serviceWorker: SwUpdate
+    private router: Router
   ) {
     this.appStateService.setPageTitle('Profiles');
     this.profiles.set(this.userService.getAllUsers());
@@ -116,21 +111,6 @@ export class ProfilesComponent {
     this.userService.setAllUserIds(
       this.profiles().map((profile) => profile.id)
     );
-  }
-
-  public reload(): void {
-    this.showSpinner.set(true);
-    this.serviceWorker
-      .checkForUpdate()
-      .then(() => {
-        window.location.reload();
-      })
-      .catch((err) => {
-        this.snackBarService.openTemporarySnackBar(
-          `Failed to refresh -- ${err}`
-        );
-      })
-      .finally(() => this.showSpinner.set(false));
   }
 
   public clearAllData(): void {

@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -15,6 +15,7 @@ import { APP_ROUTES } from './models/constants';
 import { AppStateService } from './services/app-state.service';
 import { SnackBarService } from './services/snack-bar.service';
 import { Location } from '@angular/common';
+import { SwUpdate } from '@angular/service-worker';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +38,7 @@ import { Location } from '@angular/common';
 })
 export class AppComponent {
   private _snackBar = inject(MatSnackBar);
+  public showSpinner = signal(false);
 
   @ViewChild('sidenav')
   sidenav!: any;
@@ -45,7 +47,8 @@ export class AppComponent {
     public appStateService: AppStateService,
     private router: Router,
     private location: Location,
-    private snackBarService: SnackBarService
+    private snackBarService: SnackBarService,
+    private serviceWorker: SwUpdate
   ) {
     if (!this.isOnProfilesScreen && !this.appStateService.currentUser) {
       this.logout();
@@ -105,5 +108,20 @@ export class AppComponent {
         this.sidenav.close();
       });
     }
+  }
+
+  public checkForUpdates(): void {
+    this.showSpinner.set(true);
+    this.serviceWorker
+      .checkForUpdate()
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((err) => {
+        this.snackBarService.openTemporarySnackBar(
+          `Failed to refresh -- ${err}`
+        );
+      })
+      .finally(() => this.showSpinner.set(false));
   }
 }

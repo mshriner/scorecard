@@ -43,7 +43,7 @@ div.flex-menu-option {
 }
 
 .sidenav {
-  max-width: 75vw;
+  max-width: 80vw;
   display: block;
 }
 
@@ -56,9 +56,13 @@ h6 {
   margin: 0;
 }
 
-.logout-option {
+.bottom-options {
   display: block;
   position: absolute;
   bottom: 0;
   width: calc(100% - 16px);
+}
+
+.nav-container {
+  height: 100dvh;
 }

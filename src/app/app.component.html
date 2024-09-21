@@ -1,4 +1,4 @@
-<mat-sidenav-container style="height: 100dvh">
+<mat-sidenav-container class="nav-container">
   <mat-sidenav #sidenav class="sidenav padding-inline-8">
     @if (appStateService.currentUser) {
     <div style="margin-bottom: 16px">
@@ -44,10 +44,22 @@
       </div>
     </div>
     }
-    <div class="logout-option">
-      <div mat-ripple (click)="logout()" class="flex-menu-option">
-        <mat-icon>logout</mat-icon>
-        <span>Log Out</span>
+    <div class="bottom-options">
+      <div style="display: block">
+        <div mat-ripple (click)="checkForUpdates()" class="flex-menu-option">
+          @if (showSpinner()) {
+          <mat-icon class="rotate">refresh</mat-icon>
+          } @else {
+          <mat-icon>refresh</mat-icon>
+          }
+          <span>Check for Updates</span>
+        </div>
+      </div>
+      <div style="display: block">
+        <div mat-ripple (click)="logout()" class="flex-menu-option">
+          <mat-icon>logout</mat-icon>
+          <span>Log Out</span>
+        </div>
       </div>
     </div>
   </mat-sidenav>
