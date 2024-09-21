@@ -41,6 +41,21 @@
       ></mat-datepicker-toggle>
       <mat-datepicker touchUi #picker3></mat-datepicker>
     </mat-form-field>
+    <mat-form-field class="almost-full-width-input">
+      <mat-label>Add Notes For Your Round</mat-label>
+      <textarea
+        matInput
+        autosize
+        [minRows]="1"
+        #notes
+        maxlength="1000"
+        [(ngModel)]="editingRound.generalNotes"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Ex. Nice approach on 3..."
+      >
+      </textarea>
+      <mat-hint align="end">{{ notes?.value?.length || 0 }} / 1000</mat-hint>
+    </mat-form-field>
   </div>
 
   <table

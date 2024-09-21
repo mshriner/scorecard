@@ -21,6 +21,7 @@ import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
+import { AutosizeModule } from 'ngx-autosize';
 
 import {
   MatDatepickerInputEvent,
@@ -51,6 +52,7 @@ interface ColumnDef {
     CommonModule,
     TypedTemplateDirective,
     MatDialogModule,
+    AutosizeModule,
   ],
   providers: [DatePipe, provideNativeDateAdapter()],
   templateUrl: './edit-round.component.html',

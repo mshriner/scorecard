@@ -25,7 +25,7 @@ export class AverageScorePipe implements PipeTransform {
       roundHalvesThatCount
         .map((toCount) => toCount.score.reduce((p, c) => p + c))
         .reduce((prev, curr) => prev + curr) /
-        (roundHalvesThatCount.length * (eighteenHolesOnly ? 0.5 : 1)),
+        (roundHalvesThatCount.length * (eighteenHolesOnly === 18 ? 0.5 : 1)),
       '1.0-1'
     )}`;
   }
@@ -64,7 +64,7 @@ export class AverageScoreToParPipe implements PipeTransform {
     }
     const toPar =
       scoresToPar.reduce((prev, curr) => prev + curr) /
-      (scoresToPar.length * (eighteenHolesOnly ? 0.5 : 1));
+      (scoresToPar.length * (eighteenHolesOnly === 18 ? 0.5 : 1));
     if (toPar > 0) {
       return `+${this.decimal.transform(toPar, '1.0-1')}`;
     } else if (toPar < 0) {

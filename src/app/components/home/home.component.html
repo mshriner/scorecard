@@ -14,8 +14,11 @@
 <div class="full-width-center space-evenly padding-inline-4">
   <mat-card appearance="outlined" class="center-text">
     <mat-card-title></mat-card-title>
-    <mat-card-content>
-      <sub>Avg. 9-Hole Score:</sub>
+    <mat-card-content class="padding-inline-8">
+      <sub>
+        @if (appStateService.useSmallerButtons()) { Avg. } @else { Average } 9
+        Holes</sub
+      >
       <h6>
         {{ rounds() | averageScore : 9 }} ({{
           rounds() | averageScoreToPar : courseMap : 9
@@ -25,8 +28,11 @@
   </mat-card>
   <mat-card appearance="outlined" class="center-text">
     <mat-card-title></mat-card-title>
-    <mat-card-content>
-      <sub>Avg. 18-Hole Score:</sub>
+    <mat-card-content class="padding-inline-8">
+      <sub>
+        @if (appStateService.useSmallerButtons()) { Avg. } @else { Average } 18
+        Holes</sub
+      >
       <h6>
         {{ rounds() | averageScore : 18 }} ({{
           rounds() | averageScoreToPar : courseMap : 18

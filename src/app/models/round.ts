@@ -7,6 +7,7 @@ export interface Round extends StorageObject {
   strokes: number[];
   putts: number[];
   roundVariety: RoundVariety;
+  generalNotes?: string;
 }
 
 export enum RoundVariety {
