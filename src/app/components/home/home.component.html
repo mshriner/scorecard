@@ -1,6 +1,46 @@
 @if(rounds().length) {
 
 <div class="full-width-center">
+  <mat-form-field class="almost-full-width-input">
+    <mat-label>Filter Results By Course(s)</mat-label>
+    <mat-select
+      #courseStatsFilterSelect
+      [formControl]="courseStatsFilter"
+      multiple
+      (openedChange)="!$event && reevaluateAllSelectedStatus(true)"
+    >
+      <mat-select-trigger>
+        @if (allSelected) { All Courses } @else {
+        {{courseMap().get(courseStatsFilter.value?.[0] || '')?.name || ''}}
+        @if ((courseStatsFilter.value?.length || 0) > 1) {
+        <span>
+          (+{{ (courseStatsFilter.value?.length || 0) - 1 }}
+          {{ courseStatsFilter.value?.length === 2 ? "other" : "others" }})
+        </span>
+        } }
+      </mat-select-trigger>
+      <div class="select-all" mat-ripple (click)="toggleAllSelection()">
+        <mat-checkbox
+          style="width: 100%"
+          [(ngModel)]="allSelected"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          Select All
+        </mat-checkbox>
+      </div>
+      <mat-divider></mat-divider>
+      @for (topping of courseIdOptions(); track topping) {
+      <mat-option [value]="topping" (click)="reevaluateAllSelectedStatus()">{{
+        courseMap().get(topping)?.name
+      }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+@if(filteredRounds().length) {
+
+<div class="full-width-center">
   <h6>Scoring Stats</h6>
 </div>
 
@@ -13,8 +53,8 @@
         Holes</sub
       >
       <h6>
-        {{ rounds() | averageScore : 9 }} ({{
-          rounds() | averageScoreToPar : courseMap : 9
+        {{ filteredRounds() | averageScore : 9 }} ({{
+          filteredRounds() | averageScoreToPar : courseMap() : 9
         }})
       </h6>
     </mat-card-content>
@@ -27,8 +67,8 @@
         Holes</sub
       >
       <h6>
-        {{ rounds() | averageScore : 18 }} ({{
-          rounds() | averageScoreToPar : courseMap : 18
+        {{ filteredRounds() | averageScore : 18 }} ({{
+          filteredRounds() | averageScoreToPar : courseMap() : 18
         }})
       </h6>
     </mat-card-content>
@@ -41,7 +81,7 @@
   <h6 class="no-margin">Recorded Rounds</h6>
 </div>
 
-<table mat-table [dataSource]="rounds()">
+<table mat-table [dataSource]="filteredRounds()">
   <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
     <th mat-header-cell *matHeaderCellDef class="center-text">Date</th>
     <td mat-cell *matCellDef="let round" matRipple class="center-text">
@@ -51,14 +91,14 @@
   <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
     <th mat-header-cell *matHeaderCellDef class="center-text">Course</th>
     <td mat-cell *matCellDef="let round" matRipple class="center-text">
-      {{ courseMap.get(round.courseId)?.name }}
+      {{ courseMap().get(round.courseId)?.name }}
     </td>
   </ng-container>
   <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
     <th mat-header-cell *matHeaderCellDef class="center-text">Score</th>
     <td mat-cell *matCellDef="let round" matRipple class="center-text">
       {{ round | totalRoundScore }} ({{
-        round | scoreToPar : courseMap.get(round.courseId)
+        round | scoreToPar : courseMap().get(round.courseId)
       }})
     </td>
   </ng-container>
@@ -69,7 +109,7 @@
     (click)="viewRound(round.id)"
   ></tr>
 </table>
-} @else {
+} } @else {
 <div class="full-width-center">No rounds of golf recorded</div>
 } @if (currentUser) {
 <br />

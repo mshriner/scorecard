@@ -96,3 +96,14 @@ mat-form-field.almost-full-width-input {
 ::-webkit-scrollbar {
   display: none;
 }
+
+// hacky way to get select all option to work in mat-select
+.select-all {
+  padding: 5px 5px;
+  mat-checkbox > div {
+    width: 100%;
+    label {
+      width: 100%;
+    }
+  }
+}

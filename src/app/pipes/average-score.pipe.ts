@@ -21,6 +21,11 @@ export class AverageScorePipe implements PipeTransform {
       rounds,
       eighteenHolesOnly
     );
+
+    if (!roundHalvesThatCount?.length) {
+      return '--';
+    }
+
     return `${this.decimal.transform(
       roundHalvesThatCount
         .map((toCount) => toCount.score.reduce((p, c) => p + c))
@@ -50,6 +55,10 @@ export class AverageScoreToParPipe implements PipeTransform {
       rounds,
       eighteenHolesOnly
     );
+
+    if (!roundHalvesThatCount?.length) {
+      return '--';
+    }
 
     for (const roundHalf of roundHalvesThatCount) {
       scoresToPar.push(
