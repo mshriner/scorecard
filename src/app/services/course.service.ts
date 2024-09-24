@@ -9,7 +9,7 @@ import { LocalStorageService } from './local-storage.service';
 export class CourseService {
   constructor(
     private appStateService: AppStateService,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
   ) {}
 
   public getAllCoursesForCurrentUser(): Course[] {
@@ -49,5 +49,11 @@ export class CourseService {
 
   public setCourse(updatedCourse: Course): boolean {
     return this.saveCourses([updatedCourse]);
+  }
+
+  public deleteCourses(courseIdsToDelete: string[]): void {
+    courseIdsToDelete?.forEach((courseId) =>
+      this.localStorageService.removeItem(courseId),
+    );
   }
 }

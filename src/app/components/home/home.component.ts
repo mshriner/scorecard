@@ -88,19 +88,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
     public appStateService: AppStateService,
     private roundService: RoundService,
     public courseService: CourseService,
-    private router: Router
+    private router: Router,
   ) {
     this.currentUser = this.appStateService.currentUser;
   }
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
-      `${this.appStateService.currentUser?.name?.trim()}'s Results`
+      `${this.appStateService.currentUser?.name?.trim()}'s Results`,
     );
     this.rounds.set(
       this.roundService.getRoundsByIds(
-        this.appStateService.currentUser?.roundIds || []
-      )
+        this.appStateService.currentUser?.roundIds || [],
+      ),
     );
   }
 
@@ -117,6 +117,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   public saveUser(): void {
     this.appStateService.currentUser = this.currentUser;
+  }
+
+  public addNewRound(): void {
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND);
+  }
+
+  public addNewCourse(): void {
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
   }
 
   public formatLabel(value?: number): string {
@@ -187,8 +195,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.rounds()?.filter((round) =>
         this.courseStatsFilter.value?.length
           ? this.courseStatsFilter.value?.includes(round?.courseId)
-          : true
-      ) || []
+          : true,
+      ) || [],
     );
   }
 }

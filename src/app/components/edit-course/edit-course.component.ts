@@ -1,18 +1,25 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
+import {
+  APP_ROUTES,
+  DELETE_COURSE,
+  NAVIGATION_STATE_KEYS,
+} from '../../models/constants';
 import { Course } from '../../models/course';
+import { RoundVariety } from '../../models/round';
+import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
-import { ParPipe } from '../../pipes/par.pipe';
-import { PipesModule } from '../../pipes/pipes.module';
-import { RoundVariety } from '../../models/round';
+import { RoundService } from '../../services/round.service';
+import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-edit-course',
@@ -24,6 +31,8 @@ import { RoundVariety } from '../../models/round';
     MatTableModule,
     MatIconModule,
     MatInputModule,
+    MatDialogModule,
+    CommonModule,
     PipesModule,
   ],
   templateUrl: './edit-course.component.html',
@@ -31,7 +40,7 @@ import { RoundVariety } from '../../models/round';
 })
 export class EditCourseComponent {
   public editingCourse: Course;
-  private courseIdToEdit: string;
+  public courseIdToEdit: string;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
   public readonly HOLE_COL = 'hole';
@@ -49,14 +58,19 @@ export class EditCourseComponent {
     },
   ];
   public readonly COURSE_TABLE_COLUMN_IDS = this.COURSE_TABLE_COLUMNS.map(
-    (def) => def.columnDef
+    (def) => def.columnDef,
   );
-  public readonly COURSE_TABLE_SUMMARY_COLUMN_IDS = [this.HOLE_SUMMARY_COL, this.PAR_SUMMARY_COL];
+  public readonly COURSE_TABLE_SUMMARY_COLUMN_IDS = [
+    this.HOLE_SUMMARY_COL,
+    this.PAR_SUMMARY_COL,
+  ];
 
   constructor(
     private appStateService: AppStateService,
     private courseService: CourseService,
-    private router: Router
+    private dialog: MatDialog,
+    private roundService: RoundService,
+    private router: Router,
   ) {
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
@@ -100,6 +114,44 @@ export class EditCourseComponent {
       !this.editingCourse.name.length ||
       this.editingCourse.par.some((hole) => (hole || 0) <= 0)
     );
+  }
+
+  public deleteCourse(): void {
+    this.dialog
+      .open(AreYouSureDialogComponent, {
+        data: DELETE_COURSE,
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          const updatedCurrentUser = this.appStateService.currentUser;
+          if (updatedCurrentUser) {
+            if (updatedCurrentUser?.roundIds?.length) {
+              const roundIdsToRemove: Set<string> = new Set(
+                this.roundService
+                  .getRoundsByIds(updatedCurrentUser.roundIds)
+                  .filter((round) => round.courseId === this.courseIdToEdit)
+                  .map((round) => round.id),
+              );
+              updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(
+                (roundId) => !roundIdsToRemove.has(roundId),
+              );
+              this.roundService.deleteRounds([...roundIdsToRemove]);
+              updatedCurrentUser.courseStatsFilterSelect =
+                updatedCurrentUser.courseStatsFilterSelect?.filter(
+                  (courseId) => courseId !== this.courseIdToEdit,
+                ) || [];
+            }
+            updatedCurrentUser.courseIds =
+              updatedCurrentUser.courseIds?.filter(
+                (courseId) => courseId !== this.courseIdToEdit,
+              ) || [];
+          }
+          this.appStateService.currentUser = updatedCurrentUser;
+          this.courseService.deleteCourses([this.courseIdToEdit]);
+          this.router.navigateByUrl(APP_ROUTES.HOME);
+        }
+      });
   }
 
   public saveCourse(): void {

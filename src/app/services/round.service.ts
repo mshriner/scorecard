@@ -55,7 +55,7 @@ export class RoundService {
 
   public deleteRounds(roundIdsToDelete: string[]): void {
     roundIdsToDelete?.forEach((roundId) =>
-      this.localStorageService.removeItem(roundId)
+      this.localStorageService.removeItem(roundId),
     );
   }
 }

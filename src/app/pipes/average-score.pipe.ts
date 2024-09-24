@@ -19,7 +19,7 @@ export class AverageScorePipe implements PipeTransform {
   transform(rounds: Round[], eighteenHolesOnly: 9 | 18): string {
     const roundHalvesThatCount = getNineHoleRoundsToCount(
       rounds,
-      eighteenHolesOnly
+      eighteenHolesOnly,
     );
 
     if (!roundHalvesThatCount?.length) {
@@ -31,7 +31,7 @@ export class AverageScorePipe implements PipeTransform {
         .map((toCount) => toCount.score.reduce((p, c) => p + c))
         .reduce((prev, curr) => prev + curr) /
         (roundHalvesThatCount.length * (eighteenHolesOnly === 18 ? 0.5 : 1)),
-      '1.0-1'
+      '1.0-1',
     )}`;
   }
 }
@@ -42,18 +42,18 @@ export class AverageScorePipe implements PipeTransform {
 export class AverageScoreToParPipe implements PipeTransform {
   constructor(
     private roundVarietyScores: RoundVarietyScoresPipe,
-    private decimal: DecimalPipe
+    private decimal: DecimalPipe,
   ) {}
 
   transform(
     rounds: Round[],
     courseMap: Map<string, Course | null>,
-    eighteenHolesOnly: 9 | 18
+    eighteenHolesOnly: 9 | 18,
   ): string {
     let scoresToPar: number[] = [];
     const roundHalvesThatCount = getNineHoleRoundsToCount(
       rounds,
-      eighteenHolesOnly
+      eighteenHolesOnly,
     );
 
     if (!roundHalvesThatCount?.length) {
@@ -66,9 +66,9 @@ export class AverageScoreToParPipe implements PipeTransform {
           this.roundVarietyScores
             .transform(
               courseMap.get(roundHalf.courseId)?.par,
-              roundHalf.frontOrBack
+              roundHalf.frontOrBack,
             )
-            .reduce((p, c) => p + c)
+            .reduce((p, c) => p + c),
       );
     }
     const toPar =
@@ -83,9 +83,20 @@ export class AverageScoreToParPipe implements PipeTransform {
   }
 }
 
+@Pipe({
+  name: 'countValidRoundsToAverage',
+})
+export class CountValidRoundsToAveragePipe implements PipeTransform {
+  constructor() {}
+
+  transform(rounds: Round[], eighteenHolesOnly: 9 | 18): number {
+    return getNineHoleRoundsToCount(rounds, eighteenHolesOnly).length;
+  }
+}
+
 function getNineHoleRoundsToCount(
   rounds: Round[],
-  eighteenHolesOnly: 9 | 18
+  eighteenHolesOnly: 9 | 18,
 ): NineHoleScoreWithCourse[] {
   const toCount: NineHoleScoreWithCourse[] = [];
   if (rounds?.length) {

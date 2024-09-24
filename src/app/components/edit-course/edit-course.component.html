@@ -12,68 +12,90 @@
     </mat-form-field>
   </div>
 
+  <ng-container *ngTemplateOutlet="saveActions"></ng-container>
+
   <table mat-table multiTemplateDataRows [dataSource]="editingCourse.par">
     @for (column of COURSE_TABLE_COLUMNS; track $index) {
-    <ng-container [matColumnDef]="column.columnDef">
-      <th mat-header-cell *matHeaderCellDef class="center-text">
-        {{ column.header }}
-      </th>
-      <td
-        mat-cell
-        *matCellDef="let row; let index = dataIndex"
-        class="center-text"
-      >
-        @switch (column.columnDef) { @case (HOLE_COL) {
-        <b>
-          {{ index + 1 }}
-        </b>
-        } @case (PAR_COL) {
-        <div class="hole-par-adjustment">
-          <button
-            mat-icon-button
-            class="plusminus"
-            (click)="parMinusOne(index)"
-          >
-            <mat-icon>remove</mat-icon>
-          </button>
-          <div class="par-value-box">
-            {{ editingCourse.par[index] }}
-          </div>
-          <button mat-icon-button class="plusminus" (click)="parPlusOne(index)">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
-        } }
-      </td>
-      <td
-        mat-footer-cell
-        *matFooterCellDef
-        class="center-text border-top thick-top-border"
-      >
-        <b>
-          @switch (column.columnDef) { @case (HOLE_COL) { Total } @case
-          (PAR_COL) {
-          {{ editingCourse | par }}
-          } }
-        </b>
-      </td>
-    </ng-container>
-    } @for (column of COURSE_TABLE_SUMMARY_COLUMN_IDS; track $index) {
-    <ng-container [matColumnDef]="column">
-      <td
-        mat-cell
-        *matCellDef="let row; let index = dataIndex"
-        class="center-text thick-bottom-border"
-      >
-        @switch (column) { @case (HOLE_SUMMARY_COL) { @if (index === 8) { Out }
-        @else { In } } @case (PAR_SUMMARY_COL) {
-        {{
-          editingCourse
-            | par : undefined : (index === 8 ? FRONT_NINE : BACK_NINE)
-        }}
-        } }
-      </td>
-    </ng-container>
+      <ng-container [matColumnDef]="column.columnDef">
+        <th mat-header-cell *matHeaderCellDef class="center-text">
+          {{ column.header }}
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let row; let index = dataIndex"
+          class="center-text"
+        >
+          @switch (column.columnDef) {
+            @case (HOLE_COL) {
+              <b>
+                {{ index + 1 }}
+              </b>
+            }
+            @case (PAR_COL) {
+              <div class="hole-par-adjustment">
+                <button
+                  mat-icon-button
+                  class="plusminus"
+                  (click)="parMinusOne(index)"
+                >
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <div class="par-value-box">
+                  {{ editingCourse.par[index] }}
+                </div>
+                <button
+                  mat-icon-button
+                  class="plusminus"
+                  (click)="parPlusOne(index)"
+                >
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+            }
+          }
+        </td>
+        <td
+          mat-footer-cell
+          *matFooterCellDef
+          class="center-text border-top thick-top-border"
+        >
+          <b>
+            @switch (column.columnDef) {
+              @case (HOLE_COL) {
+                Total
+              }
+              @case (PAR_COL) {
+                {{ editingCourse | par }}
+              }
+            }
+          </b>
+        </td>
+      </ng-container>
+    }
+    @for (column of COURSE_TABLE_SUMMARY_COLUMN_IDS; track $index) {
+      <ng-container [matColumnDef]="column">
+        <td
+          mat-cell
+          *matCellDef="let row; let index = dataIndex"
+          class="center-text thick-bottom-border"
+        >
+          @switch (column) {
+            @case (HOLE_SUMMARY_COL) {
+              @if (index === 8) {
+                Out
+              } @else {
+                In
+              }
+            }
+            @case (PAR_SUMMARY_COL) {
+              {{
+                editingCourse
+                  | par: undefined : (index === 8 ? FRONT_NINE : BACK_NINE)
+              }}
+            }
+          }
+        </td>
+      </ng-container>
     }
 
     <tr
@@ -99,7 +121,18 @@
   </table>
 
   <br />
-  <div class="full-width-center">
+  <ng-container *ngTemplateOutlet="saveActions"></ng-container>
+</form>
+<br />
+
+<ng-template #saveActions>
+  <div class="full-width-center space-evenly">
+    @if (courseIdToEdit) {
+      <button mat-stroked-button (click)="deleteCourse()">
+        <mat-icon>delete</mat-icon>
+        Delete Round
+      </button>
+    }
     <button
       mat-stroked-button
       (click)="saveCourse()"
@@ -109,5 +142,4 @@
       Save
     </button>
   </div>
-</form>
-<br />
+</ng-template>

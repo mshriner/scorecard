@@ -36,12 +36,12 @@ export class CourseListComponent implements OnInit {
   constructor(
     public appStateService: AppStateService,
     public courseService: CourseService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
-      `${this.appStateService.currentUser?.name?.trim()}'s Courses`
+      `${this.appStateService.currentUser?.name?.trim()}'s Courses`,
     );
     this.courses.set(this.courseService.getAllCoursesForCurrentUser());
   }
@@ -52,5 +52,13 @@ export class CourseListComponent implements OnInit {
         [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: courseId,
       },
     });
+  }
+
+  public addNewRound(): void {
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND);
+  }
+
+  public addNewCourse(): void {
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
   }
 }
