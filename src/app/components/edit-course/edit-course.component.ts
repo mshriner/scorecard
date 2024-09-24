@@ -79,6 +79,11 @@ export class EditCourseComponent {
     console.log(this.courseIdToEdit);
     if (this.courseIdToEdit) {
       const retrieved = this.courseService.getCourse(this.courseIdToEdit);
+      if (!retrieved) {
+        this.router.navigateByUrl(APP_ROUTES.HOME);
+        this.editingCourse = {} as Course;
+        return;
+      }
       this.editingCourse = JSON.parse(JSON.stringify(retrieved));
       this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
     } else {

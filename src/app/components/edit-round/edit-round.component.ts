@@ -127,7 +127,12 @@ export class EditRoundComponent {
     if (this.roundIdToEdit) {
       const retrieved = this.roundService.getRoundsByIds([
         this.roundIdToEdit,
-      ])[0];
+      ])?.[0];
+      if (!retrieved) {
+        this.router.navigateByUrl(APP_ROUTES.HOME);
+        this.editingRound = {} as Round;
+        return;
+      }
       this.editingRound = JSON.parse(JSON.stringify(retrieved));
       this.appStateService.setPageTitle(
         `Editing ${datePipe.transform(retrieved?.dateStringISO)}`,
