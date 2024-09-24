@@ -1,4 +1,8 @@
 @if (courses().length) {
+  <ng-container *ngTemplateOutlet="addActions"></ng-container>
+
+  <br />
+
   <table mat-table [dataSource]="courses()">
     <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
       <th mat-header-cell *matHeaderCellDef class="center-text">Course Name</th>
@@ -25,6 +29,10 @@
 } @else {
   <div class="full-width-center">No golf courses created</div>
   <br />
+  <ng-container *ngTemplateOutlet="addActions"></ng-container>
+}
+
+<ng-template #addActions>
   <div class="full-width-center space-evenly">
     <button mat-stroked-button (click)="addNewCourse()">
       <mat-icon>add</mat-icon>
@@ -43,4 +51,4 @@
       </button>
     }
   </div>
-}
+</ng-template>

@@ -9,6 +9,7 @@ import { Course } from '../../models/course';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-course-list',
@@ -19,6 +20,7 @@ import { CourseService } from '../../services/course.service';
     MatButtonModule,
     PipesModule,
     MatRippleModule,
+    CommonModule,
   ],
   templateUrl: './course-list.component.html',
   styleUrl: './course-list.component.scss',

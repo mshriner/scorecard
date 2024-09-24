@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -47,6 +47,7 @@ import { RoundService } from '../../services/round.service';
     MatSelectModule,
     ReactiveFormsModule,
     MatCheckboxModule,
+    CommonModule,
     MatDividerModule,
   ],
   templateUrl: './home.component.html',

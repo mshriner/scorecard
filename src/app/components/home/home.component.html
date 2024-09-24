@@ -122,6 +122,10 @@
 
     <br />
 
+    <ng-container *ngTemplateOutlet="addActions"></ng-container>
+
+    <br />
+
     <div class="full-width-center">
       <h6 class="no-margin">Recorded Rounds</h6>
     </div>
@@ -161,24 +165,7 @@
 } @else {
   <div class="full-width-center">No rounds of golf recorded</div>
   <br />
-  <div class="full-width-center space-evenly">
-    <button mat-stroked-button (click)="addNewCourse()">
-      <mat-icon>add</mat-icon>
-      @if (!appStateService.useSmallerButtons()) {
-        New
-      }
-      Course
-    </button>
-    @if (currentUser?.courseIds?.length) {
-      <button mat-stroked-button (click)="addNewRound()">
-        <mat-icon>add</mat-icon>
-        @if (!appStateService.useSmallerButtons()) {
-          New
-        }
-        Round
-      </button>
-    }
-  </div>
+  <ng-container *ngTemplateOutlet="addActions"></ng-container>
 }
 @if (currentUser) {
   <br />
@@ -205,3 +192,24 @@
     </mat-card>
   </div>
 }
+
+<ng-template #addActions>
+  <div class="full-width-center space-evenly">
+    <button mat-stroked-button (click)="addNewCourse()">
+      <mat-icon>add</mat-icon>
+      @if (!appStateService.useSmallerButtons()) {
+        New
+      }
+      Course
+    </button>
+    @if (currentUser?.courseIds?.length) {
+      <button mat-stroked-button (click)="addNewRound()">
+        <mat-icon>add</mat-icon>
+        @if (!appStateService.useSmallerButtons()) {
+          New
+        }
+        Round
+      </button>
+    }
+  </div>
+</ng-template>
