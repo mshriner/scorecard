@@ -1,50 +1,52 @@
 @if (rounds().length) {
-  <div class="full-width-center">
-    <mat-form-field class="almost-full-width-input">
-      <mat-label>Filter Results By Course(s)</mat-label>
-      <mat-select
-        #courseStatsFilterSelect
-        [formControl]="courseStatsFilter"
-        multiple
-        (openedChange)="!$event && reevaluateAllSelectedStatus(true)"
-      >
-        <mat-select-trigger>
-          @if (allSelected) {
-            All Courses
-          } @else {
-            {{
-              courseMap().get(courseStatsFilter.value?.[0] || "")?.name || ""
-            }}
-            @if ((courseStatsFilter.value?.length || 0) > 1) {
-              <span>
-                (+{{ (courseStatsFilter.value?.length || 0) - 1 }}
-                {{
-                  courseStatsFilter.value?.length === 2 ? "other" : "others"
-                }})
-              </span>
+  @if (courseIdOptions().length > 1) {
+    <div class="full-width-center">
+      <mat-form-field class="almost-full-width-input">
+        <mat-label>Filter Results By Course(s)</mat-label>
+        <mat-select
+          #courseStatsFilterSelect
+          [formControl]="courseStatsFilter"
+          multiple
+          (openedChange)="!$event && reevaluateAllSelectedStatus(true)"
+        >
+          <mat-select-trigger>
+            @if (allSelected) {
+              All Courses
+            } @else {
+              {{
+                courseMap().get(courseStatsFilter.value?.[0] || "")?.name || ""
+              }}
+              @if ((courseStatsFilter.value?.length || 0) > 1) {
+                <span>
+                  (+{{ (courseStatsFilter.value?.length || 0) - 1 }}
+                  {{
+                    courseStatsFilter.value?.length === 2 ? "other" : "others"
+                  }})
+                </span>
+              }
             }
+          </mat-select-trigger>
+          <div class="select-all" mat-ripple (click)="toggleAllSelection()">
+            <mat-checkbox
+              style="width: 100%"
+              [(ngModel)]="allSelected"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              Select All
+            </mat-checkbox>
+          </div>
+          <mat-divider></mat-divider>
+          @for (topping of courseIdOptions(); track topping) {
+            <mat-option
+              [value]="topping"
+              (click)="reevaluateAllSelectedStatus()"
+              >{{ courseMap().get(topping)?.name }}</mat-option
+            >
           }
-        </mat-select-trigger>
-        <div class="select-all" mat-ripple (click)="toggleAllSelection()">
-          <mat-checkbox
-            style="width: 100%"
-            [(ngModel)]="allSelected"
-            [ngModelOptions]="{ standalone: true }"
-          >
-            Select All
-          </mat-checkbox>
-        </div>
-        <mat-divider></mat-divider>
-        @for (topping of courseIdOptions(); track topping) {
-          <mat-option
-            [value]="topping"
-            (click)="reevaluateAllSelectedStatus()"
-            >{{ courseMap().get(topping)?.name }}</mat-option
-          >
-        }
-      </mat-select>
-    </mat-form-field>
-  </div>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  }
 
   @if (filteredRounds().length) {
     <div class="full-width-center">
