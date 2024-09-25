@@ -1,6 +1,10 @@
 import { DecimalPipe } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { AverageScorePipe, AverageScoreToParPipe } from './average-score.pipe';
+import {
+  AverageScorePipe,
+  AverageScoreToParPipe,
+  CountValidRoundsToAveragePipe,
+} from './average-score.pipe';
 import { ParPipe } from './par.pipe';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 import { RoundVarietyPipe } from './round-variety.pipe';
@@ -18,6 +22,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     TotalRoundScorePipe,
     AverageScorePipe,
     AverageScoreToParPipe,
+    CountValidRoundsToAveragePipe,
   ],
   exports: [
     ParPipe,
@@ -28,6 +33,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     TotalRoundScorePipe,
     AverageScorePipe,
     AverageScoreToParPipe,
+    CountValidRoundsToAveragePipe,
   ],
   providers: [
     ParPipe,
@@ -38,6 +44,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     TotalRoundScorePipe,
     AverageScorePipe,
     AverageScoreToParPipe,
+    CountValidRoundsToAveragePipe,
     DecimalPipe,
   ],
 })

@@ -116,7 +116,7 @@ export class EditRoundComponent {
     private roundService: RoundService,
     private router: Router,
     private dialog: MatDialog,
-    datePipe: DatePipe
+    datePipe: DatePipe,
   ) {
     this.coursesToChooseFrom = this.courseService.getAllCoursesForCurrentUser();
     this.roundIdToEdit =
@@ -127,10 +127,15 @@ export class EditRoundComponent {
     if (this.roundIdToEdit) {
       const retrieved = this.roundService.getRoundsByIds([
         this.roundIdToEdit,
-      ])[0];
+      ])?.[0];
+      if (!retrieved) {
+        this.router.navigateByUrl(APP_ROUTES.HOME);
+        this.editingRound = {} as Round;
+        return;
+      }
       this.editingRound = JSON.parse(JSON.stringify(retrieved));
       this.appStateService.setPageTitle(
-        `Editing ${datePipe.transform(retrieved?.dateStringISO)}`
+        `Editing ${datePipe.transform(retrieved?.dateStringISO)}`,
       );
       this.updateCurrentCourse(this.editingRound.courseId);
     } else {
@@ -214,7 +219,7 @@ export class EditRoundComponent {
           const updatedCurrentUser = this.appStateService.currentUser;
           if (updatedCurrentUser) {
             updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(
-              (roundId) => roundId !== this.roundIdToEdit
+              (roundId) => roundId !== this.roundIdToEdit,
             );
           }
           this.appStateService.currentUser = updatedCurrentUser;
@@ -227,6 +232,19 @@ export class EditRoundComponent {
   public saveRound(): void {
     if (!this.roundIdToEdit) {
       this.appStateService.currentUser?.roundIds.push(this.editingRound.id);
+      if (
+        this.appStateService.currentUser?.courseIds?.length &&
+        this.appStateService.currentUser?.courseStatsFilterSelect?.length ===
+          this.appStateService.currentUser?.courseIds?.length - 1 &&
+        !this.appStateService.currentUser?.courseStatsFilterSelect?.includes(
+          this.editingRound.courseId,
+        )
+      ) {
+        // if the user had all courses selected before creating this course, keep all courses selected
+        this.appStateService.currentUser.courseStatsFilterSelect.push(
+          this.editingRound.courseId,
+        );
+      }
     }
     this.appStateService.saveCurrentUser();
     this.roundService.saveRounds([this.editingRound]);

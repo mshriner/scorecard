@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { AreYouSureDialogConfig } from '../../models/dialog';
 
 @Component({
@@ -11,6 +12,7 @@ import { AreYouSureDialogConfig } from '../../models/dialog';
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
+    MatIconModule,
   ],
   templateUrl: './are-you-sure-dialog.component.html',
   styleUrl: './are-you-sure-dialog.component.scss'

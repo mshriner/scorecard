@@ -48,7 +48,7 @@ export class AppComponent {
     private router: Router,
     private location: Location,
     private snackBarService: SnackBarService,
-    private serviceWorker: SwUpdate
+    private serviceWorker: SwUpdate,
   ) {
     if (!this.isOnProfilesScreen && !this.appStateService.currentUser) {
       this.logout();
@@ -119,16 +119,17 @@ export class AppComponent {
           this.snackBarService.openTemporarySnackBar(`Loading update...`);
           setTimeout(() => {
             window.location.reload();
-          }, 1500);
+          }, 1250);
         } else {
           this.snackBarService.openTemporarySnackBar(`No new updates found.`);
+          this.showSpinner.set(false);
         }
       })
       .catch((err) => {
         this.snackBarService.openTemporarySnackBar(
-          `Failed to refresh -- ${err}`
+          `Failed to refresh -- ${err}`,
         );
-      })
-      .finally(() => this.showSpinner.set(false));
+        this.showSpinner.set(false);
+      });
   }
 }

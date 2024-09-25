@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Add New Profile</h2>
+<h2 mat-dialog-title>Editing {{ originalProfileName }}</h2>
 <mat-dialog-content>
   <mat-form-field
     class="hundred-percent-input"
@@ -15,10 +15,10 @@
   </button>
   <button
     mat-stroked-button
-    [disabled]="!profileName()?.length"
+    [disabled]="!profileName()?.length || profileName() === originalProfileName"
     [mat-dialog-close]="profileName()"
   >
-    <mat-icon>save</mat-icon>
-    Save
+    <mat-icon>save_as</mat-icon>
+    Update
   </button>
 </mat-dialog-actions>

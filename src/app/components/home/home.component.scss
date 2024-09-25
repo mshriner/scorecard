@@ -1,3 +1,10 @@
 .font-slider {
   min-width: 175px;
 }
+
+.select-all {
+  padding: 5px 5px;
+  mat-checkbox > div {
+    width: 100%;
+  }
+}

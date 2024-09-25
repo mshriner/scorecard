@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   inject,
   model,
@@ -32,6 +33,8 @@ import {
 } from '../../models/constants';
 import { User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
+import { CourseService } from '../../services/course.service';
+import { RoundService } from '../../services/round.service';
 import { UserService } from '../../services/user.service';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
@@ -55,12 +58,15 @@ export class ProfilesComponent {
   readonly dialog = inject(MatDialog);
   readonly APP_NAME = APP_NAME;
   readonly CLEAR_ALL = CLEAR_ALL_APP_DATA;
-  public readonly PROFILE_TABLE_COLUMNS = ['username', 'delete'];
+  public readonly PROFILE_TABLE_COLUMNS = ['edit', 'username', 'delete'];
 
   constructor(
     public appStateService: AppStateService,
     private userService: UserService,
-    private router: Router
+    private roundService: RoundService,
+    private couseService: CourseService,
+    private router: Router,
+    private changeDetection: ChangeDetectorRef,
   ) {
     this.appStateService.setPageTitle('Profiles');
     this.profiles.set(this.userService.getAllUsers());
@@ -76,22 +82,41 @@ export class ProfilesComponent {
       .open(NewProfileDialog)
       .afterClosed()
       .subscribe((newProfileName) => {
-        if (newProfileName !== undefined) {
+        const sanitizedName = newProfileName?.trim();
+        if (sanitizedName?.length) {
           const newProfile: User = {
             id: `user-${crypto.randomUUID()}`,
-            name: newProfileName,
+            name: sanitizedName,
             roundIds: [],
             courseIds: [],
             appFontScaling: 0,
           };
-          this.profiles.set([...this.profiles(), newProfile]);
-          this.userService.setUser(newProfile);
-          this.saveProfileList();
+          this.profiles.set(this.userService.createUser(newProfile));
         }
       });
   }
 
-  public deleteProfile(idToDelete: string): void {
+  public editProfile(userToEdit: User): void {
+    this.dialog
+      .open(EditProfileDialog, {
+        data: userToEdit.name,
+      })
+      .afterClosed()
+      .subscribe((newProfileName) => {
+        const sanitizedName = newProfileName?.trim();
+        if (sanitizedName?.length) {
+          userToEdit.name = sanitizedName;
+          this.userService.setUser(userToEdit);
+          if (this.appStateService?.currentUser?.id === userToEdit.id) {
+            this.appStateService.currentUser = userToEdit;
+            this.changeDetection.markForCheck();
+          }
+          this.profiles.set(this.userService.getAllUsers());
+        }
+      });
+  }
+
+  public deleteProfile(userIdToDelete: string): void {
     this.dialog
       .open(AreYouSureDialogComponent, {
         data: DELETE_PROFILE,
@@ -100,17 +125,18 @@ export class ProfilesComponent {
       .subscribe((confirmed) => {
         if (confirmed) {
           this.profiles.set(
-            this.profiles().filter((profile) => profile.id !== idToDelete)
+            this.profiles().filter((profile) => profile.id !== userIdToDelete),
           );
-          this.saveProfileList();
+          if (this.appStateService?.currentUser?.id === userIdToDelete) {
+            this.appStateService.currentUser = null;
+            this.changeDetection.markForCheck();
+          }
+          const userToDelete = this.userService.getUser(userIdToDelete);
+          this.roundService.deleteRounds(userToDelete?.roundIds);
+          this.couseService.deleteCourses(userToDelete?.courseIds);
+          this.userService.deleteUsers([userIdToDelete]);
         }
       });
-  }
-
-  private saveProfileList(): void {
-    this.userService.setAllUserIds(
-      this.profiles().map((profile) => profile.id)
-    );
   }
 
   public clearAllData(): void {
@@ -140,12 +166,48 @@ export class ProfilesComponent {
     MatDialogContent,
     MatDialogActions,
     MatDialogClose,
+    MatIconModule,
   ],
 })
 export class NewProfileDialog {
   readonly dialogRef = inject(MatDialogRef<NewProfileDialog>);
   readonly data = inject<string | null>(MAT_DIALOG_DATA);
   readonly profileName = model(this.data);
+
+  public onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  public handleEnterKey(): void {
+    this.dialogRef.close(this.profileName());
+  }
+}
+
+@Component({
+  selector: 'edit-profile-dialog',
+  templateUrl: './edit-profile-dialog.component.html',
+  standalone: true,
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    MatIconModule,
+  ],
+})
+export class EditProfileDialog {
+  readonly dialogRef = inject(MatDialogRef<EditProfileDialog>);
+  readonly data = inject<string | null>(MAT_DIALOG_DATA);
+  readonly profileName = model(this.data);
+  readonly originalProfileName;
+
+  constructor() {
+    this.originalProfileName = JSON.parse(JSON.stringify(this.data));
+  }
 
   public onNoClick(): void {
     this.dialogRef.close();
