@@ -23,10 +23,10 @@ export class UserService {
       .filter((value) => !!value);
   }
 
-  public setAllUserIds(newValue: string[]): boolean {
+  private setAllUserIds(newValue: string[]): boolean {
     return this.localStorageService.setItem(
       STORAGE_KEYS.ALL_USERS,
-      newValue?.filter((value) => value?.length)
+      newValue?.filter((value) => value?.length),
     );
   }
 
@@ -44,7 +44,7 @@ export class UserService {
 
   public getCurrentUser(): User | null {
     const currentUserId = this.localStorageService.getItem(
-      STORAGE_KEYS.CURRENT_USER_ID
+      STORAGE_KEYS.CURRENT_USER_ID,
     );
     if (!currentUserId) {
       return null;
@@ -56,7 +56,7 @@ export class UserService {
     if (
       !this.localStorageService.setItem(
         STORAGE_KEYS.CURRENT_USER_ID,
-        newUser?.id ?? null
+        newUser?.id ?? null,
       )
     ) {
       return false;
@@ -65,5 +65,23 @@ export class UserService {
       return true;
     }
     return this.setUser(newUser);
+  }
+
+  public createUser(newUser: User): User[] {
+    if (this.setUser(newUser)) {
+      this.setAllUserIds([...this.getAllUserIds(), newUser.id]);
+    }
+    return this.getAllUsers();
+  }
+
+  public deleteUsers(userIdsToDelete?: string[]): void {
+    userIdsToDelete?.forEach((userId) =>
+      this.localStorageService.removeItem(userId),
+    );
+    this.setAllUserIds(
+      this.getAllUserIds().filter(
+        (userId) => !userIdsToDelete?.includes(userId),
+      ),
+    );
   }
 }

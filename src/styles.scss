@@ -85,6 +85,15 @@ mat-form-field.almost-full-width-input {
   max-width: 500px;
 }
 
+mat-form-field.hundred-percent-input {
+  width: 100%;
+  max-width: 500px;
+}
+
+mat-dialog-actions.no-padding {
+  padding-inline: 0;
+}
+
 .padding-inline-8 {
   padding-inline: 8px !important;
 }

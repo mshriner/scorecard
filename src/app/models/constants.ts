@@ -1,4 +1,4 @@
-import { AreYouSureDialogConfig } from "./dialog";
+import { AreYouSureDialogConfig } from './dialog';
 
 export const APP_NAME = 'Scorecard';
 
@@ -22,25 +22,31 @@ export const NAVIGATION_STATE_KEYS = {
 };
 
 export const CLEAR_ALL_APP_DATA: AreYouSureDialogConfig = {
-  title:  'Clear ALL App Data',
+  title: 'Clear ALL App Data',
   message: 'Are you sure? This will clear ALL profiles.',
-  confirmButtonText: 'Clear All'
-} 
+  confirmButtonText: 'Clear All',
+  confirmButtonIcon: 'delete_forever',
+};
 
 export const DELETE_PROFILE: AreYouSureDialogConfig = {
-  title:  'Delete Profile',
-  message: 'Are you sure? This will clear ALL courses and rounds for this user.',
-  confirmButtonText: 'Delete'
-} 
+  title: 'Delete Profile',
+  message:
+    'Are you sure? This will clear ALL courses and rounds for this user.',
+  confirmButtonText: 'Delete',
+  confirmButtonIcon: 'delete',
+};
 
 export const DELETE_ROUND: AreYouSureDialogConfig = {
-  title:  'Delete Round',
+  title: 'Delete Round',
   message: 'Are you sure? This action cannot be undone.',
-  confirmButtonText: 'Delete'
-} 
+  confirmButtonText: 'Delete',
+  confirmButtonIcon: 'delete',
+};
 
 export const DELETE_COURSE: AreYouSureDialogConfig = {
-  title:  'Delete Course',
-  message: 'Are you sure? This will also delete ALL recorded rounds for this course.',
-  confirmButtonText: 'Delete'
-} 
+  title: 'Delete Course',
+  message:
+    'Are you sure? This will also delete ALL recorded rounds for this course.',
+  confirmButtonText: 'Delete',
+  confirmButtonIcon: 'delete',
+};

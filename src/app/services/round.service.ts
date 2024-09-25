@@ -8,7 +8,7 @@ import { LocalStorageService } from './local-storage.service';
 export class RoundService {
   constructor(private localStorageService: LocalStorageService) {}
 
-  public getRoundsByIds(roundIds: string[]): Round[] {
+  public getRoundsByIds(roundIds?: string[]): Round[] {
     return (
       roundIds
         ?.map((roundId) => {
@@ -53,7 +53,7 @@ export class RoundService {
       ?.every((result) => !!result);
   }
 
-  public deleteRounds(roundIdsToDelete: string[]): void {
+  public deleteRounds(roundIdsToDelete?: string[]): void {
     roundIdsToDelete?.forEach((roundId) =>
       this.localStorageService.removeItem(roundId),
     );

@@ -303,7 +303,7 @@
     @if (roundIdToEdit) {
       <button mat-stroked-button (click)="deleteRound()">
         <mat-icon>delete</mat-icon>
-        Delete Round
+        Delete
       </button>
     }
     <button
@@ -311,8 +311,18 @@
       (click)="saveRound()"
       [disabled]="disableSaveButton"
     >
-      <mat-icon>save</mat-icon>
-      Save
+      <mat-icon>
+        @if (roundIdToEdit) {
+          save_as
+        } @else {
+          save
+        }
+      </mat-icon>
+      @if (roundIdToEdit) {
+        Update
+      } @else {
+        Save
+      }
     </button>
   </div>
 </ng-template>

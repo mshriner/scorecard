@@ -51,7 +51,7 @@ export class CourseService {
     return this.saveCourses([updatedCourse]);
   }
 
-  public deleteCourses(courseIdsToDelete: string[]): void {
+  public deleteCourses(courseIdsToDelete?: string[]): void {
     courseIdsToDelete?.forEach((courseId) =>
       this.localStorageService.removeItem(courseId),
     );

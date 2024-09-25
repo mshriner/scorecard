@@ -130,7 +130,7 @@
     @if (courseIdToEdit) {
       <button mat-stroked-button (click)="deleteCourse()">
         <mat-icon>delete</mat-icon>
-        Delete Course
+        Delete
       </button>
     }
     <button
@@ -138,8 +138,18 @@
       (click)="saveCourse()"
       [disabled]="disableSaveButton"
     >
-      <mat-icon>save</mat-icon>
-      Save
+      <mat-icon>
+        @if (courseIdToEdit) {
+          save_as
+        } @else {
+          save
+        }
+      </mat-icon>
+      @if (courseIdToEdit) {
+        Update
+      } @else {
+        Save
+      }
     </button>
   </div>
 </ng-template>

@@ -99,9 +99,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
       `${this.appStateService.currentUser?.name?.trim()}'s Results`,
     );
     this.rounds.set(
-      this.roundService.getRoundsByIds(
-        this.appStateService.currentUser?.roundIds || [],
-      ),
+      this.roundService
+        .getRoundsByIds(this.appStateService.currentUser?.roundIds || [])
+        .sort((a, b) => {
+          if (a?.dateStringISO > b?.dateStringISO) {
+            return 1;
+          }
+          if (a?.dateStringISO < b?.dateStringISO) {
+            return -1;
+          }
+          return 0;
+        }),
     );
   }
 

@@ -2,7 +2,15 @@
 <mat-dialog-content>
   {{ data.message }}
 </mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-button (click)="onNoClick()" cdkFocusInitial>Cancel</button>
-  <button mat-button (click)="clear()">{{ data.confirmButtonText }}</button>
+<mat-dialog-actions class="no-padding" align="center">
+  <button mat-stroked-button (click)="onNoClick()" cdkFocusInitial>
+    <mat-icon>cancel</mat-icon>
+    Cancel
+  </button>
+  <button mat-stroked-button (click)="clear()">
+    @if (data.confirmButtonIcon) {
+      <mat-icon>{{ data.confirmButtonIcon }}</mat-icon>
+    }
+    {{ data.confirmButtonText }}
+  </button>
 </mat-dialog-actions>
