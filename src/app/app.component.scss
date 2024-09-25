@@ -66,3 +66,13 @@ h6 {
 .nav-container {
   height: 100dvh;
 }
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+mat-icon.rotate {
+  animation: spinner 2s linear infinite;
+}

@@ -1,29 +1,30 @@
 <mat-sidenav-container class="nav-container">
   <mat-sidenav #sidenav class="sidenav padding-inline-8">
     @if (appStateService.currentUser) {
-    <div style="margin-bottom: 16px; margin-top: 8px">
-      Profile: {{ appStateService.currentUser.name }}
-    </div>
-    }
+      <div style="margin-bottom: 16px; margin-top: 8px">
+        Profile: {{ appStateService.currentUser.name }}
+      </div>
 
-    <mat-divider></mat-divider>
+      <mat-divider></mat-divider>
+    }
 
     <h6>Navigation</h6>
 
     @if (!isOnHomeScreen) {
-    <div style="display: block">
-      <div mat-ripple (click)="goToHome()" class="flex-menu-option">
-        <mat-icon>home</mat-icon>
-        <span>Home</span>
+      <div style="display: block">
+        <div mat-ripple (click)="goToHome()" class="flex-menu-option">
+          <mat-icon>home</mat-icon>
+          <span>Home</span>
+        </div>
       </div>
-    </div>
-    } @if (!isOnCoursesScreen) {
-    <div style="display: block">
-      <div mat-ripple (click)="viewCourses()" class="flex-menu-option">
-        <mat-icon>golf_course</mat-icon>
-        <span>Courses</span>
+    }
+    @if (!isOnCoursesScreen) {
+      <div style="display: block">
+        <div mat-ripple (click)="viewCourses()" class="flex-menu-option">
+          <mat-icon>golf_course</mat-icon>
+          <span>Courses</span>
+        </div>
       </div>
-    </div>
     }
 
     <mat-divider></mat-divider>
@@ -33,24 +34,34 @@
     <div style="display: block">
       <div mat-ripple (click)="addNewCourse()" class="flex-menu-option">
         <mat-icon>add</mat-icon>
-        <span> @if(!appStateService.useSmallerButtons()){ New } Course </span>
+        <span>
+          @if (!appStateService.useSmallerButtons()) {
+            New
+          }
+          Course
+        </span>
       </div>
     </div>
     @if (appStateService.currentUser?.courseIds?.length) {
-    <div style="display: block">
-      <div mat-ripple (click)="addNewRound()" class="flex-menu-option">
-        <mat-icon>add</mat-icon>
-        <span> @if(!appStateService.useSmallerButtons()){ New } Round </span>
+      <div style="display: block">
+        <div mat-ripple (click)="addNewRound()" class="flex-menu-option">
+          <mat-icon>add</mat-icon>
+          <span>
+            @if (!appStateService.useSmallerButtons()) {
+              New
+            }
+            Round
+          </span>
+        </div>
       </div>
-    </div>
     }
     <div class="bottom-options">
       <div style="display: block">
         <div mat-ripple (click)="checkForUpdates()" class="flex-menu-option">
           @if (showSpinner()) {
-          <mat-icon class="rotate">refresh</mat-icon>
+            <mat-icon class="rotate">refresh</mat-icon>
           } @else {
-          <mat-icon>refresh</mat-icon>
+            <mat-icon>refresh</mat-icon>
           }
           <span>Check for Updates</span>
         </div>
@@ -66,15 +77,16 @@
   <mat-sidenav-content>
     <mat-toolbar color="primary">
       @if (appStateService.currentUser && !isOnWipeDataScreen) {
-      @if(isOnProfilesScreen || isOnHomeScreen || isOnCoursesScreen) {
-      <button mat-icon-button (click)="sidenav.toggle()">
-        <mat-icon>menu</mat-icon>
-      </button>
-      } @else {
-      <button mat-icon-button (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      } }
+        @if (isOnProfilesScreen || isOnHomeScreen || isOnCoursesScreen) {
+          <button mat-icon-button (click)="sidenav.toggle()">
+            <mat-icon>menu</mat-icon>
+          </button>
+        } @else {
+          <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+        }
+      }
       <span class="title">
         {{ appStateService.pageTitle() }}
       </span>
