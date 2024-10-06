@@ -20,6 +20,7 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 import { CommonModule } from '@angular/common';
+import { SharingService } from '../../services/sharing.service';
 
 @Component({
   selector: 'app-edit-course',
@@ -71,6 +72,7 @@ export class EditCourseComponent {
     private dialog: MatDialog,
     private roundService: RoundService,
     private router: Router,
+    private shareService: SharingService,
   ) {
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
@@ -157,6 +159,15 @@ export class EditCourseComponent {
           this.router.navigateByUrl(APP_ROUTES.HOME);
         }
       });
+  }
+
+  public shareCourse(): void {
+    if (!this.courseIdToEdit) {
+      return;
+    }
+    this.shareService.shareData(this.editingCourse).subscribe((result) => {
+      console.log(result);
+    });
   }
 
   public saveCourse(): void {
