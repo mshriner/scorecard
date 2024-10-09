@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -18,14 +18,36 @@ export class SharingService {
     return navigator.canShare({ text: JSON.stringify(data) });
   }
 
-  public shareData(data: any): Observable<boolean> {
+  public shareData(data: any, shareFileName: string): Observable<boolean> {
     if (!this.CAN_SHARE_DATA || !this.CAN_SHARE_FILES) {
       return of(false);
     }
 
     try {
-      return from(navigator.share({ text: JSON.stringify(data) })).pipe(
+      const toShare = {
+        title: `Exported ${shareFileName}`,
+        files: [
+          new File([JSON.stringify(data)], `${shareFileName}.json`, {
+            type: 'application/json',
+          }),
+        ],
+      };
+      console.log(
+        navigator.canShare(toShare),
+        navigator.userActivation.isActive,
+        navigator.userActivation.hasBeenActive,
+      );
+      return from(navigator.share(toShare)).pipe(
         map(() => true),
+        catchError((e) => {
+          // The data could not be shared.
+          console.error(
+            `Error: ${e}`,
+            navigator.userActivation.isActive,
+            navigator.userActivation.hasBeenActive,
+          );
+          return of(false);
+        }),
       );
       // The data was shared successfully.
     } catch (e) {

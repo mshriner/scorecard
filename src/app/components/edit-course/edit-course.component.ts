@@ -165,9 +165,11 @@ export class EditCourseComponent {
     if (!this.courseIdToEdit) {
       return;
     }
-    this.shareService.shareData(this.editingCourse).subscribe((result) => {
-      console.log(result);
-    });
+    this.shareService
+      .shareData(this.editingCourse, 'course')
+      .subscribe((result) => {
+        console.log(result);
+      });
   }
 
   public saveCourse(): void {
