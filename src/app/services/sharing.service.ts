@@ -70,30 +70,25 @@ export class SharingService {
     return navigator.canShare(data);
   }
 
-  // // Retrieve the button from the DOM. The button is hidden for now.
-  // const button = document.querySelector("#share");
-
-  // if (this.CAN_SHARE_FILES) {
-  //   // The browser supports sharing files. Show the button.
-  //   button.style.display = "inline";
-
-  //   // Listen for clicks on the button and share a file.
-  //   button.addEventListener("click", async () => {
-  //     try {
-  //       // Get the file to be shared. This function should return a File
-  //       // object, perhaps by creating it dynamically, or retrieving it
-  //       // from IndexedDB.
-  //       const file = await getTheFileToShare();
-
-  //       await navigator.share({
-  //         title: "My shared file",
-  //         files: [file],
-  //       });
-
-  //       console.log("The file was successfully shared");
-  //     } catch (err) {
-  //       console.error(`The file could not be shared: ${err}`);
-  //     }
-  //   });
-  // }
+  /**
+   * add to web manifest
+   * 
+   * 
+  "share_target": {
+    "action": "scorecard",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "course",
+          "accept": [
+            "application/json",
+            ".json"
+          ]
+        }
+      ]
+    }
+  },
+   */
 }
