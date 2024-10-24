@@ -19,7 +19,6 @@ import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
-import { SharingService } from '../../services/sharing.service';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
@@ -72,7 +71,6 @@ export class EditCourseComponent {
     private dialog: MatDialog,
     private roundService: RoundService,
     private router: Router,
-    private shareService: SharingService,
   ) {
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
@@ -158,17 +156,6 @@ export class EditCourseComponent {
           this.courseService.deleteCourses([this.courseIdToEdit]);
           this.router.navigateByUrl(APP_ROUTES.HOME);
         }
-      });
-  }
-
-  public shareCourse(): void {
-    if (!this.courseIdToEdit) {
-      return;
-    }
-    this.shareService
-      .shareData(this.editingCourse, 'course')
-      .subscribe((result) => {
-        console.log(result);
       });
   }
 
