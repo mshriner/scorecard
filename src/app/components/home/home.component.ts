@@ -289,9 +289,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (this.currentUser) {
       delete this.currentUser.earliestDateISO;
       delete this.currentUser.latestDateISO;
-      delete this.currentUser.courseStatsFilterSelect;
-      this.updateFilteredRounds();
-      this.saveUser();
+      this.select?.options?.forEach((item: MatOption) => item.deselect());
+      this.reevaluateAllSelectedStatus(true);
     }
   }
 
