@@ -65,7 +65,10 @@ export class CourseListComponent implements OnInit {
   }
 
   public onFileSelected(input: HTMLInputElement): void {
-    console.log(input.value);
-    alert(input.value);
+    const file = input.files?.[0];
+    file?.text().then((uploaded) => {
+      console.log(uploaded);
+      alert(uploaded);
+    });
   }
 }
