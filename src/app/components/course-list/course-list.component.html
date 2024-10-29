@@ -33,7 +33,7 @@
 }
 
 <ng-template #addActions>
-  <div class="full-width-center space-evenly">
+  <div class="full-width-center space-evenly padding-bottom-8">
     <button mat-stroked-button (click)="addNewCourse()">
       <mat-icon>add</mat-icon>
       @if (!appStateService.useSmallerButtons()) {
@@ -50,5 +50,19 @@
         Round
       </button>
     }
+  </div>
+  <div class="full-width-center space-evenly">
+    <button mat-stroked-button (click)="fileInput.click()">
+      <mat-icon>input</mat-icon>
+      Import Course
+    </button>
+    <input
+      hidden
+      (change)="onFileSelected(fileInput)"
+      #fileInput
+      type="file"
+      id="file"
+      accept="application/json"
+    />
   </div>
 </ng-template>

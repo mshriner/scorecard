@@ -9,3 +9,5 @@ export interface User extends StorageObject {
   earliestDateISO?: string;
   latestDateISO?: string;
 }
+
+type USER_OBJECT_KEYS = (keyof User)[];

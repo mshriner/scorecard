@@ -1,6 +1,8 @@
-import { StorageObject } from "./storage-object";
+import { StorageObject } from './storage-object';
 
 export interface Course extends StorageObject {
   name: string;
   par: number[];
 }
+
+type COURSE_OBJECT_KEYS = (keyof Course)[];

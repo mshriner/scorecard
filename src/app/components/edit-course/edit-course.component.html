@@ -126,16 +126,12 @@
 <br />
 
 <ng-template #saveActions>
-  <div class="full-width-center space-evenly">
+  <div class="full-width-center space-evenly padding-bottom-8">
     @if (courseIdToEdit) {
       <button mat-stroked-button (click)="deleteCourse()">
         <mat-icon>delete</mat-icon>
         Delete
       </button>
-      <!-- <button mat-stroked-button (click)="shareCourse()">
-        <mat-icon>share</mat-icon>
-        Share
-      </button> -->
     }
     <button
       mat-stroked-button
@@ -155,5 +151,13 @@
         Save
       }
     </button>
+  </div>
+  <div class="full-width-center space-evenly">
+    @if (courseIdToEdit) {
+      <button mat-stroked-button (click)="shareCourse()">
+        <mat-icon>share</mat-icon>
+        Share
+      </button>
+    }
   </div>
 </ng-template>

@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
+import { User } from '../models/user';
+import { AppStateService } from './app-state.service';
+import { ExportedItem } from '../models/data-transfer';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +11,7 @@ export class SharingService {
   public readonly CAN_SHARE_DATA = this.canBrowserShareData('test');
   public readonly CAN_SHARE_FILES = this.canBrowserShareFiles();
 
-  constructor() {}
+  constructor(private appStateService: AppStateService) {}
 
   private canBrowserShareData(data: any): boolean {
     if (!navigator.share || !navigator.canShare) {
@@ -19,15 +22,25 @@ export class SharingService {
   }
 
   public shareData(data: any, shareFileName: string): Observable<boolean> {
-    if (!this.CAN_SHARE_DATA || !this.CAN_SHARE_FILES) {
+    if (
+      !this.CAN_SHARE_DATA ||
+      !this.CAN_SHARE_FILES ||
+      !this.appStateService?.currentUser
+    ) {
       return of(false);
     }
 
     try {
+      const exportedItem: ExportedItem = {
+        ...data,
+        fromProfileId: this.appStateService.currentUser.id,
+        fromProfileName: this.appStateService.currentUser.name,
+      };
+
       const toShare = {
         title: `Exported ${shareFileName}`,
         files: [
-          new File([JSON.stringify(data)], `${shareFileName}.json`, {
+          new File([JSON.stringify(exportedItem)], `${shareFileName}.json`, {
             type: 'application/json',
           }),
         ],

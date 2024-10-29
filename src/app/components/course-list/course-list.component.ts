@@ -63,4 +63,9 @@ export class CourseListComponent implements OnInit {
   public addNewCourse(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
   }
+
+  public onFileSelected(input: HTMLInputElement): void {
+    console.log(input.value);
+    alert(input.value);
+  }
 }

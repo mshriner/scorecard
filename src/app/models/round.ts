@@ -21,3 +21,5 @@ export const DisplayRoundVariety: Record<RoundVariety, string> = {
   FRONT_NINE: 'Front nine (9 holes)',
   BACK_NINE: 'Back nine (9 holes)',
 };
+
+type ROUND_OBJECT_KEYS = (keyof Round)[];
