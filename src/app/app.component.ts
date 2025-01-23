@@ -3,7 +3,7 @@ import { Component, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,9 +13,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
-import { APP_ROUTES } from './models/constants';
+import { APP_ROUTES, UNSAVED_DATA } from './models/constants';
 import { AppStateService } from './services/app-state.service';
 import { SnackBarService } from './services/snack-bar.service';
+import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -46,6 +47,7 @@ export class AppComponent {
   constructor(
     public appStateService: AppStateService,
     private router: Router,
+    private dialog: MatDialog,
     private location: Location,
     private snackBarService: SnackBarService,
     private serviceWorker: SwUpdate,
@@ -63,7 +65,20 @@ export class AppComponent {
   }
 
   public goBack(): void {
-    this.location.back();
+    if (this.appStateService.unsavedDataOnPage()) {
+      this.dialog
+        .open(AreYouSureDialogComponent, {
+          data: UNSAVED_DATA,
+        })
+        .afterClosed()
+        .subscribe((confirmed) => {
+          if (confirmed) {
+            this.location.back();
+          }
+        });
+    } else {
+      this.location.back();
+    }
   }
 
   public goToHome(): void {

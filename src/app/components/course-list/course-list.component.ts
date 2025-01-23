@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -9,7 +10,7 @@ import { Course } from '../../models/course';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
-import { CommonModule } from '@angular/common';
+import { SharingService } from '../../services/sharing.service';
 
 @Component({
   selector: 'app-course-list',
@@ -38,6 +39,7 @@ export class CourseListComponent implements OnInit {
   constructor(
     public appStateService: AppStateService,
     public courseService: CourseService,
+    public sharingService: SharingService,
     private router: Router,
   ) {}
 
@@ -69,6 +71,10 @@ export class CourseListComponent implements OnInit {
     file?.text().then((uploaded) => {
       console.log(uploaded);
       alert(uploaded);
+      const parsed = this.sharingService.convertDTOToDomain(
+        JSON.parse(uploaded),
+        'course',
+      );
     });
   }
 }

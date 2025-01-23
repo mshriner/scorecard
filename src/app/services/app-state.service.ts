@@ -1,18 +1,33 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { User } from '../models/user';
 import { UserService } from './user.service';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AppStateService {
+export class AppStateService implements OnDestroy {
   private _currentUser: User | null = null;
-  public pageTitle: WritableSignal<string> = signal('');
-  public useSmallerButtons = signal(false);
+  public readonly pageTitle: WritableSignal<string> = signal('');
+  public readonly useSmallerButtons = signal(false);
+  public readonly unsavedDataOnPage = signal<boolean>(false);
 
-  constructor(private userService: UserService) {
+  private routeSubscription: Subscription;
+
+  constructor(
+    private userService: UserService,
+    private router: Router,
+  ) {
     this._currentUser = this.userService.getCurrentUser();
     this.updateFontSize();
+    this.routeSubscription = this.router.events.subscribe(() => {
+      this.unsavedDataOnPage.set(false);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
   }
 
   public get currentUser(): User | null {

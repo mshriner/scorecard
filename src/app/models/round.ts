@@ -1,3 +1,5 @@
+import { CourseDTO } from './course';
+import { ExportedItem } from './data-transfer';
 import { StorageObject } from './storage-object';
 
 export interface Round extends StorageObject {
@@ -8,6 +10,10 @@ export interface Round extends StorageObject {
   putts: number[];
   roundVariety: RoundVariety;
   generalNotes?: string;
+}
+
+export interface RoundDTO extends Round, ExportedItem {
+  courseDTO: CourseDTO;
 }
 
 export enum RoundVariety {

@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
-import { User } from '../models/user';
+import { User, UserDTO } from '../models/user';
 import { AppStateService } from './app-state.service';
-import { ExportedItem } from '../models/data-transfer';
+import { ExportedItem, ImportType } from '../models/data-transfer';
+import { Course, CourseDTO } from '../models/course';
+import { Round, RoundDTO } from '../models/round';
 
 @Injectable({
   providedIn: 'root',
@@ -81,6 +83,14 @@ export class SharingService {
     const data = { files: [testFile] };
 
     return navigator.canShare(data);
+  }
+
+  public convertDTOToDomain(
+    importedItem: CourseDTO | RoundDTO | UserDTO,
+    typeOfImport: ImportType
+  ): Course | Round | User {
+    const { fromProfileName, fromProfileId, ...domain } = importedItem;
+    return domain;
   }
 
   /**

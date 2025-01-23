@@ -8,6 +8,17 @@ import { LocalStorageService } from './local-storage.service';
 export class RoundService {
   constructor(private localStorageService: LocalStorageService) {}
 
+  public getRoundById(roundId: string): Round | null {
+    const retrieved = this.localStorageService.getItem(roundId);
+    if (!retrieved?.id) {
+      return null;
+    }
+    if (!retrieved.roundVariety) {
+      retrieved.roundVariety = RoundVariety.EIGHTEEN;
+    }
+    return retrieved as Round;
+  }
+
   public getRoundsByIds(roundIds?: string[]): Round[] {
     return (
       roundIds

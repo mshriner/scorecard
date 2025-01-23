@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -21,6 +21,7 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { SharingService } from '../../services/sharing.service';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
+import equal from 'fast-deep-equal';
 
 @Component({
   selector: 'app-edit-course',
@@ -40,6 +41,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
   styleUrl: './edit-course.component.scss',
 })
 export class EditCourseComponent {
+  private originalCourse: Course;
   public editingCourse: Course;
   public courseIdToEdit: string;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
@@ -67,7 +69,7 @@ export class EditCourseComponent {
   ];
 
   constructor(
-    private appStateService: AppStateService,
+    public appStateService: AppStateService,
     private courseService: CourseService,
     private dialog: MatDialog,
     private roundService: RoundService,
@@ -78,16 +80,16 @@ export class EditCourseComponent {
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
       ];
-    console.log(this.courseIdToEdit);
+    console.log(`id if this is an existing course: ${this.courseIdToEdit}`);
     if (this.courseIdToEdit) {
       const retrieved = this.courseService.getCourse(this.courseIdToEdit);
       if (!retrieved) {
         this.router.navigateByUrl(APP_ROUTES.HOME);
         this.editingCourse = {} as Course;
-        return;
+      } else {
+        this.editingCourse = JSON.parse(JSON.stringify(retrieved));
+        this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
       }
-      this.editingCourse = JSON.parse(JSON.stringify(retrieved));
-      this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
     } else {
       this.editingCourse = {
         id: `course-${crypto.randomUUID()}`,
@@ -96,16 +98,19 @@ export class EditCourseComponent {
       };
       this.appStateService.setPageTitle(`Create Course`);
     }
+    this.originalCourse = JSON.parse(JSON.stringify(this.editingCourse));
   }
 
   public parPlusOne(index: number) {
     this.editingCourse.par[index]++;
+    this.updateUnsavedData();
   }
 
   public parMinusOne(index: number) {
     if (this.editingCourse.par[index]) {
       this.editingCourse.par[index]--;
     }
+    this.updateUnsavedData();
   }
 
   public showSummaryRow(index: number): boolean {
@@ -114,6 +119,10 @@ export class EditCourseComponent {
 
   public returnTrue(): boolean {
     return true;
+  }
+
+  public updateUnsavedData(): void {
+    this.appStateService.unsavedDataOnPage.set(!equal(this.originalCourse, this.editingCourse));
   }
 
   public get disableSaveButton(): boolean {

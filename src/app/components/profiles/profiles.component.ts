@@ -48,7 +48,6 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     MatCardModule,
     MatRippleModule,
     MatDividerModule,
-    AreYouSureDialogComponent,
   ],
   templateUrl: './profiles.component.html',
   styleUrl: './profiles.component.scss',
@@ -96,7 +95,8 @@ export class ProfilesComponent {
       });
   }
 
-  public editProfile(userToEdit: User): void {
+  public editProfile(userToEdit: User, $event: MouseEvent): void {
+    $event.stopPropagation();
     this.dialog
       .open(EditProfileDialog, {
         data: userToEdit.name,
@@ -116,7 +116,8 @@ export class ProfilesComponent {
       });
   }
 
-  public deleteProfile(userIdToDelete: string): void {
+  public deleteProfile(userIdToDelete: string, $event: MouseEvent): void {
+    $event.stopPropagation();
     this.dialog
       .open(AreYouSureDialogComponent, {
         data: DELETE_PROFILE,

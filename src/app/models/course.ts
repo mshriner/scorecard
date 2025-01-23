@@ -1,3 +1,4 @@
+import { ExportedItem } from './data-transfer';
 import { StorageObject } from './storage-object';
 
 export interface Course extends StorageObject {
@@ -5,4 +6,14 @@ export interface Course extends StorageObject {
   par: number[];
 }
 
-type COURSE_OBJECT_KEYS = (keyof Course)[];
+export interface CourseDTO extends Course, ExportedItem {}
+
+export const COURSE_EXAMPLE: CourseDTO = {
+  id: 'id',
+  name: 'name',
+  par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+  fromProfileId: 'profile-id',
+  fromProfileName: 'profile-name',
+};
+
+export type CourseKeys = keyof CourseDTO;

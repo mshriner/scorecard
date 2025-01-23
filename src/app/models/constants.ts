@@ -50,3 +50,11 @@ export const DELETE_COURSE: AreYouSureDialogConfig = {
   confirmButtonText: 'Delete',
   confirmButtonIcon: 'delete',
 };
+
+export const UNSAVED_DATA: AreYouSureDialogConfig = {
+  title: 'Unsaved Data',
+  message:
+    'Are you sure you want to leave this page? Unsaved changes will be lost.',
+  confirmButtonText: 'Leave',
+  confirmButtonIcon: 'arrow_back',
+};

@@ -29,6 +29,7 @@ import {
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
+import equal from 'fast-deep-equal';
 
 interface ColumnDef {
   columnDef: string;
@@ -48,7 +49,6 @@ interface ColumnDef {
     PipesModule,
     MatSelectModule,
     MatDatepickerModule,
-    DatePipe,
     CommonModule,
     TypedTemplateDirective,
     MatDialogModule,
@@ -59,6 +59,7 @@ interface ColumnDef {
   styleUrl: './edit-round.component.scss',
 })
 export class EditRoundComponent {
+  private originalRound: Round;
   public editingRound: Round;
   public coursesToChooseFrom: Course[];
   public currentCourse: Course | null = null;
@@ -111,7 +112,7 @@ export class EditRoundComponent {
   public readonly ROUND_VARIETY_ENUM = RoundVariety;
 
   constructor(
-    private appStateService: AppStateService,
+    public appStateService: AppStateService,
     private courseService: CourseService,
     private roundService: RoundService,
     private router: Router,
@@ -123,21 +124,19 @@ export class EditRoundComponent {
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT
       ];
-    console.log(this.roundIdToEdit);
+    console.log(`id if this is an existing round: ${this.roundIdToEdit}`);
     if (this.roundIdToEdit) {
-      const retrieved = this.roundService.getRoundsByIds([
-        this.roundIdToEdit,
-      ])?.[0];
+      const retrieved = this.roundService.getRoundById(this.roundIdToEdit);
       if (!retrieved) {
         this.router.navigateByUrl(APP_ROUTES.HOME);
         this.editingRound = {} as Round;
-        return;
+      } else {
+        this.editingRound = JSON.parse(JSON.stringify(retrieved));
+        this.appStateService.setPageTitle(
+          `Editing ${datePipe.transform(retrieved?.dateStringISO)}`,
+        );
+        this.updateCurrentCourse(this.editingRound.courseId);
       }
-      this.editingRound = JSON.parse(JSON.stringify(retrieved));
-      this.appStateService.setPageTitle(
-        `Editing ${datePipe.transform(retrieved?.dateStringISO)}`,
-      );
-      this.updateCurrentCourse(this.editingRound.courseId);
     } else {
       this.editingRound = {
         id: `round-${crypto.randomUUID()}`,
@@ -149,26 +148,31 @@ export class EditRoundComponent {
       };
       this.appStateService.setPageTitle(`Create Round`);
     }
+    this.originalRound = JSON.parse(JSON.stringify(this.editingRound));
   }
 
   public updateCurrentCourse(newCourseId: string): void {
     console.log('selected course', newCourseId);
     this.currentCourse = this.courseService.getCourse(newCourseId);
+    this.updateUnsavedData();
   }
 
   public updateRoundVariety(newRoundVariety: RoundVariety): void {
     console.log('selected round variety', newRoundVariety);
     this.editingRound.roundVariety = newRoundVariety;
+    this.updateUnsavedData();
   }
 
   public strokesPlusOne(index: number) {
     this.editingRound.strokes[index]++;
+    this.updateUnsavedData();
   }
 
   public strokesMinusOne(index: number) {
     if (this.editingRound.strokes[index]) {
       this.editingRound.strokes[index]--;
     }
+    this.updateUnsavedData();
   }
 
   public puttsPlusOne(index: number) {
@@ -176,6 +180,7 @@ export class EditRoundComponent {
       this.editingRound.putts[index] = 0;
     }
     this.editingRound.putts[index]++;
+    this.updateUnsavedData();
   }
 
   public puttsMinusOne(index: number) {
@@ -184,6 +189,13 @@ export class EditRoundComponent {
     } else {
       this.editingRound.putts[index]--;
     }
+    this.updateUnsavedData();
+  }
+
+  public updateUnsavedData(): void {
+    this.appStateService.unsavedDataOnPage.set(
+      !equal(this.originalRound, this.editingRound),
+    );
   }
 
   public showSummaryRow(index: number): boolean {
@@ -198,11 +210,12 @@ export class EditRoundComponent {
     if (event.value) {
       this.editingRound.dateStringISO = event.value.toISOString();
     }
+    this.updateUnsavedData();
   }
 
   public get disableSaveButton(): boolean {
     return (
-      !this.editingRound.dateStringISO ||
+      !Date.parse(this.editingRound.dateStringISO) ||
       !this.editingRound.roundVariety ||
       !this.editingRound.courseId.length
     );
