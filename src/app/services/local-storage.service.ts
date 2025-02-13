@@ -16,7 +16,13 @@ export class LocalStorageService {
       // Note: this will not properly store / retrieve any complex types like Date()
       localStorage.setItem(key, JSON.stringify(value));
 
-      console.log('set', value, 'at key', key, this.auditLocalStorageSize());
+      console.log(
+        'set',
+        JSON.stringify(value),
+        'at key',
+        key,
+        this.auditLocalStorageSize(),
+      );
       return true;
     } catch (err: any) {
       console.error(`couldn't store key ${key}`, err);

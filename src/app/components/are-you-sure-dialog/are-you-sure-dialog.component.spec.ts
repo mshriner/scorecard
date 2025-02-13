@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AreYouSureDialogComponent } from './are-you-sure-dialog.component';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 
 describe('AreYouSureDialogComponent', () => {
   let component: AreYouSureDialogComponent;
@@ -8,7 +9,8 @@ describe('AreYouSureDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AreYouSureDialogComponent]
+      imports: [AreYouSureDialogComponent],
+      providers: [provideExperimentalZonelessChangeDetection()],
     })
     .compileComponents();
 

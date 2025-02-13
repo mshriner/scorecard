@@ -31,7 +31,7 @@ import {
   CLEAR_ALL_APP_DATA,
   DELETE_PROFILE,
 } from '../../models/constants';
-import { User } from '../../models/user';
+import { LocalUserWithFilters } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
@@ -53,7 +53,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
   styleUrl: './profiles.component.scss',
 })
 export class ProfilesComponent {
-  readonly profiles: WritableSignal<User[]> = signal([]);
+  readonly profiles: WritableSignal<LocalUserWithFilters[]> = signal([]);
   readonly dialog = inject(MatDialog);
   readonly APP_NAME = APP_NAME;
   readonly CLEAR_ALL = CLEAR_ALL_APP_DATA;
@@ -71,7 +71,7 @@ export class ProfilesComponent {
     this.profiles.set(this.userService.getAllUsers());
   }
 
-  public selectProfile(selected: User): void {
+  public selectProfile(selected: LocalUserWithFilters): void {
     this.appStateService.currentUser = selected;
     this.router.navigateByUrl('/home');
   }
@@ -83,7 +83,7 @@ export class ProfilesComponent {
       .subscribe((newProfileName) => {
         const sanitizedName = newProfileName?.trim();
         if (sanitizedName?.length) {
-          const newProfile: User = {
+          const newProfile: LocalUserWithFilters = {
             id: `user-${crypto.randomUUID()}`,
             name: sanitizedName,
             roundIds: [],
@@ -95,7 +95,10 @@ export class ProfilesComponent {
       });
   }
 
-  public editProfile(userToEdit: User, $event: MouseEvent): void {
+  public editProfile(
+    userToEdit: LocalUserWithFilters,
+    $event: MouseEvent,
+  ): void {
     $event.stopPropagation();
     this.dialog
       .open(EditProfileDialog, {

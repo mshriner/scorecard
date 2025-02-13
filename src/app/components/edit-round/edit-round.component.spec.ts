@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EditRoundComponent } from './edit-round.component';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 
 describe('EditRoundComponent', () => {
   let component: EditRoundComponent;
@@ -8,7 +9,8 @@ describe('EditRoundComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditRoundComponent]
+      imports: [EditRoundComponent],
+      providers: [provideExperimentalZonelessChangeDetection()],
     })
     .compileComponents();
 

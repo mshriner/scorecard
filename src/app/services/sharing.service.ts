@@ -3,7 +3,11 @@ import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
 import { User, UserDTO } from '../models/user';
 import { AppStateService } from './app-state.service';
 import { ExportedItem, ImportType } from '../models/data-transfer';
-import { Course, CourseDTO } from '../models/course';
+import {
+  Course,
+  COURSE_EXAMPLE,
+  CourseDTO,
+} from '../models/course';
 import { Round, RoundDTO } from '../models/round';
 
 @Injectable({
@@ -87,10 +91,22 @@ export class SharingService {
 
   public convertDTOToDomain(
     importedItem: CourseDTO | RoundDTO | UserDTO,
-    typeOfImport: ImportType
+    typeOfImport: ImportType,
   ): Course | Round | User {
     const { fromProfileName, fromProfileId, ...domain } = importedItem;
     return domain;
+
+    // switch (typeOfImport) {
+    //   case 'course': {
+    //     const domainCourse = {} as Course;
+    //     Object.keys(COURSE_EXAMPLE).forEach(
+    //       (key) => {
+    //         if (!importedItem[key])
+    //         domainCourse[key] = importedItem[key];},
+    //       );
+    //     return domainCourse;
+    //   }
+    // }
   }
 
   /**

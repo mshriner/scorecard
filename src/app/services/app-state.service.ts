@@ -1,14 +1,14 @@
 import { Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
-import { User } from '../models/user';
-import { UserService } from './user.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { LocalUserWithFilters } from '../models/user';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppStateService implements OnDestroy {
-  private _currentUser: User | null = null;
+  private _currentUser: LocalUserWithFilters | null = null;
   public readonly pageTitle: WritableSignal<string> = signal('');
   public readonly useSmallerButtons = signal(false);
   public readonly unsavedDataOnPage = signal<boolean>(false);
@@ -30,7 +30,7 @@ export class AppStateService implements OnDestroy {
     this.routeSubscription?.unsubscribe();
   }
 
-  public get currentUser(): User | null {
+  public get currentUser(): LocalUserWithFilters | null {
     if (!this._currentUser) {
       this._currentUser = this.userService.getCurrentUser();
     }
@@ -41,7 +41,7 @@ export class AppStateService implements OnDestroy {
     this.currentUser = this._currentUser;
   }
 
-  public set currentUser(nextUser: User | null) {
+  public set currentUser(nextUser: LocalUserWithFilters | null) {
     this._currentUser = nextUser;
     this.updateFontSize();
     this.userService.setCurrentUser(nextUser);

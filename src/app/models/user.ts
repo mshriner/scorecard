@@ -8,6 +8,9 @@ export interface User extends StorageObject {
   roundIds: string[];
   courseIds: string[];
   appFontScaling: number;
+}
+
+export interface LocalUserWithFilters extends User {
   courseStatsFilterSelect?: string[];
   earliestDateISO?: string;
   latestDateISO?: string;
@@ -18,4 +21,10 @@ export interface UserDTO extends User, ExportedItem {
   roundDTOs: RoundDTO[];
 }
 
-type USER_OBJECT_KEYS = (keyof User)[];
+export const USER_EXAMPLE: User = {
+  id: 'id',
+  name: 'name',
+  roundIds: ['round1'],
+  courseIds: ['course1'],
+  appFontScaling: 1,
+};

@@ -18,9 +18,15 @@ import {
   MatRippleModule,
   provideNativeDateAdapter,
 } from '@angular/material/core';
+import {
+  MatDatepicker,
+  MatDatepickerInputEvent,
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTableModule } from '@angular/material/table';
@@ -28,17 +34,11 @@ import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course } from '../../models/course';
 import { Round } from '../../models/round';
-import { User } from '../../models/user';
+import { LocalUserWithFilters } from '../../models/user';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
-import {
-  MatDatepicker,
-  MatDatepickerInputEvent,
-  MatDatepickerModule,
-} from '@angular/material/datepicker';
-import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-home',
@@ -96,7 +96,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     return d < new Date(this.currentUser.latestDateISO);
   };
 
-  public currentUser: User | null;
+  public currentUser: LocalUserWithFilters | null;
 
   courseStatsFilter = new FormControl<string[]>([]);
   allSelected = false;

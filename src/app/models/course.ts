@@ -8,12 +8,8 @@ export interface Course extends StorageObject {
 
 export interface CourseDTO extends Course, ExportedItem {}
 
-export const COURSE_EXAMPLE: CourseDTO = {
+export const COURSE_EXAMPLE: Course = {
   id: 'id',
   name: 'name',
   par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-  fromProfileId: 'profile-id',
-  fromProfileName: 'profile-name',
 };
-
-export type CourseKeys = keyof CourseDTO;

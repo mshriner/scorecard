@@ -145,6 +145,7 @@ export class EditRoundComponent {
         courseId: '',
         dateStringISO: new Date().toISOString(), // TODO: make editable
         roundVariety: RoundVariety.EIGHTEEN,
+        generalNotes: '',
       };
       this.appStateService.setPageTitle(`Create Round`);
     }
