@@ -1,20 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
-@use "@angular/material";
+@use '@angular/material';
 
 html,
 body {
   height: 100%;
   overscroll-behavior: none;
-  --mat-toolbar-mobile-height:56px;
-  
+  --mat-toolbar-mobile-height: 56px;
+
   -webkit-text-size-adjust: none;
   font-size-adjust: none;
   width: 100vw;
   zoom: 1;
+
+  h3 {
+    margin: 0;
+  }
 }
+
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
   background: var(
     --mat-toolbar-container-background-color,
     var(--mat-app-surface)
@@ -111,6 +116,14 @@ mat-dialog-actions.no-padding {
   padding-bottom: 8px;
 }
 
+.padding-top-16 {
+  padding-top: 16px;
+}
+
+.padding-bottom-16 {
+  padding-bottom: 16px;
+}
+
 .no-margin {
   margin: 0 !important;
 }
@@ -122,8 +135,10 @@ mat-dialog-actions.no-padding {
 // hacky way to get select all option to work in mat-select
 .select-all {
   padding: 5px 5px;
+
   mat-checkbox > div {
     width: 100%;
+
     label {
       width: 100%;
     }
