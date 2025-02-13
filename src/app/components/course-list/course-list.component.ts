@@ -13,18 +13,17 @@ import { CourseService } from '../../services/course.service';
 import { SharingService } from '../../services/sharing.service';
 
 @Component({
-  selector: 'app-course-list',
-  standalone: true,
-  imports: [
-    MatTableModule,
-    MatIconModule,
-    MatButtonModule,
-    PipesModule,
-    MatRippleModule,
-    CommonModule,
-  ],
-  templateUrl: './course-list.component.html',
-  styleUrl: './course-list.component.scss',
+    selector: 'app-course-list',
+    imports: [
+        MatTableModule,
+        MatIconModule,
+        MatButtonModule,
+        PipesModule,
+        MatRippleModule,
+        CommonModule,
+    ],
+    templateUrl: './course-list.component.html',
+    styleUrl: './course-list.component.scss'
 })
 export class CourseListComponent implements OnInit {
   public courses: WritableSignal<Course[]> = signal([]);

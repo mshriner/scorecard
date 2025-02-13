@@ -5,8 +5,9 @@ import { CourseService } from '../services/course.service';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 @Pipe({
-  name: 'scoreToPar',
-  pure: false,
+    name: 'scoreToPar',
+    pure: false,
+    standalone: false
 })
 export class ScoreToParPipe implements PipeTransform {
   constructor(

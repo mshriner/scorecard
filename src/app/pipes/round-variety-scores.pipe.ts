@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { RoundVariety } from '../models/round';
 
 @Pipe({
-  name: 'roundVarietyScores',
+    name: 'roundVarietyScores',
+    standalone: false
 })
 export class RoundVarietyScoresPipe implements PipeTransform {
   transform(strokes?: number[], variety?: RoundVariety): number[] {

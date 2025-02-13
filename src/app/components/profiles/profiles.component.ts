@@ -39,18 +39,17 @@ import { UserService } from '../../services/user.service';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
-  selector: 'app-profiles',
-  standalone: true,
-  imports: [
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    MatRippleModule,
-    MatDividerModule,
-  ],
-  templateUrl: './profiles.component.html',
-  styleUrl: './profiles.component.scss',
+    selector: 'app-profiles',
+    imports: [
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCardModule,
+        MatRippleModule,
+        MatDividerModule,
+    ],
+    templateUrl: './profiles.component.html',
+    styleUrl: './profiles.component.scss'
 })
 export class ProfilesComponent {
   readonly profiles: WritableSignal<LocalUserWithFilters[]> = signal([]);
@@ -158,20 +157,19 @@ export class ProfilesComponent {
 }
 
 @Component({
-  selector: 'new-profile-dialog',
-  templateUrl: './new-profile-dialog.component.html',
-  standalone: true,
-  imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatIconModule,
-  ],
+    selector: 'new-profile-dialog',
+    templateUrl: './new-profile-dialog.component.html',
+    imports: [
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        MatButtonModule,
+        MatDialogTitle,
+        MatDialogContent,
+        MatDialogActions,
+        MatDialogClose,
+        MatIconModule,
+    ]
 })
 export class NewProfileDialog {
   readonly dialogRef = inject(MatDialogRef<NewProfileDialog>);
@@ -188,20 +186,19 @@ export class NewProfileDialog {
 }
 
 @Component({
-  selector: 'edit-profile-dialog',
-  templateUrl: './edit-profile-dialog.component.html',
-  standalone: true,
-  imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule,
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatIconModule,
-  ],
+    selector: 'edit-profile-dialog',
+    templateUrl: './edit-profile-dialog.component.html',
+    imports: [
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
+        MatButtonModule,
+        MatDialogTitle,
+        MatDialogContent,
+        MatDialogActions,
+        MatDialogClose,
+        MatIconModule,
+    ]
 })
 export class EditProfileDialog {
   readonly dialogRef = inject(MatDialogRef<EditProfileDialog>);

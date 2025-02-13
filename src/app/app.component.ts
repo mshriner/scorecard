@@ -19,23 +19,22 @@ import { SnackBarService } from './services/snack-bar.service';
 import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [
-    FormsModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatRippleModule,
-    MatSidenavModule,
-    MatDividerModule,
-    MatInputModule,
-    RouterOutlet,
-    MatDialogModule,
-    MatIconModule,
-    MatButtonModule,
-  ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+    selector: 'app-root',
+    imports: [
+        FormsModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        MatRippleModule,
+        MatSidenavModule,
+        MatDividerModule,
+        MatInputModule,
+        RouterOutlet,
+        MatDialogModule,
+        MatIconModule,
+        MatButtonModule,
+    ],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent {
   private _snackBar = inject(MatSnackBar);

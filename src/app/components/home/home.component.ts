@@ -41,30 +41,29 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [
-    MatTableModule,
-    MatIconModule,
-    PipesModule,
-    DatePipe,
-    MatDatepickerModule,
-    MatButtonModule,
-    MatRippleModule,
-    MatCardModule,
-    MatSliderModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-    MatCheckboxModule,
-    CommonModule,
-    MatDividerModule,
-  ],
-  providers: [provideNativeDateAdapter()],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+    selector: 'app-home',
+    imports: [
+        MatTableModule,
+        MatIconModule,
+        PipesModule,
+        DatePipe,
+        MatDatepickerModule,
+        MatButtonModule,
+        MatRippleModule,
+        MatCardModule,
+        MatSliderModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        ReactiveFormsModule,
+        MatCheckboxModule,
+        CommonModule,
+        MatDividerModule,
+    ],
+    providers: [provideNativeDateAdapter()],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('courseStatsFilterSelect') select!: MatSelect;

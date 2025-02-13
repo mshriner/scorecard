@@ -37,26 +37,25 @@ interface ColumnDef {
 }
 
 @Component({
-  selector: 'app-edit-round',
-  standalone: true,
-  imports: [
-    FormsModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatTableModule,
-    MatIconModule,
-    MatInputModule,
-    PipesModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    CommonModule,
-    TypedTemplateDirective,
-    MatDialogModule,
-    AutosizeModule,
-  ],
-  providers: [provideNativeDateAdapter()],
-  templateUrl: './edit-round.component.html',
-  styleUrl: './edit-round.component.scss',
+    selector: 'app-edit-round',
+    imports: [
+        FormsModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatTableModule,
+        MatIconModule,
+        MatInputModule,
+        PipesModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        CommonModule,
+        TypedTemplateDirective,
+        MatDialogModule,
+        AutosizeModule,
+    ],
+    providers: [provideNativeDateAdapter()],
+    templateUrl: './edit-round.component.html',
+    styleUrl: './edit-round.component.scss'
 })
 export class EditRoundComponent {
   private originalRound: Round;

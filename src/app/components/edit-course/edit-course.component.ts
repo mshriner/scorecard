@@ -24,21 +24,20 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
 import equal from 'fast-deep-equal';
 
 @Component({
-  selector: 'app-edit-course',
-  standalone: true,
-  imports: [
-    FormsModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatTableModule,
-    MatIconModule,
-    MatInputModule,
-    MatDialogModule,
-    CommonModule,
-    PipesModule,
-  ],
-  templateUrl: './edit-course.component.html',
-  styleUrl: './edit-course.component.scss',
+    selector: 'app-edit-course',
+    imports: [
+        FormsModule,
+        MatButtonModule,
+        MatFormFieldModule,
+        MatTableModule,
+        MatIconModule,
+        MatInputModule,
+        MatDialogModule,
+        CommonModule,
+        PipesModule,
+    ],
+    templateUrl: './edit-course.component.html',
+    styleUrl: './edit-course.component.scss'
 })
 export class EditCourseComponent {
   private originalCourse: Course;
