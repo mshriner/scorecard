@@ -138,7 +138,7 @@
 
   @if (filteredRounds().length) {
     <div class="full-width-center">
-      <h6>Scoring Stats</h6>
+      <h3>Scoring Stats</h3>
     </div>
 
     <div class="full-width-center space-evenly padding-inline-4">
@@ -168,11 +168,11 @@
               Unfinished
             }
           </sup>
-          <h6>
+          <h3>
             {{ filteredRounds() | averageScore: 9 }} ({{
               filteredRounds() | averageScoreToPar: courseMap() : 9
             }})
-          </h6>
+          </h3>
         </mat-card-content>
       </mat-card>
       <mat-card appearance="outlined" class="center-text">
@@ -201,11 +201,11 @@
               No Full Rounds
             }
           </sup>
-          <h6>
+          <h3>
             {{ filteredRounds() | averageScore: 18 }} ({{
               filteredRounds() | averageScoreToPar: courseMap() : 18
             }})
-          </h6>
+          </h3>
         </mat-card-content>
       </mat-card>
     </div>
@@ -217,7 +217,7 @@
     <br />
 
     <div class="full-width-center">
-      <h6 class="no-margin">Recorded Rounds</h6>
+      <h3 class="no-margin">Recorded Rounds</h3>
     </div>
 
     <mat-table [dataSource]="filteredRounds()">

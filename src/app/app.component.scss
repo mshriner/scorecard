@@ -36,10 +36,10 @@ div.flex-menu-option {
   display: inline-flex;
   justify-items: center;
   align-items: center;
+  width: 100%;
   * {
     padding: 8px;
   }
-  width: 100%;
 }
 
 .sidenav {
@@ -52,7 +52,7 @@ mat-divider {
   margin-bottom: 4px;
 }
 
-h6 {
+h3 {
   margin: 0;
 }
 
