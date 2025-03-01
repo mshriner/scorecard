@@ -44,7 +44,7 @@ export class CourseListComponent implements OnInit {
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
-      `${this.appStateService.currentUser?.name?.trim()}'s Courses`,
+      `${this.appStateService.currentUser()?.name?.trim()}'s Courses`,
     );
     this.courses.set(this.courseService.getAllCoursesForCurrentUser());
   }

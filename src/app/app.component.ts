@@ -2,39 +2,46 @@ import { Location } from '@angular/common';
 import { Component, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
+import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
 import { APP_ROUTES, UNSAVED_DATA } from './models/constants';
+import { LocalUserWithFilters } from './models/user';
+import { PipesModule } from './pipes/pipes.module';
 import { AppStateService } from './services/app-state.service';
 import { SnackBarService } from './services/snack-bar.service';
-import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
-    selector: 'app-root',
-    imports: [
-        FormsModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        MatRippleModule,
-        MatSidenavModule,
-        MatDividerModule,
-        MatInputModule,
-        RouterOutlet,
-        MatDialogModule,
-        MatIconModule,
-        MatButtonModule,
-    ],
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
+  selector: 'app-root',
+  imports: [
+    FormsModule,
+    MatMenuModule,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatRippleModule,
+    MatSidenavModule,
+    MatDividerModule,
+    MatInputModule,
+    RouterOutlet,
+    MatDialogModule,
+    MatIconModule,
+    MatButtonModule,
+    MatChipsModule,
+    PipesModule,
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
   private _snackBar = inject(MatSnackBar);
@@ -57,7 +64,7 @@ export class AppComponent {
   }
 
   public logout(): void {
-    this.appStateService.currentUser = null;
+    this.appStateService.currentUser.set(null);
     this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
       this.sidenav.close();
     });
@@ -115,7 +122,7 @@ export class AppComponent {
   }
 
   public addNewRound(): void {
-    if (!this.appStateService.currentUser?.courseIds?.length) {
+    if (!this.appStateService.currentUser()?.courseIds?.length) {
       this.snackBarService.openTemporarySnackBar('Please add a course first.');
     } else {
       this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND).then(() => {
@@ -145,5 +152,18 @@ export class AppComponent {
         );
         this.showSpinner.set(false);
       });
+  }
+
+  public setTextSize(size: number): void {
+    this.appStateService.currentUser.update((user) => {
+      if (user) {
+        user.appFontScaling = size;
+      }
+      return structuredClone(user);
+    });
+  }
+
+  public get currentUser(): LocalUserWithFilters | null {
+    return this.appStateService.currentUser();
   }
 }

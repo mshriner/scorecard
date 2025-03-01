@@ -13,10 +13,10 @@ export class CourseService {
   ) {}
 
   public getAllCoursesForCurrentUser(): Course[] {
-    if (!this.appStateService.currentUser) {
+    if (!this.appStateService.currentUser()) {
       return [];
     }
-    return this.getCoursesByIds(this.appStateService.currentUser.courseIds);
+    return this.getCoursesByIds(this.appStateService.currentUser()!.courseIds);
   }
 
   public getCoursesByIds(courseIds: string[]): Course[] {

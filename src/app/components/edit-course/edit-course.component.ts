@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
+import equal from 'fast-deep-equal';
 import {
   APP_ROUTES,
   DELETE_COURSE,
@@ -21,23 +22,22 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { SharingService } from '../../services/sharing.service';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
-import equal from 'fast-deep-equal';
 
 @Component({
-    selector: 'app-edit-course',
-    imports: [
-        FormsModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatTableModule,
-        MatIconModule,
-        MatInputModule,
-        MatDialogModule,
-        CommonModule,
-        PipesModule,
-    ],
-    templateUrl: './edit-course.component.html',
-    styleUrl: './edit-course.component.scss'
+  selector: 'app-edit-course',
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatTableModule,
+    MatIconModule,
+    MatInputModule,
+    MatDialogModule,
+    CommonModule,
+    PipesModule,
+  ],
+  templateUrl: './edit-course.component.html',
+  styleUrl: './edit-course.component.scss',
 })
 export class EditCourseComponent {
   private originalCourse: Course;
@@ -121,7 +121,9 @@ export class EditCourseComponent {
   }
 
   public updateUnsavedData(): void {
-    this.appStateService.unsavedDataOnPage.set(!equal(this.originalCourse, this.editingCourse));
+    this.appStateService.unsavedDataOnPage.set(
+      !equal(this.originalCourse, this.editingCourse),
+    );
   }
 
   public get disableSaveButton(): boolean {
@@ -139,30 +141,32 @@ export class EditCourseComponent {
       .afterClosed()
       .subscribe((confirmed) => {
         if (confirmed) {
-          const updatedCurrentUser = this.appStateService.currentUser;
-          if (updatedCurrentUser) {
-            if (updatedCurrentUser?.roundIds?.length) {
-              const roundIdsToRemove: Set<string> = new Set(
-                this.roundService
-                  .getRoundsByIds(updatedCurrentUser.roundIds)
-                  .filter((round) => round.courseId === this.courseIdToEdit)
-                  .map((round) => round.id),
-              );
-              updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(
-                (roundId) => !roundIdsToRemove.has(roundId),
-              );
-              this.roundService.deleteRounds([...roundIdsToRemove]);
-              updatedCurrentUser.courseStatsFilterSelect =
-                updatedCurrentUser.courseStatsFilterSelect?.filter(
+          this.appStateService.currentUser.update((updatedCurrentUser) => {
+            if (updatedCurrentUser) {
+              if (updatedCurrentUser?.roundIds?.length) {
+                const roundIdsToRemove: Set<string> = new Set(
+                  this.roundService
+                    .getRoundsByIds(updatedCurrentUser.roundIds)
+                    .filter((round) => round.courseId === this.courseIdToEdit)
+                    .map((round) => round.id),
+                );
+                updatedCurrentUser.roundIds =
+                  updatedCurrentUser.roundIds.filter(
+                    (roundId) => !roundIdsToRemove.has(roundId),
+                  );
+                this.roundService.deleteRounds([...roundIdsToRemove]);
+                updatedCurrentUser.courseStatsFilterSelect =
+                  updatedCurrentUser.courseStatsFilterSelect?.filter(
+                    (courseId) => courseId !== this.courseIdToEdit,
+                  ) || [];
+              }
+              updatedCurrentUser.courseIds =
+                updatedCurrentUser.courseIds?.filter(
                   (courseId) => courseId !== this.courseIdToEdit,
                 ) || [];
             }
-            updatedCurrentUser.courseIds =
-              updatedCurrentUser.courseIds?.filter(
-                (courseId) => courseId !== this.courseIdToEdit,
-              ) || [];
-          }
-          this.appStateService.currentUser = updatedCurrentUser;
+            return structuredClone(updatedCurrentUser);
+          });
           this.courseService.deleteCourses([this.courseIdToEdit]);
           this.router.navigateByUrl(APP_ROUTES.HOME);
         }
@@ -182,9 +186,13 @@ export class EditCourseComponent {
 
   public saveCourse(): void {
     if (!this.courseIdToEdit) {
-      this.appStateService.currentUser?.courseIds.push(this.editingCourse.id);
+      this.appStateService.currentUser.update((user) => {
+        if (user) {
+          user.courseIds.push(this.editingCourse.id);
+        }
+        return structuredClone(user);
+      });
     }
-    this.appStateService.saveCurrentUser();
     this.courseService.setCourse(this.editingCourse);
     this.router.navigateByUrl(APP_ROUTES.COURSES);
   }

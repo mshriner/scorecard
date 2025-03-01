@@ -1,6 +1,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  effect,
   inject,
   model,
   signal,
@@ -39,17 +40,17 @@ import { UserService } from '../../services/user.service';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
-    selector: 'app-profiles',
-    imports: [
-        MatTableModule,
-        MatButtonModule,
-        MatIconModule,
-        MatCardModule,
-        MatRippleModule,
-        MatDividerModule,
-    ],
-    templateUrl: './profiles.component.html',
-    styleUrl: './profiles.component.scss'
+  selector: 'app-profiles',
+  imports: [
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatRippleModule,
+    MatDividerModule,
+  ],
+  templateUrl: './profiles.component.html',
+  styleUrl: './profiles.component.scss',
 })
 export class ProfilesComponent {
   readonly profiles: WritableSignal<LocalUserWithFilters[]> = signal([]);
@@ -67,11 +68,15 @@ export class ProfilesComponent {
     private changeDetection: ChangeDetectorRef,
   ) {
     this.appStateService.setPageTitle('Profiles');
-    this.profiles.set(this.userService.getAllUsers());
+    effect(() => {
+      // this is only really needed if the user changes text size while logged in on this screen
+      this.appStateService.currentUser();
+      this.profiles.set(this.userService.getAllUsers());
+    });
   }
 
   public selectProfile(selected: LocalUserWithFilters): void {
-    this.appStateService.currentUser = selected;
+    this.appStateService.currentUser.set(selected);
     this.router.navigateByUrl('/home');
   }
 
@@ -109,8 +114,8 @@ export class ProfilesComponent {
         if (sanitizedName?.length) {
           userToEdit.name = sanitizedName;
           this.userService.setUser(userToEdit);
-          if (this.appStateService?.currentUser?.id === userToEdit.id) {
-            this.appStateService.currentUser = userToEdit;
+          if (this.appStateService?.currentUser()?.id === userToEdit.id) {
+            this.appStateService.currentUser.set(userToEdit);
             this.changeDetection.markForCheck();
           }
           this.profiles.set(this.userService.getAllUsers());
@@ -130,8 +135,8 @@ export class ProfilesComponent {
           this.profiles.set(
             this.profiles().filter((profile) => profile.id !== userIdToDelete),
           );
-          if (this.appStateService?.currentUser?.id === userIdToDelete) {
-            this.appStateService.currentUser = null;
+          if (this.appStateService?.currentUser()?.id === userIdToDelete) {
+            this.appStateService.currentUser.set(null);
             this.changeDetection.markForCheck();
           }
           const userToDelete = this.userService.getUser(userIdToDelete);
@@ -157,19 +162,19 @@ export class ProfilesComponent {
 }
 
 @Component({
-    selector: 'new-profile-dialog',
-    templateUrl: './new-profile-dialog.component.html',
-    imports: [
-        MatFormFieldModule,
-        MatInputModule,
-        FormsModule,
-        MatButtonModule,
-        MatDialogTitle,
-        MatDialogContent,
-        MatDialogActions,
-        MatDialogClose,
-        MatIconModule,
-    ]
+  selector: 'new-profile-dialog',
+  templateUrl: './new-profile-dialog.component.html',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    MatIconModule,
+  ],
 })
 export class NewProfileDialog {
   readonly dialogRef = inject(MatDialogRef<NewProfileDialog>);
@@ -186,19 +191,19 @@ export class NewProfileDialog {
 }
 
 @Component({
-    selector: 'edit-profile-dialog',
-    templateUrl: './edit-profile-dialog.component.html',
-    imports: [
-        MatFormFieldModule,
-        MatInputModule,
-        FormsModule,
-        MatButtonModule,
-        MatDialogTitle,
-        MatDialogContent,
-        MatDialogActions,
-        MatDialogClose,
-        MatIconModule,
-    ]
+  selector: 'edit-profile-dialog',
+  templateUrl: './edit-profile-dialog.component.html',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    MatIconModule,
+  ],
 })
 export class EditProfileDialog {
   readonly dialogRef = inject(MatDialogRef<EditProfileDialog>);

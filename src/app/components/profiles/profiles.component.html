@@ -1,8 +1,8 @@
 <div class="full-width-center">
   <mat-card appearance="outlined" class="center-text">
     <mat-card-content>
-      @if (appStateService.currentUser) {
-        Welcome, {{ appStateService.currentUser.name }}!
+      @if (appStateService.currentUser()) {
+        Welcome, {{ appStateService.currentUser()!.name }}!
       } @else {
         Welcome to the {{ APP_NAME }} app!
       }

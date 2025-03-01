@@ -272,31 +272,6 @@
   <br />
   <ng-container *ngTemplateOutlet="addActions"></ng-container>
 }
-@if (currentUser) {
-  <br />
-  <div class="full-width-center">
-    <mat-card appearance="outlined" class="center-text">
-      <mat-card-content>
-        <div>Set Text Size</div>
-        <mat-slider
-          class="font-slider"
-          max="3"
-          min="0"
-          discrete
-          showTickMarks
-          [displayWith]="formatLabel"
-        >
-          <input
-            matSliderThumb
-            [(ngModel)]="currentUser.appFontScaling"
-            #slider
-            (valueChange)="saveUser()"
-          />
-        </mat-slider>
-      </mat-card-content>
-    </mat-card>
-  </div>
-}
 
 <ng-template #addActions>
   <div class="full-width-center space-evenly">

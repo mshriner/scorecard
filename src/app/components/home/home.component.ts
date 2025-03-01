@@ -41,29 +41,29 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 
 @Component({
-    selector: 'app-home',
-    imports: [
-        MatTableModule,
-        MatIconModule,
-        PipesModule,
-        DatePipe,
-        MatDatepickerModule,
-        MatButtonModule,
-        MatRippleModule,
-        MatCardModule,
-        MatSliderModule,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        ReactiveFormsModule,
-        MatCheckboxModule,
-        CommonModule,
-        MatDividerModule,
-    ],
-    providers: [provideNativeDateAdapter()],
-    templateUrl: './home.component.html',
-    styleUrl: './home.component.scss'
+  selector: 'app-home',
+  imports: [
+    MatTableModule,
+    MatIconModule,
+    PipesModule,
+    DatePipe,
+    MatDatepickerModule,
+    MatButtonModule,
+    MatRippleModule,
+    MatCardModule,
+    MatSliderModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatCheckboxModule,
+    CommonModule,
+    MatDividerModule,
+  ],
+  providers: [provideNativeDateAdapter()],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('courseStatsFilterSelect') select!: MatSelect;
@@ -95,8 +95,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
     return d < new Date(this.currentUser.latestDateISO);
   };
 
-  public currentUser: LocalUserWithFilters | null;
-
   courseStatsFilter = new FormControl<string[]>([]);
   allSelected = false;
   courseIdOptions: Signal<string[]> = computed(() => [
@@ -117,17 +115,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private roundService: RoundService,
     public courseService: CourseService,
     private router: Router,
-  ) {
-    this.currentUser = this.appStateService.currentUser;
-  }
+  ) {}
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
-      `${this.appStateService.currentUser?.name?.trim()}'s Results`,
+      `${this.currentUser?.name?.trim()}'s Results`,
     );
     this.rounds.set(
       this.roundService
-        .getRoundsByIds(this.appStateService.currentUser?.roundIds || [])
+        .getRoundsByIds(this.currentUser?.roundIds || [])
         .sort((a, b) => {
           if (a?.dateStringISO > b?.dateStringISO) {
             return 1;
@@ -141,8 +137,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.currentUser?.courseStatsFilterSelect?.length) {
-      this.courseStatsFilter.setValue(this.currentUser.courseStatsFilterSelect);
+    const courseStatsFilterSelect = this.currentUser?.courseStatsFilterSelect;
+    if (courseStatsFilterSelect?.length) {
+      this.courseStatsFilter.setValue(courseStatsFilterSelect);
       this.reevaluateAllSelectedStatus();
     } else {
       this.allSelected = true;
@@ -151,30 +148,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public saveUser(): void {
-    this.appStateService.currentUser = this.currentUser;
-  }
-
   public addNewRound(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND);
   }
 
   public addNewCourse(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
-  }
-
-  public formatLabel(value?: number): string {
-    switch (value) {
-      case 3:
-        return 'XL';
-      case 2:
-        return 'L';
-      case 1:
-        return 'M';
-      case 0:
-      default:
-        return 'S';
-    }
   }
 
   public viewRound(roundId: string): void {
@@ -220,9 +199,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   private saveCourseStatsFilter(): void {
     if (this.currentUser) {
-      this.currentUser.courseStatsFilterSelect =
-        this.courseStatsFilter.value || [];
-      this.saveUser();
+      this.appStateService.currentUser.update((user) => {
+        user!.courseStatsFilterSelect = this.courseStatsFilter.value || [];
+        return structuredClone(user);
+      });
     }
   }
 
@@ -263,9 +243,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     picker: MatDatepicker<Date>,
   ): void {
     if (this.currentUser) {
-      this.currentUser.earliestDateISO = event?.value?.toISOString();
+      this.appStateService.currentUser.update((user) => {
+        user!.earliestDateISO = event?.value?.toISOString();
+        return structuredClone(user);
+      });
       this.updateFilteredRounds();
-      this.saveUser();
       picker.close();
     }
   }
@@ -275,19 +257,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
     picker: MatDatepicker<Date>,
   ): void {
     if (this.currentUser) {
-      this.currentUser.latestDateISO = this.justBeforeNextDay(
-        event?.value,
-      )?.toISOString();
+      this.appStateService.currentUser.update((user) => {
+        user!.latestDateISO = this.justBeforeNextDay(
+          event?.value,
+        )?.toISOString();
+        return structuredClone(user);
+      });
       this.updateFilteredRounds();
-      this.saveUser();
       picker.close();
     }
   }
 
   public clearRoundFilters(): void {
     if (this.currentUser) {
-      delete this.currentUser.earliestDateISO;
-      delete this.currentUser.latestDateISO;
+      this.appStateService.currentUser.update((user) => {
+        delete user!.earliestDateISO;
+        delete user!.latestDateISO;
+        return structuredClone(user);
+      });
       this.select?.options?.forEach((item: MatOption) => item.deselect());
       this.reevaluateAllSelectedStatus(true);
     }
@@ -301,5 +288,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     newDate.setDate(date.getDate() + 1);
     newDate.setMilliseconds(date.getMilliseconds() - 1);
     return newDate;
+  }
+
+  public get currentUser(): LocalUserWithFilters | null {
+    return this.appStateService.currentUser();
   }
 }

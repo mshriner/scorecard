@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { AutosizeModule } from 'ngx-autosize';
 import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import {
   APP_ROUTES,
@@ -21,15 +22,14 @@ import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
-import { AutosizeModule } from 'ngx-autosize';
 
 import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 import equal from 'fast-deep-equal';
+import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 interface ColumnDef {
   columnDef: string;
@@ -37,25 +37,25 @@ interface ColumnDef {
 }
 
 @Component({
-    selector: 'app-edit-round',
-    imports: [
-        FormsModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatTableModule,
-        MatIconModule,
-        MatInputModule,
-        PipesModule,
-        MatSelectModule,
-        MatDatepickerModule,
-        CommonModule,
-        TypedTemplateDirective,
-        MatDialogModule,
-        AutosizeModule,
-    ],
-    providers: [provideNativeDateAdapter()],
-    templateUrl: './edit-round.component.html',
-    styleUrl: './edit-round.component.scss'
+  selector: 'app-edit-round',
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatTableModule,
+    MatIconModule,
+    MatInputModule,
+    PipesModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    CommonModule,
+    TypedTemplateDirective,
+    MatDialogModule,
+    AutosizeModule,
+  ],
+  providers: [provideNativeDateAdapter()],
+  templateUrl: './edit-round.component.html',
+  styleUrl: './edit-round.component.scss',
 })
 export class EditRoundComponent {
   private originalRound: Round;
@@ -229,13 +229,14 @@ export class EditRoundComponent {
       .afterClosed()
       .subscribe((confirmed) => {
         if (confirmed) {
-          const updatedCurrentUser = this.appStateService.currentUser;
-          if (updatedCurrentUser) {
-            updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(
-              (roundId) => roundId !== this.roundIdToEdit,
-            );
-          }
-          this.appStateService.currentUser = updatedCurrentUser;
+          this.appStateService.currentUser.update((updatedCurrentUser) => {
+            if (updatedCurrentUser) {
+              updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(
+                (roundId) => roundId !== this.roundIdToEdit,
+              );
+            }
+            return structuredClone(updatedCurrentUser);
+          });
           this.roundService.deleteRounds([this.roundIdToEdit]);
           this.router.navigateByUrl(APP_ROUTES.HOME);
         }
@@ -244,22 +245,26 @@ export class EditRoundComponent {
 
   public saveRound(): void {
     if (!this.roundIdToEdit) {
-      this.appStateService.currentUser?.roundIds.push(this.editingRound.id);
-      if (
-        this.appStateService.currentUser?.courseIds?.length &&
-        this.appStateService.currentUser?.courseStatsFilterSelect?.length ===
-          this.appStateService.currentUser?.courseIds?.length - 1 &&
-        !this.appStateService.currentUser?.courseStatsFilterSelect?.includes(
-          this.editingRound.courseId,
-        )
-      ) {
-        // if the user had all courses selected before creating this course, keep all courses selected
-        this.appStateService.currentUser.courseStatsFilterSelect.push(
-          this.editingRound.courseId,
-        );
-      }
+      this.appStateService.currentUser.update((updatedCurrentUser) => {
+        if (updatedCurrentUser) {
+          updatedCurrentUser.roundIds.push(this.editingRound.id);
+          if (
+            updatedCurrentUser.courseIds?.length &&
+            updatedCurrentUser.courseStatsFilterSelect?.length ===
+              updatedCurrentUser.courseIds?.length - 1 &&
+            !updatedCurrentUser.courseStatsFilterSelect?.includes(
+              this.editingRound.courseId,
+            )
+          ) {
+            // if the user had all courses selected before creating this course, keep all courses selected
+            updatedCurrentUser.courseStatsFilterSelect.push(
+              this.editingRound.courseId,
+            );
+          }
+        }
+        return structuredClone(updatedCurrentUser);
+      });
     }
-    this.appStateService.saveCurrentUser();
     this.roundService.saveRounds([this.editingRound]);
     this.router.navigateByUrl(APP_ROUTES.HOME);
   }

@@ -1,8 +1,8 @@
 <mat-sidenav-container class="nav-container">
   <mat-sidenav #sidenav class="sidenav padding-inline-8">
-    @if (appStateService.currentUser) {
+    @if (currentUser) {
       <div style="margin-bottom: 16px; margin-top: 8px">
-        Profile: {{ appStateService.currentUser.name }}
+        Profile: {{ currentUser.name }}
       </div>
 
       <mat-divider></mat-divider>
@@ -42,7 +42,7 @@
         </span>
       </div>
     </div>
-    @if (appStateService.currentUser?.courseIds?.length) {
+    @if (currentUser?.courseIds?.length) {
       <div style="display: block">
         <div mat-ripple (click)="addNewRound()" class="flex-menu-option">
           <mat-icon>add</mat-icon>
@@ -56,6 +56,23 @@
       </div>
     }
     <div class="bottom-options">
+      @if (currentUser) {
+        <div style="display: block; margin-bottom: 4px; text-align: center">
+          <mat-chip [matMenuTriggerFor]="textSizeMenu">
+            <mat-icon matChipAvatar>format_size</mat-icon>
+            Set Text Size ({{
+              currentUser.appFontScaling | formatTextSize
+            }})</mat-chip
+          >
+          <mat-menu #textSizeMenu yPosition="above" xPosition="after">
+            @for (size of [0, 1, 2, 3]; track $index) {
+              <button mat-menu-item (click)="setTextSize(size)">
+                {{ size | formatTextSize }}
+              </button>
+            }
+          </mat-menu>
+        </div>
+      }
       <div style="display: block">
         <div mat-ripple (click)="checkForUpdates()" class="flex-menu-option">
           @if (showSpinner()) {
@@ -76,7 +93,7 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <mat-toolbar color="primary">
-      @if (appStateService.currentUser && !isOnWipeDataScreen) {
+      @if (currentUser && !isOnWipeDataScreen) {
         @if (isOnProfilesScreen || isOnHomeScreen || isOnCoursesScreen) {
           <button mat-icon-button (click)="sidenav.toggle()">
             <mat-icon>menu</mat-icon>

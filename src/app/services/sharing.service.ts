@@ -1,14 +1,10 @@
 import { Injectable } from '@angular/core';
-import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, from, map, Observable, of } from 'rxjs';
+import { Course, CourseDTO } from '../models/course';
+import { ExportedItem, ImportType } from '../models/data-transfer';
+import { Round, RoundDTO } from '../models/round';
 import { User, UserDTO } from '../models/user';
 import { AppStateService } from './app-state.service';
-import { ExportedItem, ImportType } from '../models/data-transfer';
-import {
-  Course,
-  COURSE_EXAMPLE,
-  CourseDTO,
-} from '../models/course';
-import { Round, RoundDTO } from '../models/round';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +27,7 @@ export class SharingService {
     if (
       !this.CAN_SHARE_DATA ||
       !this.CAN_SHARE_FILES ||
-      !this.appStateService?.currentUser
+      !this.appStateService?.currentUser()
     ) {
       return of(false);
     }
@@ -39,8 +35,8 @@ export class SharingService {
     try {
       const exportedItem: ExportedItem = {
         ...data,
-        fromProfileId: this.appStateService.currentUser.id,
-        fromProfileName: this.appStateService.currentUser.name,
+        fromProfileId: this.appStateService.currentUser()!.id,
+        fromProfileName: this.appStateService.currentUser()!.name,
       };
 
       const toShare = {
