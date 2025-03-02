@@ -178,9 +178,9 @@ export class EditCourseComponent {
           this.courseService.deleteCourses([this.courseIdToEdit]);
           this.router.navigateByUrl(APP_ROUTES.COURSES, {
             state: {
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Deleted course ${
+              [NAVIGATION_STATE_KEYS.MESSAGE]: `Deleted course "${
                 this.editingCourse.name
-              }`,
+              }"`,
             },
           });
         }
@@ -200,6 +200,12 @@ export class EditCourseComponent {
 
   public saveCourse(): void {
     this.courseService.setCourse(this.editingCourse);
-    this.router.navigateByUrl(APP_ROUTES.COURSES);
+    this.router.navigateByUrl(APP_ROUTES.COURSES, {
+      state: {
+        [NAVIGATION_STATE_KEYS.MESSAGE]: `Saved course "${
+          this.editingCourse.name
+        }"`,
+      },
+    });
   }
 }

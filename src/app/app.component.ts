@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -11,7 +11,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -44,8 +43,7 @@ import { SnackBarService } from './services/snack-bar.service';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  private _snackBar = inject(MatSnackBar);
-  public showSpinner = signal(false);
+  public readonly showSpinner = signal(false);
 
   @ViewChild('sidenav')
   sidenav!: any;
@@ -58,7 +56,7 @@ export class AppComponent {
     private snackBarService: SnackBarService,
     private serviceWorker: SwUpdate,
   ) {
-    if (!this.isOnProfilesScreen && !this.appStateService.currentUser) {
+    if (!this.isOnProfilesScreen && !this.currentUser) {
       this.logout();
     }
   }
@@ -66,7 +64,7 @@ export class AppComponent {
   public logout(): void {
     this.appStateService.currentUser.set(null);
     this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
-      this.sidenav.close();
+      this.sidenav?.close();
     });
   }
 

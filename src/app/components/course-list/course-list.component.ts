@@ -44,18 +44,19 @@ export class CourseListComponent implements OnInit {
     public sharingService: SharingService,
     private router: Router,
     private snackBarService: SnackBarService,
-  ) {}
+  ) {
+    this.snackBarService.openTemporarySnackBar(
+      this.router.getCurrentNavigation()?.extras?.state?.[
+        NAVIGATION_STATE_KEYS.MESSAGE
+      ],
+    );
+  }
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
       `${this.appStateService.currentUser()?.name?.trim()}'s Courses`,
     );
     this.courses.set(this.courseService.getAllCoursesForCurrentUser());
-    this.snackBarService.openTemporarySnackBar(
-      this.router.getCurrentNavigation()?.extras?.state?.[
-        NAVIGATION_STATE_KEYS.MESSAGE
-      ],
-    );
   }
 
   public viewCourse(courseId: string, message?: string): void {
@@ -86,7 +87,7 @@ export class CourseListComponent implements OnInit {
         this.courseService.setCourse(parsed.data as Course);
         this.viewCourse(
           parsed.data.id,
-          `Course ${parsed.data.name} was saved successfully.`,
+          `Course "${parsed.data.name}" was saved successfully.`,
         );
       } else {
         this.snackBarService.openTemporarySnackBar(
