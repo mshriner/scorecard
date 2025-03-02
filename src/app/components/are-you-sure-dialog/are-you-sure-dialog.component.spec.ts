@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AreYouSureDialogComponent } from './are-you-sure-dialog.component';
 import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { AreYouSureDialogComponent } from './are-you-sure-dialog.component';
 
 describe('AreYouSureDialogComponent', () => {
   let component: AreYouSureDialogComponent;
@@ -10,9 +11,15 @@ describe('AreYouSureDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AreYouSureDialogComponent],
-      providers: [provideExperimentalZonelessChangeDetection()],
-    })
-    .compileComponents();
+      providers: [
+        provideExperimentalZonelessChangeDetection(),
+        {
+          provide: MatDialogRef,
+          useValue: {},
+        },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AreYouSureDialogComponent);
     component = fixture.componentInstance;

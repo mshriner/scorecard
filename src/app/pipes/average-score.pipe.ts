@@ -97,6 +97,8 @@ export class CountValidRoundsToAveragePipe implements PipeTransform {
   }
 }
 
+const EMPTY_NINE_HOLES = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
 function getNineHoleRoundsToCount(
   rounds: Round[],
   eighteenHolesOnly: 9 | 18,
@@ -105,8 +107,13 @@ function getNineHoleRoundsToCount(
   if (rounds?.length) {
     for (let index = 0; index < rounds.length; index++) {
       const round = rounds[index];
-      const frontNine = round?.strokes?.slice(0, 9);
-      const backNine = round?.strokes?.slice(9, 18);
+      const frontNine = round?.strokes?.slice(0, 9)?.length
+        ? round?.strokes?.slice(0, 9)
+        : EMPTY_NINE_HOLES;
+      const backNine = round?.strokes?.slice(9, 18)?.length
+        ? round?.strokes?.slice(9, 18)
+        : EMPTY_NINE_HOLES;
+      console.log(frontNine, backNine);
       const countFrontNine = !frontNine?.some((stroke) => !stroke);
       const countBackNine = !backNine?.some((stroke) => !stroke);
 
