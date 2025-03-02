@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { LocalStorageService } from './local-storage.service';
-import { User } from '../models/user';
 import { STORAGE_KEYS } from '../models/constants';
+import { LocalUserWithFilters } from '../models/user';
+import { LocalStorageService } from './local-storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +17,7 @@ export class UserService {
     return retrieved as string[];
   }
 
-  public getAllUsers(): User[] {
+  public getAllUsers(): LocalUserWithFilters[] {
     return this.getAllUserIds()
       .map((userId) => this.getUser(userId))
       .filter((value) => !!value);
@@ -30,19 +30,19 @@ export class UserService {
     );
   }
 
-  public getUser(userId: string): User | null {
+  public getUser(userId: string): LocalUserWithFilters | null {
     const retrieved = this.localStorageService.getItem(userId);
     if (!retrieved?.id) {
       return null;
     }
-    return retrieved as User;
+    return retrieved as LocalUserWithFilters;
   }
 
-  public setUser(updatedUser: User): boolean {
+  public setUser(updatedUser: LocalUserWithFilters): boolean {
     return this.localStorageService.setItem(updatedUser?.id, updatedUser);
   }
 
-  public getCurrentUser(): User | null {
+  public getCurrentUser(): LocalUserWithFilters | null {
     const currentUserId = this.localStorageService.getItem(
       STORAGE_KEYS.CURRENT_USER_ID,
     );
@@ -52,7 +52,7 @@ export class UserService {
     return this.getUser(currentUserId);
   }
 
-  public setCurrentUser(newUser: User | null): boolean {
+  public setCurrentUser(newUser: LocalUserWithFilters | null): boolean {
     if (
       !this.localStorageService.setItem(
         STORAGE_KEYS.CURRENT_USER_ID,
@@ -67,7 +67,7 @@ export class UserService {
     return this.setUser(newUser);
   }
 
-  public createUser(newUser: User): User[] {
+  public createUser(newUser: LocalUserWithFilters): LocalUserWithFilters[] {
     if (this.setUser(newUser)) {
       this.setAllUserIds([...this.getAllUserIds(), newUser.id]);
     }

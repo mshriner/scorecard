@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -9,11 +10,12 @@ import { Course } from '../../models/course';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
-import { CommonModule } from '@angular/common';
+import { SharingService } from '../../services/sharing.service';
+import { SnackBarService } from '../../services/snack-bar.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-course-list',
-  standalone: true,
   imports: [
     MatTableModule,
     MatIconModule,
@@ -38,20 +40,30 @@ export class CourseListComponent implements OnInit {
   constructor(
     public appStateService: AppStateService,
     public courseService: CourseService,
+    public userService: UserService,
+    public sharingService: SharingService,
     private router: Router,
-  ) {}
+    private snackBarService: SnackBarService,
+  ) {
+    this.snackBarService.openTemporarySnackBar(
+      this.router.getCurrentNavigation()?.extras?.state?.[
+        NAVIGATION_STATE_KEYS.MESSAGE
+      ],
+    );
+  }
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
-      `${this.appStateService.currentUser?.name?.trim()}'s Courses`,
+      `${this.appStateService.currentUser()?.name?.trim()}'s Courses`,
     );
     this.courses.set(this.courseService.getAllCoursesForCurrentUser());
   }
 
-  public viewCourse(courseId: string): void {
+  public viewCourse(courseId: string, message?: string): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
       state: {
         [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: courseId,
+        [NAVIGATION_STATE_KEYS.MESSAGE]: message,
       },
     });
   }
@@ -62,5 +74,26 @@ export class CourseListComponent implements OnInit {
 
   public addNewCourse(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
+  }
+
+  public onFileSelected(input: HTMLInputElement): void {
+    const file = input.files?.[0];
+    file?.text().then((uploaded) => {
+      const parsed = this.sharingService.convertDTOToDomain(
+        JSON.parse(uploaded),
+      );
+      console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
+      if (parsed?.objectType === 'course') {
+        this.courseService.setCourse(parsed.data as Course);
+        this.viewCourse(
+          parsed.data.id,
+          `Course "${parsed.data.name}" was saved successfully.`,
+        );
+      } else {
+        this.snackBarService.openTemporarySnackBar(
+          'Failed to import the course.',
+        );
+      }
+    });
   }
 }

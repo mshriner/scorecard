@@ -1,6 +1,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  effect,
   inject,
   model,
   signal,
@@ -31,7 +32,7 @@ import {
   CLEAR_ALL_APP_DATA,
   DELETE_PROFILE,
 } from '../../models/constants';
-import { User } from '../../models/user';
+import { LocalUserWithFilters } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
@@ -40,7 +41,6 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
 
 @Component({
   selector: 'app-profiles',
-  standalone: true,
   imports: [
     MatTableModule,
     MatButtonModule,
@@ -48,13 +48,12 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     MatCardModule,
     MatRippleModule,
     MatDividerModule,
-    AreYouSureDialogComponent,
   ],
   templateUrl: './profiles.component.html',
   styleUrl: './profiles.component.scss',
 })
 export class ProfilesComponent {
-  readonly profiles: WritableSignal<User[]> = signal([]);
+  readonly profiles: WritableSignal<LocalUserWithFilters[]> = signal([]);
   readonly dialog = inject(MatDialog);
   readonly APP_NAME = APP_NAME;
   readonly CLEAR_ALL = CLEAR_ALL_APP_DATA;
@@ -69,11 +68,15 @@ export class ProfilesComponent {
     private changeDetection: ChangeDetectorRef,
   ) {
     this.appStateService.setPageTitle('Profiles');
-    this.profiles.set(this.userService.getAllUsers());
+    effect(() => {
+      // this is only really needed if the user changes text size while logged in on this screen
+      this.appStateService.currentUser();
+      this.profiles.set(this.userService.getAllUsers());
+    });
   }
 
-  public selectProfile(selected: User): void {
-    this.appStateService.currentUser = selected;
+  public selectProfile(selected: LocalUserWithFilters): void {
+    this.appStateService.currentUser.set(selected);
     this.router.navigateByUrl('/home');
   }
 
@@ -84,7 +87,7 @@ export class ProfilesComponent {
       .subscribe((newProfileName) => {
         const sanitizedName = newProfileName?.trim();
         if (sanitizedName?.length) {
-          const newProfile: User = {
+          const newProfile: LocalUserWithFilters = {
             id: `user-${crypto.randomUUID()}`,
             name: sanitizedName,
             roundIds: [],
@@ -96,7 +99,11 @@ export class ProfilesComponent {
       });
   }
 
-  public editProfile(userToEdit: User): void {
+  public editProfile(
+    userToEdit: LocalUserWithFilters,
+    $event: MouseEvent,
+  ): void {
+    $event.stopPropagation();
     this.dialog
       .open(EditProfileDialog, {
         data: userToEdit.name,
@@ -107,8 +114,8 @@ export class ProfilesComponent {
         if (sanitizedName?.length) {
           userToEdit.name = sanitizedName;
           this.userService.setUser(userToEdit);
-          if (this.appStateService?.currentUser?.id === userToEdit.id) {
-            this.appStateService.currentUser = userToEdit;
+          if (this.appStateService?.currentUser()?.id === userToEdit.id) {
+            this.appStateService.currentUser.set(userToEdit);
             this.changeDetection.markForCheck();
           }
           this.profiles.set(this.userService.getAllUsers());
@@ -116,7 +123,8 @@ export class ProfilesComponent {
       });
   }
 
-  public deleteProfile(userIdToDelete: string): void {
+  public deleteProfile(userIdToDelete: string, $event: MouseEvent): void {
+    $event.stopPropagation();
     this.dialog
       .open(AreYouSureDialogComponent, {
         data: DELETE_PROFILE,
@@ -127,8 +135,8 @@ export class ProfilesComponent {
           this.profiles.set(
             this.profiles().filter((profile) => profile.id !== userIdToDelete),
           );
-          if (this.appStateService?.currentUser?.id === userIdToDelete) {
-            this.appStateService.currentUser = null;
+          if (this.appStateService?.currentUser()?.id === userIdToDelete) {
+            this.appStateService.currentUser.set(null);
             this.changeDetection.markForCheck();
           }
           const userToDelete = this.userService.getUser(userIdToDelete);
@@ -156,7 +164,6 @@ export class ProfilesComponent {
 @Component({
   selector: 'new-profile-dialog',
   templateUrl: './new-profile-dialog.component.html',
-  standalone: true,
   imports: [
     MatFormFieldModule,
     MatInputModule,
@@ -186,7 +193,6 @@ export class NewProfileDialog {
 @Component({
   selector: 'edit-profile-dialog',
   templateUrl: './edit-profile-dialog.component.html',
-  standalone: true,
   imports: [
     MatFormFieldModule,
     MatInputModule,

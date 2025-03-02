@@ -1,0 +1,10 @@
+.profile-table {
+  mat-cell {
+    padding-inline: 0;
+  }
+  .thin {
+    flex: none;
+    width: 52px;
+    justify-content: center;
+  }
+}

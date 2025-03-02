@@ -1,16 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 
 import { provideExperimentalZonelessChangeDetection } from '@angular/core';
-import { CourseService } from './course.service';
+import { SharingService } from './sharing.service';
 
-describe('CourseService', () => {
-  let service: CourseService;
+describe('SharingService', () => {
+  let service: SharingService;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       providers: [provideExperimentalZonelessChangeDetection()],
-    }).compileComponents();
-    service = TestBed.inject(CourseService);
+    });
+    service = TestBed.inject(SharingService);
   });
 
   it('should be created', () => {

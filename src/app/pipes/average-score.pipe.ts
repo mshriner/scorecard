@@ -12,6 +12,7 @@ interface NineHoleScoreWithCourse {
 
 @Pipe({
   name: 'averageScore',
+  standalone: false,
 })
 export class AverageScorePipe implements PipeTransform {
   constructor(private decimal: DecimalPipe) {}
@@ -38,6 +39,7 @@ export class AverageScorePipe implements PipeTransform {
 
 @Pipe({
   name: 'averageScoreToPar',
+  standalone: false,
 })
 export class AverageScoreToParPipe implements PipeTransform {
   constructor(
@@ -63,12 +65,12 @@ export class AverageScoreToParPipe implements PipeTransform {
     for (const roundHalf of roundHalvesThatCount) {
       scoresToPar.push(
         roundHalf.score.reduce((p, c) => p + c) -
-          this.roundVarietyScores
+          (this.roundVarietyScores
             .transform(
               courseMap.get(roundHalf.courseId)?.par,
               roundHalf.frontOrBack,
             )
-            .reduce((p, c) => p + c),
+            .reduce((p, c) => (p || 0) + (c || 0)) || 0),
       );
     }
     const toPar =
@@ -85,6 +87,7 @@ export class AverageScoreToParPipe implements PipeTransform {
 
 @Pipe({
   name: 'countValidRoundsToAverage',
+  standalone: false,
 })
 export class CountValidRoundsToAveragePipe implements PipeTransform {
   constructor() {}
@@ -94,6 +97,8 @@ export class CountValidRoundsToAveragePipe implements PipeTransform {
   }
 }
 
+const EMPTY_NINE_HOLES = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
 function getNineHoleRoundsToCount(
   rounds: Round[],
   eighteenHolesOnly: 9 | 18,
@@ -102,8 +107,13 @@ function getNineHoleRoundsToCount(
   if (rounds?.length) {
     for (let index = 0; index < rounds.length; index++) {
       const round = rounds[index];
-      const frontNine = round?.strokes?.slice(0, 9);
-      const backNine = round?.strokes?.slice(9, 18);
+      const frontNine = round?.strokes?.slice(0, 9)?.length
+        ? round?.strokes?.slice(0, 9)
+        : EMPTY_NINE_HOLES;
+      const backNine = round?.strokes?.slice(9, 18)?.length
+        ? round?.strokes?.slice(9, 18)
+        : EMPTY_NINE_HOLES;
+      console.log(frontNine, backNine);
       const countFrontNine = !frontNine?.some((stroke) => !stroke);
       const countBackNine = !backNine?.some((stroke) => !stroke);
 

@@ -1,13 +1,18 @@
+import { CourseDTO } from './course';
+import { ExportedItem } from './data-transfer';
 import { StorageObject } from './storage-object';
 
 export interface Round extends StorageObject {
   dateStringISO: string;
-  title?: string;
   courseId: string;
   strokes: number[];
-  putts: number[];
+  putts: (number | null)[];
   roundVariety: RoundVariety;
-  generalNotes?: string;
+  generalNotes: string;
+}
+
+export interface RoundDTO extends Round, ExportedItem {
+  courseDTO: CourseDTO;
 }
 
 export enum RoundVariety {
@@ -21,3 +26,5 @@ export const DisplayRoundVariety: Record<RoundVariety, string> = {
   FRONT_NINE: 'Front nine (9 holes)',
   BACK_NINE: 'Back nine (9 holes)',
 };
+
+type ROUND_OBJECT_KEYS = (keyof Round)[];

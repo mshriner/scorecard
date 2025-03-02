@@ -52,6 +52,10 @@
         [(ngModel)]="editingRound.generalNotes"
         [ngModelOptions]="{ standalone: true }"
         placeholder="Ex. Nice approach on 3..."
+        (change)="updateUnsavedData()"
+        (keyup)="updateUnsavedData()"
+        (paste)="updateUnsavedData()"
+        (input)="updateUnsavedData()"
       >
       </textarea>
       <mat-hint align="end">{{ notes?.value?.length || 0 }} / 1000</mat-hint>
@@ -309,7 +313,7 @@
     <button
       mat-stroked-button
       (click)="saveRound()"
-      [disabled]="disableSaveButton"
+      [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
     >
       <mat-icon>
         @if (roundIdToEdit) {

@@ -13,10 +13,10 @@ export class CourseService {
   ) {}
 
   public getAllCoursesForCurrentUser(): Course[] {
-    if (!this.appStateService.currentUser) {
+    if (!this.appStateService.currentUser()) {
       return [];
     }
-    return this.getCoursesByIds(this.appStateService.currentUser.courseIds);
+    return this.getCoursesByIds(this.appStateService.currentUser()!.courseIds);
   }
 
   public getCoursesByIds(courseIds: string[]): Course[] {
@@ -48,6 +48,14 @@ export class CourseService {
   }
 
   public setCourse(updatedCourse: Course): boolean {
+    this.appStateService.currentUser.update((user) => {
+      if (user) {
+        if (!user.courseIds?.includes(updatedCourse.id)) {
+          user.courseIds.push(updatedCourse.id);
+        }
+      }
+      return structuredClone(user);
+    });
     return this.saveCourses([updatedCourse]);
   }
 
