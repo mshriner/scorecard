@@ -11,6 +11,8 @@ import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { SharingService } from '../../services/sharing.service';
+import { SnackBarService } from '../../services/snack-bar.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-course-list',
@@ -38,8 +40,10 @@ export class CourseListComponent implements OnInit {
   constructor(
     public appStateService: AppStateService,
     public courseService: CourseService,
+    public userService: UserService,
     public sharingService: SharingService,
     private router: Router,
+    private snackBarService: SnackBarService,
   ) {}
 
   ngOnInit(): void {
@@ -47,12 +51,18 @@ export class CourseListComponent implements OnInit {
       `${this.appStateService.currentUser()?.name?.trim()}'s Courses`,
     );
     this.courses.set(this.courseService.getAllCoursesForCurrentUser());
+    this.snackBarService.openTemporarySnackBar(
+      this.router.getCurrentNavigation()?.extras?.state?.[
+        NAVIGATION_STATE_KEYS.MESSAGE
+      ],
+    );
   }
 
-  public viewCourse(courseId: string): void {
+  public viewCourse(courseId: string, message?: string): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
       state: {
         [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: courseId,
+        [NAVIGATION_STATE_KEYS.MESSAGE]: message,
       },
     });
   }
@@ -68,12 +78,21 @@ export class CourseListComponent implements OnInit {
   public onFileSelected(input: HTMLInputElement): void {
     const file = input.files?.[0];
     file?.text().then((uploaded) => {
-      console.log(uploaded);
-      alert(`received: ${uploaded}`);
       const parsed = this.sharingService.convertDTOToDomain(
         JSON.parse(uploaded),
       );
-      alert(`parsed: ${JSON.stringify(parsed)}`);
+      console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
+      if (parsed?.objectType === 'course') {
+        this.courseService.setCourse(parsed.data as Course);
+        this.viewCourse(
+          parsed.data.id,
+          `Course ${parsed.data.name} was saved successfully.`,
+        );
+      } else {
+        this.snackBarService.openTemporarySnackBar(
+          'Failed to import the course.',
+        );
+      }
     });
   }
 }

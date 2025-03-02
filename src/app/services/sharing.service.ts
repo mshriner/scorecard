@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { catchError, from, map, Observable, of } from 'rxjs';
 import { Course, COURSE_EXAMPLE, CourseDTO } from '../models/course';
-import { DataToShare, ExportedItem, ImportType } from '../models/data-transfer';
-import { Round, RoundDTO } from '../models/round';
-import { User, UserDTO } from '../models/user';
+import { DataToShare, ExportedItem } from '../models/data-transfer';
+import { RoundDTO } from '../models/round';
+import { UserDTO } from '../models/user';
+import { DataUtils } from '../util/data-utils';
 import { AppStateService } from './app-state.service';
 
 @Injectable({
@@ -90,18 +91,24 @@ export class SharingService {
 
   public convertDTOToDomain(
     importedItem: CourseDTO | RoundDTO | UserDTO,
-  ): Course | Round | User | null {
+  ): DataToShare | null {
     const { fromProfileName, fromProfileId, objectType, ...domain } =
       importedItem;
 
     // only take the properties we want to avoid importing garbage
+    if (!domain || !objectType) {
+      return null;
+    }
+    domain.id = DataUtils.generateUUID(objectType);
     switch (objectType) {
       case 'course': {
         const domainCourse = {} as Course;
         Object.keys(COURSE_EXAMPLE).forEach((key) => {
-          if (domain[key] !== undefined) domainCourse[key] = domain[key];
+          if (domain[key] !== undefined) {
+            domainCourse[key] = domain[key];
+          }
         });
-        return domainCourse;
+        return { data: domainCourse, objectType };
       }
       // TODO parse more complex objects (such as round containing courses)
       default:

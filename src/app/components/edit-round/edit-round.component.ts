@@ -29,6 +29,7 @@ import {
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import equal from 'fast-deep-equal';
+import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 interface ColumnDef {
@@ -138,7 +139,7 @@ export class EditRoundComponent {
       }
     } else {
       this.editingRound = {
-        id: `round-${crypto.randomUUID()}`,
+        id: DataUtils.generateUUID('round'),
         strokes: new Array(18).fill(0),
         putts: new Array(18).fill(undefined),
         courseId: '',
@@ -185,7 +186,7 @@ export class EditRoundComponent {
 
   public puttsMinusOne(index: number) {
     if (!this.editingRound.putts[index]) {
-      this.editingRound.putts[index] = 0;
+      this.editingRound.putts[index] = null;
     } else {
       this.editingRound.putts[index]--;
     }
@@ -244,27 +245,6 @@ export class EditRoundComponent {
   }
 
   public saveRound(): void {
-    if (!this.roundIdToEdit) {
-      this.appStateService.currentUser.update((updatedCurrentUser) => {
-        if (updatedCurrentUser) {
-          updatedCurrentUser.roundIds.push(this.editingRound.id);
-          if (
-            updatedCurrentUser.courseIds?.length &&
-            updatedCurrentUser.courseStatsFilterSelect?.length ===
-              updatedCurrentUser.courseIds?.length - 1 &&
-            !updatedCurrentUser.courseStatsFilterSelect?.includes(
-              this.editingRound.courseId,
-            )
-          ) {
-            // if the user had all courses selected before creating this course, keep all courses selected
-            updatedCurrentUser.courseStatsFilterSelect.push(
-              this.editingRound.courseId,
-            );
-          }
-        }
-        return structuredClone(updatedCurrentUser);
-      });
-    }
     this.roundService.saveRounds([this.editingRound]);
     this.router.navigateByUrl(APP_ROUTES.HOME);
   }

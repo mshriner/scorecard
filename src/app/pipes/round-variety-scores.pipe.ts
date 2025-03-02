@@ -2,11 +2,14 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { RoundVariety } from '../models/round';
 
 @Pipe({
-    name: 'roundVarietyScores',
-    standalone: false
+  name: 'roundVarietyScores',
+  standalone: false,
 })
 export class RoundVarietyScoresPipe implements PipeTransform {
-  transform(strokes?: number[], variety?: RoundVariety): number[] {
+  transform(
+    strokes?: (number | null)[],
+    variety?: RoundVariety,
+  ): (number | null)[] {
     switch (variety) {
       case RoundVariety.FRONT_NINE:
         return strokes?.slice(0, 9) || [];

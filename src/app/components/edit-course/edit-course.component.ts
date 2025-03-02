@@ -21,6 +21,8 @@ import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { SharingService } from '../../services/sharing.service';
+import { SnackBarService } from '../../services/snack-bar.service';
+import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
@@ -74,12 +76,18 @@ export class EditCourseComponent {
     private roundService: RoundService,
     private router: Router,
     private shareService: SharingService,
+    private snackBerService: SnackBarService,
   ) {
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
       ];
     console.log(`id if this is an existing course: ${this.courseIdToEdit}`);
+    this.snackBerService.openTemporarySnackBar(
+      router.getCurrentNavigation()?.extras?.state?.[
+        NAVIGATION_STATE_KEYS.MESSAGE
+      ],
+    );
     if (this.courseIdToEdit) {
       const retrieved = this.courseService.getCourse(this.courseIdToEdit);
       if (!retrieved) {
@@ -91,7 +99,7 @@ export class EditCourseComponent {
       }
     } else {
       this.editingCourse = {
-        id: `course-${crypto.randomUUID()}`,
+        id: DataUtils.generateUUID('course'),
         par: new Array(18).fill(4),
         name: '',
       };
@@ -168,7 +176,13 @@ export class EditCourseComponent {
             return structuredClone(updatedCurrentUser);
           });
           this.courseService.deleteCourses([this.courseIdToEdit]);
-          this.router.navigateByUrl(APP_ROUTES.HOME);
+          this.router.navigateByUrl(APP_ROUTES.COURSES, {
+            state: {
+              [NAVIGATION_STATE_KEYS.MESSAGE]: `Deleted course ${
+                this.editingCourse.name
+              }`,
+            },
+          });
         }
       });
   }
@@ -185,14 +199,6 @@ export class EditCourseComponent {
   }
 
   public saveCourse(): void {
-    if (!this.courseIdToEdit) {
-      this.appStateService.currentUser.update((user) => {
-        if (user) {
-          user.courseIds.push(this.editingCourse.id);
-        }
-        return structuredClone(user);
-      });
-    }
     this.courseService.setCourse(this.editingCourse);
     this.router.navigateByUrl(APP_ROUTES.COURSES);
   }

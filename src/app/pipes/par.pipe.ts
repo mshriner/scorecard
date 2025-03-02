@@ -4,16 +4,18 @@ import { Round, RoundVariety } from '../models/round';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 @Pipe({
-    name: 'par',
-    pure: false,
-    standalone: false
+  name: 'par',
+  pure: false,
+  standalone: false,
 })
 export class ParPipe implements PipeTransform {
   constructor(private roundVarietyScores: RoundVarietyScoresPipe) {}
 
   transform(course: Course, currentRound?: Round, half?: RoundVariety): number {
-    return this.roundVarietyScores
-      .transform(course.par, half || currentRound?.roundVariety)
-      .reduce((prev, curr) => prev + curr);
+    return (
+      this.roundVarietyScores
+        .transform(course.par, half || currentRound?.roundVariety)
+        .reduce((prev, curr) => (prev || 0) + (curr || 0)) || 0
+    );
   }
 }

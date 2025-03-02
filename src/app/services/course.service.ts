@@ -48,6 +48,14 @@ export class CourseService {
   }
 
   public setCourse(updatedCourse: Course): boolean {
+    this.appStateService.currentUser.update((user) => {
+      if (user) {
+        if (!user.courseIds?.includes(updatedCourse.id)) {
+          user.courseIds.push(updatedCourse.id);
+        }
+      }
+      return structuredClone(user);
+    });
     return this.saveCourses([updatedCourse]);
   }
 

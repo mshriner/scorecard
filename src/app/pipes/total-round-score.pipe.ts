@@ -3,9 +3,9 @@ import { Round, RoundVariety } from '../models/round';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 @Pipe({
-    name: 'totalRoundScore',
-    pure: false,
-    standalone: false
+  name: 'totalRoundScore',
+  pure: false,
+  standalone: false,
 })
 export class TotalRoundScorePipe implements PipeTransform {
   constructor(private roundVarietyScores: RoundVarietyScoresPipe) {}
@@ -29,6 +29,6 @@ export class TotalRoundScorePipe implements PipeTransform {
       }
     }
 
-    return `${validStrokes.reduce((prev, curr) => prev + curr)}`;
+    return `${validStrokes.reduce((prev, curr) => (prev || 0) + (curr || 0))}`;
   }
 }

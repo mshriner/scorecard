@@ -6,7 +6,7 @@ export interface Round extends StorageObject {
   dateStringISO: string;
   courseId: string;
   strokes: number[];
-  putts: number[];
+  putts: (number | null)[];
   roundVariety: RoundVariety;
   generalNotes: string;
 }
