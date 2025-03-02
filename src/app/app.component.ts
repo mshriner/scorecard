@@ -12,8 +12,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet, RoutesRecognized } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
+import { filter, pairwise } from 'rxjs';
 import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
 import { APP_ROUTES, UNSAVED_DATA } from './models/constants';
 import { LocalUserWithFilters } from './models/user';
@@ -44,6 +45,7 @@ import { SnackBarService } from './services/snack-bar.service';
 })
 export class AppComponent {
   public readonly showSpinner = signal(false);
+  private previousUrl: string | null = null;
 
   @ViewChild('sidenav')
   sidenav!: any;
@@ -59,6 +61,14 @@ export class AppComponent {
     if (!this.isOnProfilesScreen && !this.currentUser) {
       this.logout();
     }
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof RoutesRecognized),
+        pairwise(),
+      )
+      .subscribe((e) => {
+        this.previousUrl = e[0].urlAfterRedirects; // previous url
+      });
   }
 
   public logout(): void {
@@ -77,9 +87,21 @@ export class AppComponent {
         .afterClosed()
         .subscribe((confirmed) => {
           if (confirmed) {
-            this.location.back();
+            this.doGoBack();
           }
         });
+    } else {
+      this.doGoBack();
+    }
+  }
+
+  private doGoBack(): void {
+    if (this.previousUrl) {
+      this.router.navigateByUrl(this.previousUrl);
+    } else if (this.isOnEditCourseScreen) {
+      this.router.navigateByUrl(APP_ROUTES.COURSES);
+    } else if (this.isOnEditRoundScreen) {
+      this.router.navigateByUrl(APP_ROUTES.HOME);
     } else {
       this.location.back();
     }
@@ -111,6 +133,14 @@ export class AppComponent {
 
   public get isOnWipeDataScreen(): boolean {
     return this.router.url === `/${APP_ROUTES.CLEAR_DATA}`;
+  }
+
+  public get isOnEditCourseScreen(): boolean {
+    return this.router.url === `/${APP_ROUTES.ADD_EDIT_COURSE}`;
+  }
+
+  public get isOnEditRoundScreen(): boolean {
+    return this.router.url === `/${APP_ROUTES.ADD_EDIT_ROUND}`;
   }
 
   public addNewCourse(): void {
