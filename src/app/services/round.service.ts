@@ -51,14 +51,13 @@ export class RoundService {
             updatedCurrentUser.roundIds.push(round.id);
           }
           if (
-            updatedCurrentUser.courseIds?.length &&
-            updatedCurrentUser.courseStatsFilterSelect?.length ===
-              updatedCurrentUser.courseIds?.length - 1 &&
+            Array.isArray(updatedCurrentUser.courseStatsFilterSelect) &&
             !updatedCurrentUser.courseStatsFilterSelect?.includes(
               round.courseId,
             )
           ) {
-            // if the user had all courses selected before creating this course, keep all courses selected
+            // if the user did not have this course selected
+            // before creating or updating this course, keep all courses selected
             updatedCurrentUser.courseStatsFilterSelect.push(round.courseId);
           }
         }

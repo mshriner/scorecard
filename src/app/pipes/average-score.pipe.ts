@@ -113,7 +113,6 @@ function getNineHoleRoundsToCount(
       const backNine = round?.strokes?.slice(9, 18)?.length
         ? round?.strokes?.slice(9, 18)
         : EMPTY_NINE_HOLES;
-      console.log(frontNine, backNine);
       const countFrontNine = !frontNine?.some((stroke) => !stroke);
       const countBackNine = !backNine?.some((stroke) => !stroke);
 

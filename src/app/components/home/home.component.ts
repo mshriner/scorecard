@@ -139,13 +139,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     const courseStatsFilterSelect = this.currentUser?.courseStatsFilterSelect;
     if (courseStatsFilterSelect?.length) {
-      this.courseStatsFilter.setValue(courseStatsFilterSelect);
-      this.reevaluateAllSelectedStatus();
+      this.courseStatsFilter.setValue(
+        courseStatsFilterSelect.filter((courseId) =>
+          this.courseMap().has(courseId),
+        ),
+      );
     } else {
       this.allSelected = true;
       this.courseStatsFilter.setValue(this.courseIdOptions());
-      this.updateFilteredRounds();
     }
+    this.reevaluateAllSelectedStatus(true);
   }
 
   public addNewRound(): void {
