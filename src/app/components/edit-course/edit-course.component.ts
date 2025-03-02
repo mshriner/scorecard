@@ -178,7 +178,7 @@ export class EditCourseComponent {
       return;
     }
     this.shareService
-      .shareData(this.editingCourse, 'course')
+      .shareData({ data: this.editingCourse, objectType: 'course' })
       .subscribe((result) => {
         console.log(result);
       });

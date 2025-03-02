@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { catchError, from, map, Observable, of } from 'rxjs';
-import { Course, CourseDTO } from '../models/course';
-import { ExportedItem, ImportType } from '../models/data-transfer';
+import { Course, COURSE_EXAMPLE, CourseDTO } from '../models/course';
+import { DataToShare, ExportedItem, ImportType } from '../models/data-transfer';
 import { Round, RoundDTO } from '../models/round';
 import { User, UserDTO } from '../models/user';
 import { AppStateService } from './app-state.service';
@@ -23,7 +23,7 @@ export class SharingService {
     return navigator.canShare({ text: JSON.stringify(data) });
   }
 
-  public shareData(data: any, shareFileName: string): Observable<boolean> {
+  public shareData(dataToShare: DataToShare): Observable<boolean> {
     if (
       !this.CAN_SHARE_DATA ||
       !this.CAN_SHARE_FILES ||
@@ -34,10 +34,13 @@ export class SharingService {
 
     try {
       const exportedItem: ExportedItem = {
-        ...data,
+        ...dataToShare.data,
+        objectType: dataToShare.objectType,
         fromProfileId: this.appStateService.currentUser()!.id,
         fromProfileName: this.appStateService.currentUser()!.name,
       };
+
+      const shareFileName = dataToShare.objectType;
 
       const toShare = {
         title: `Exported ${shareFileName}`,
@@ -87,27 +90,27 @@ export class SharingService {
 
   public convertDTOToDomain(
     importedItem: CourseDTO | RoundDTO | UserDTO,
-    typeOfImport: ImportType,
-  ): Course | Round | User {
-    const { fromProfileName, fromProfileId, ...domain } = importedItem;
-    return domain;
+  ): Course | Round | User | null {
+    const { fromProfileName, fromProfileId, objectType, ...domain } =
+      importedItem;
 
-    // switch (typeOfImport) {
-    //   case 'course': {
-    //     const domainCourse = {} as Course;
-    //     Object.keys(COURSE_EXAMPLE).forEach(
-    //       (key) => {
-    //         if (!importedItem[key])
-    //         domainCourse[key] = importedItem[key];},
-    //       );
-    //     return domainCourse;
-    //   }
-    // }
+    // only take the properties we want to avoid importing garbage
+    switch (objectType) {
+      case 'course': {
+        const domainCourse = {} as Course;
+        Object.keys(COURSE_EXAMPLE).forEach((key) => {
+          if (domain[key] !== undefined) domainCourse[key] = domain[key];
+        });
+        return domainCourse;
+      }
+      // TODO parse more complex objects (such as round containing courses)
+      default:
+        return null;
+    }
   }
 
   /**
    * add to web manifest
-   * 
    * 
   "share_target": {
     "action": "scorecard",
