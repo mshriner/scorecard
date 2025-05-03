@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-@use '@angular/material';
+@use '@angular/material' as mat;
 
 html,
 body {
@@ -61,6 +61,14 @@ body {
   display: grid;
 }
 
+mat-expansion-panel {
+  border: 1px solid var(--mat-sys-outline);
+}
+
+mat-expansion-panel-header {
+  user-select: none;
+}
+
 @mixin text-centering {
   text-align: center;
 }
@@ -76,18 +84,15 @@ div {
 
 td.border-top {
   border-top: solid 0.8px;
-  border-top-color: var(
-    --mat-table-row-item-outline-color,
-    var(--mat-app-outline, rgba(0, 0, 0, 0.12))
-  );
+  border-top-color: (--mat-sys-outline);
 }
 
 td.thick-bottom-border {
-  border-bottom-width: 3px;
+  border-bottom-width: 2px;
 }
 
 td.thick-top-border {
-  border-top-width: 3px;
+  border-top-width: 2px;
 }
 
 mat-form-field.almost-full-width-input {

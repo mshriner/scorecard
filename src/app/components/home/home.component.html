@@ -1,142 +1,215 @@
 @if (rounds().length) {
   <div class="padding-inline-8">
-    <mat-card appearance="outlined" class="center-text">
-      <mat-card-title>Filter Results</mat-card-title>
-      <mat-card-content class="padding-inline-8">
-        <div class="full-width-center space-evenly padding-bottom-8">
-          <button mat-stroked-button (click)="clearRoundFilters()">
-            <mat-icon>filter_alt_off</mat-icon>
-            Clear Filters
-          </button>
-        </div>
+    <mat-expansion-panel
+      class="outlined"
+      [expanded]="currentUser?.filtersOpen"
+      (opened)="filtersOpenChanged(true)"
+      (closed)="filtersOpenChanged(false)"
+    >
+      <mat-expansion-panel-header class="center-text">
+        Filter Results
+      </mat-expansion-panel-header>
+      <div class="full-width-center space-evenly padding-bottom-8">
+        <button mat-stroked-button (click)="clearRoundFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Clear Filters
+        </button>
+      </div>
 
-        @if (courseIdOptions().length > 1) {
-          <div class="full-width-center">
-            <mat-form-field class="almost-full-width-input">
-              <mat-label>Filter Results By Course(s)</mat-label>
-              <mat-select
-                #courseStatsFilterSelect
-                [formControl]="courseStatsFilter"
-                multiple
-                (openedChange)="!$event && reevaluateAllSelectedStatus(true)"
-              >
-                <mat-select-trigger>
-                  @if (allSelected) {
-                    All Courses
-                  } @else {
-                    {{
-                      courseMap().get(courseStatsFilter.value?.[0] || '')
-                        ?.name || ''
-                    }}
-                    @if ((courseStatsFilter.value?.length || 0) > 1) {
-                      <span>
-                        (+{{ (courseStatsFilter.value?.length || 0) - 1 }}
-                        {{
-                          courseStatsFilter.value?.length === 2
-                            ? 'other'
-                            : 'others'
-                        }})
-                      </span>
-                    }
+      @if (courseIdOptions().length > 1) {
+        <div class="full-width-center">
+          <mat-form-field class="almost-full-width-input">
+            <mat-label>Filter Results By Course(s)</mat-label>
+            <mat-select
+              #courseStatsFilterSelect
+              [formControl]="courseStatsFilter"
+              multiple
+              (openedChange)="!$event && reevaluateAllSelectedStatus(true)"
+            >
+              <mat-select-trigger>
+                @if (allSelected) {
+                  All Courses
+                } @else {
+                  {{
+                    courseMap().get(courseStatsFilter.value?.[0] || '')?.name ||
+                      ''
+                  }}
+                  @if ((courseStatsFilter.value?.length || 0) > 1) {
+                    <span>
+                      (+{{ (courseStatsFilter.value?.length || 0) - 1 }}
+                      {{
+                        courseStatsFilter.value?.length === 2
+                          ? 'other'
+                          : 'others'
+                      }})
+                    </span>
                   }
-                </mat-select-trigger>
-                <div
-                  class="select-all"
-                  mat-ripple
-                  (click)="toggleAllSelection()"
-                >
-                  <mat-checkbox
-                    style="width: 100%"
-                    [(ngModel)]="allSelected"
-                    [ngModelOptions]="{ standalone: true }"
-                  >
-                    Select All
-                  </mat-checkbox>
-                </div>
-                <mat-divider></mat-divider>
-                @for (topping of courseIdOptions(); track topping) {
-                  <mat-option
-                    [value]="topping"
-                    (click)="reevaluateAllSelectedStatus()"
-                    >{{ courseMap().get(topping)?.name }}</mat-option
-                  >
                 }
-              </mat-select>
-            </mat-form-field>
-          </div>
-        }
+              </mat-select-trigger>
+              <div
+                class="select-all"
+                mat-ripple
+                (click)="toggleAllSelection()"
+                (keydown)="toggleAllSelection()"
+              >
+                <mat-checkbox
+                  style="width: 100%"
+                  [(ngModel)]="allSelected"
+                  [ngModelOptions]="{ standalone: true }"
+                >
+                  Select All
+                </mat-checkbox>
+              </div>
+              <mat-divider></mat-divider>
+              @for (topping of courseIdOptions(); track topping) {
+                <mat-option
+                  [value]="topping"
+                  (click)="reevaluateAllSelectedStatus()"
+                  (keydown)="reevaluateAllSelectedStatus()"
+                  >{{ courseMap().get(topping)?.name }}</mat-option
+                >
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      }
 
-        <div class="full-width-center">
-          <mat-form-field class="almost-full-width-input">
-            <mat-label>Set Earliest Date</mat-label>
-            <input
-              matInput
-              [matDatepickerFilter]="datePickerFilterOutAfter"
-              [matDatepicker]="pickerEarly"
-              [value]="currentUser?.earliestDateISO"
-              (dateInput)="earliestDateChanged($event, pickerEarly)"
-            />
-            <mat-hint>MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle
-              matIconSuffix
-              [for]="pickerEarly"
-            ></mat-datepicker-toggle>
-            <mat-datepicker touchUi #pickerEarly>
-              <mat-datepicker-actions>
-                <button
-                  mat-stroked-button
-                  matDatepickerCancel
-                  (click)="earliestDateChanged(null, pickerEarly)"
-                >
-                  <mat-icon>event_busy</mat-icon>
-                  Clear
-                </button>
-                <button mat-stroked-button matDatepickerApply>
-                  <mat-icon>event_available</mat-icon>
-                  Apply
-                </button>
-              </mat-datepicker-actions>
-            </mat-datepicker>
-          </mat-form-field>
-        </div>
-        <div class="full-width-center">
-          <mat-form-field class="almost-full-width-input">
-            <mat-label>Set Latest Date</mat-label>
-            <input
-              matInput
-              [matDatepicker]="pickerLate"
-              [matDatepickerFilter]="datePickerFilterOutBefore"
-              [value]="currentUser?.latestDateISO"
-              (dateInput)="latestDateChanged($event, pickerLate)"
-            />
-            <mat-hint>MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle
-              matIconSuffix
-              [for]="pickerLate"
-            ></mat-datepicker-toggle>
-            <mat-datepicker touchUi #pickerLate>
-              <mat-datepicker-actions>
-                <button
-                  mat-stroked-button
-                  matDatepickerCancel
-                  (click)="latestDateChanged(null, pickerEarly)"
-                >
-                  <mat-icon>event_busy</mat-icon>
-                  Clear
-                </button>
-                <button mat-stroked-button matDatepickerApply>
-                  <mat-icon>event_available</mat-icon>
-                  Apply
-                </button>
-              </mat-datepicker-actions>
-            </mat-datepicker>
-          </mat-form-field>
-        </div>
-      </mat-card-content>
-    </mat-card>
+      <div class="full-width-center">
+        <mat-form-field class="almost-full-width-input">
+          <mat-label>Set Earliest Date</mat-label>
+          <input
+            matInput
+            [matDatepickerFilter]="datePickerFilterOutAfter"
+            [matDatepicker]="pickerEarly"
+            [value]="currentUser?.earliestDateISO"
+            (dateInput)="earliestDateChanged($event, pickerEarly)"
+          />
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="pickerEarly"
+          ></mat-datepicker-toggle>
+          <mat-datepicker touchUi #pickerEarly>
+            <mat-datepicker-actions>
+              <button
+                mat-stroked-button
+                matDatepickerCancel
+                (click)="earliestDateChanged(null, pickerEarly)"
+              >
+                <mat-icon>event_busy</mat-icon>
+                Clear
+              </button>
+              <button mat-stroked-button matDatepickerApply>
+                <mat-icon>event_available</mat-icon>
+                Apply
+              </button>
+            </mat-datepicker-actions>
+          </mat-datepicker>
+        </mat-form-field>
+      </div>
+      <div class="full-width-center">
+        <mat-form-field class="almost-full-width-input">
+          <mat-label>Set Latest Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerLate"
+            [matDatepickerFilter]="datePickerFilterOutBefore"
+            [value]="currentUser?.latestDateISO"
+            (dateInput)="latestDateChanged($event, pickerLate)"
+          />
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="pickerLate"
+          ></mat-datepicker-toggle>
+          <mat-datepicker touchUi #pickerLate>
+            <mat-datepicker-actions>
+              <button
+                mat-stroked-button
+                matDatepickerCancel
+                (click)="latestDateChanged(null, pickerEarly)"
+              >
+                <mat-icon>event_busy</mat-icon>
+                Clear
+              </button>
+              <button mat-stroked-button matDatepickerApply>
+                <mat-icon>event_available</mat-icon>
+                Apply
+              </button>
+            </mat-datepicker-actions>
+          </mat-datepicker>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
   </div>
 
   @if (filteredRounds().length) {
+    <br />
+
+    <ng-container *ngTemplateOutlet="addActions"></ng-container>
+
+    <br />
+
+    <div class="full-width-center">
+      <h3 class="no-margin">Recorded Rounds</h3>
+    </div>
+
+    <mat-table
+      matSort
+      [matSortActive]="currentUser?.sortBy || ''"
+      [matSortDirection]="currentUser?.sortDescending ? 'desc' : 'asc'"
+      [dataSource]="filteredRounds()"
+      (matSortChange)="sortData($event)"
+    >
+      <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
+        <mat-header-cell
+          *matHeaderCellDef
+          class="center-text"
+          mat-sort-header="{{ ROUND_DATE_COL }}"
+        >
+          Date
+        </mat-header-cell>
+        <mat-cell *matCellDef="let round" class="center-text">
+          {{ round.dateStringISO | date }}
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
+        <mat-header-cell *matHeaderCellDef class="center-text">
+          Course
+        </mat-header-cell>
+        <mat-cell *matCellDef="let round" class="center-text">
+          {{ courseMap().get(round.courseId)?.name }}
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
+        <mat-header-cell
+          *matHeaderCellDef
+          class="center-text"
+          mat-sort-header="{{ ROUND_SCORE_COL }}"
+        >
+          Score
+        </mat-header-cell>
+        <mat-cell *matCellDef="let round" class="center-text">
+          {{ round | totalRoundScore }} ({{
+            round | scoreToPar: courseMap().get(round.courseId)
+          }})
+        </mat-cell>
+      </ng-container>
+      <mat-header-row
+        *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"
+      ></mat-header-row>
+      <mat-row
+        mat-ripple
+        *matRowDef="let round; columns: ROUND_TABLE_COLUMNS"
+        (click)="viewRound(round.id)"
+        (keydown.enter)="viewRound(round.id)"
+      ></mat-row>
+    </mat-table>
+
+    <br />
+
+    <ng-container *ngTemplateOutlet="addActions"></ng-container>
+
     <div class="full-width-center padding-bottom-16 padding-top-16">
       <h3>Scoring Stats</h3>
     </div>
@@ -209,53 +282,7 @@
         </mat-card-content>
       </mat-card>
     </div>
-
     <br />
-
-    <ng-container *ngTemplateOutlet="addActions"></ng-container>
-
-    <br />
-
-    <div class="full-width-center">
-      <h3 class="no-margin">Recorded Rounds</h3>
-    </div>
-
-    <mat-table [dataSource]="filteredRounds()">
-      <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
-        <mat-header-cell *matHeaderCellDef class="center-text"
-          >Date</mat-header-cell
-        >
-        <mat-cell *matCellDef="let round" class="center-text">
-          {{ round.dateStringISO | date }}
-        </mat-cell>
-      </ng-container>
-      <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
-        <mat-header-cell *matHeaderCellDef class="center-text"
-          >Course</mat-header-cell
-        >
-        <mat-cell *matCellDef="let round" class="center-text">
-          {{ courseMap().get(round.courseId)?.name }}
-        </mat-cell>
-      </ng-container>
-      <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
-        <mat-header-cell *matHeaderCellDef class="center-text"
-          >Score</mat-header-cell
-        >
-        <mat-cell *matCellDef="let round" class="center-text">
-          {{ round | totalRoundScore }} ({{
-            round | scoreToPar: courseMap().get(round.courseId)
-          }})
-        </mat-cell>
-      </ng-container>
-      <mat-header-row
-        *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"
-      ></mat-header-row>
-      <mat-row
-        mat-ripple
-        *matRowDef="let round; columns: ROUND_TABLE_COLUMNS"
-        (click)="viewRound(round.id)"
-      ></mat-row>
-    </mat-table>
   } @else {
     <br />
     <div class="full-width-center">

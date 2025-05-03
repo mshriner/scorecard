@@ -14,6 +14,7 @@ $score-graphic-size: 24px;
       border-color: rgba($color: #000000, $alpha: 0);
       width: $score-graphic-size;
       height: $score-graphic-size;
+      line-height: normal;
       align-content: center;
       justify-content: center;
       &.double-bogey-or-worse {

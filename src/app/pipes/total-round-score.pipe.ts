@@ -8,17 +8,17 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
   standalone: false,
 })
 export class TotalRoundScorePipe implements PipeTransform {
-  constructor(private roundVarietyScores: RoundVarietyScoresPipe) {}
+  constructor(private readonly roundVarietyScores: RoundVarietyScoresPipe) {}
 
-  transform(round: Round, half?: RoundVariety): string {
+  transform(round: Round, half?: RoundVariety): number | string {
     const validStrokes = this.roundVarietyScores.transform(
       round.strokes,
-      half || round.roundVariety,
+      half ?? round.roundVariety,
     );
 
     if (!half) {
       const numberOfUncompletedHoles = validStrokes.filter(
-        (hole) => (hole || 0) <= 0,
+        (hole) => (hole ?? 0) <= 0,
       ).length;
       if (numberOfUncompletedHoles) {
         return `Thru ${
@@ -29,6 +29,8 @@ export class TotalRoundScorePipe implements PipeTransform {
       }
     }
 
-    return `${validStrokes.reduce((prev, curr) => (prev || 0) + (curr || 0))}`;
+    return (
+      validStrokes.reduce((prev, curr) => (prev ?? 0) + (curr ?? 0), 0) ?? 0
+    );
   }
 }

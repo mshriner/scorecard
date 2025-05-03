@@ -11,9 +11,12 @@ export interface User extends StorageObject {
 }
 
 export interface LocalUserWithFilters extends User {
+  filtersOpen?: boolean;
   courseStatsFilterSelect?: string[];
   earliestDateISO?: string;
   latestDateISO?: string;
+  sortDescending?: boolean;
+  sortBy?: string; // 'roundDate' | 'roundScore'
 }
 
 export interface UserDTO extends User, ExportedItem {
