@@ -1,5 +1,6 @@
 import { Location } from '@angular/common';
-import { Component, signal, ViewChild } from '@angular/core';
+import { Component, DestroyRef, signal, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -52,17 +53,19 @@ export class AppComponent {
 
   constructor(
     public appStateService: AppStateService,
-    private router: Router,
-    private dialog: MatDialog,
-    private location: Location,
-    private snackBarService: SnackBarService,
-    private serviceWorker: SwUpdate,
+    private readonly router: Router,
+    private readonly dialog: MatDialog,
+    private readonly location: Location,
+    private readonly snackBarService: SnackBarService,
+    private readonly serviceWorker: SwUpdate,
+    private readonly destroyRef: DestroyRef,
   ) {
     if (!this.isOnProfilesScreen && !this.currentUser) {
       this.logout();
     }
     this.router.events
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         filter((e) => e instanceof RoutesRecognized),
         pairwise(),
       )
