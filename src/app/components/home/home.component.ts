@@ -238,8 +238,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private updateFilteredRounds(): void {
     const roundsToShow =
       this.rounds()?.filter((round) => this.shouldShowRound(round)) || [];
-    if (!this.currentUser?.sortBy) {
-      this.currentUser!.sortBy = 'date';
+    if (this.currentUser && !this.currentUser?.sortBy) {
+      this.currentUser.sortBy = 'date';
     }
     roundsToShow.sort((a, b) => {
       const roundAScore = Number(this.roundScorePipe.transform(a));
