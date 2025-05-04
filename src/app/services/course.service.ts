@@ -8,8 +8,8 @@ import { LocalStorageService } from './local-storage.service';
 })
 export class CourseService {
   constructor(
-    private appStateService: AppStateService,
-    private localStorageService: LocalStorageService,
+    private readonly appStateService: AppStateService,
+    private readonly localStorageService: LocalStorageService,
   ) {}
 
   public getAllCoursesForCurrentUser(): Course[] {
@@ -33,18 +33,21 @@ export class CourseService {
     );
   }
 
-  public saveCourses(updatedCourses: Course[]): boolean {
+  private saveCourses(updatedCourses: Course[]): boolean {
     return updatedCourses
       ?.map((course) => this.localStorageService.setItem(course?.id, course))
       ?.every((result) => !!result);
   }
 
-  public getCourse(courseId: string): Course | null {
+  public getCourse(courseId?: string): Course | null {
+    if (!courseId) {
+      return null;
+    }
     return this.getCoursesByIds([courseId])[0];
   }
 
   public getCourseName(courseId: string): string {
-    return this.getCourse(courseId)?.name || '';
+    return this.getCourse(courseId)?.name ?? '';
   }
 
   public setCourse(updatedCourse: Course): boolean {

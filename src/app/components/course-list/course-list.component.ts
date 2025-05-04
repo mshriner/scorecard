@@ -10,7 +10,6 @@ import { Course } from '../../models/course';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
-import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { UserService } from '../../services/user.service';
 
@@ -41,9 +40,8 @@ export class CourseListComponent implements OnInit {
     public appStateService: AppStateService,
     public courseService: CourseService,
     public userService: UserService,
-    public sharingService: SharingService,
-    private router: Router,
-    private snackBarService: SnackBarService,
+    private readonly router: Router,
+    private readonly snackBarService: SnackBarService,
   ) {
     this.snackBarService.openTemporarySnackBar(
       this.router.getCurrentNavigation()?.extras?.state?.[
@@ -74,26 +72,5 @@ export class CourseListComponent implements OnInit {
 
   public addNewCourse(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
-  }
-
-  public onFileSelected(input: HTMLInputElement): void {
-    const file = input.files?.[0];
-    file?.text().then((uploaded) => {
-      const parsed = this.sharingService.convertDTOToDomain(
-        JSON.parse(uploaded),
-      );
-      console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
-      if (parsed?.objectType === 'course') {
-        this.courseService.setCourse(parsed.data as Course);
-        this.viewCourse(
-          parsed.data.id,
-          `Course "${parsed.data.name}" was saved successfully.`,
-        );
-      } else {
-        this.snackBarService.openTemporarySnackBar(
-          'Failed to import the course.',
-        );
-      }
-    });
   }
 }

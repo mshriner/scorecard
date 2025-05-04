@@ -136,6 +136,19 @@
         <mat-icon>delete</mat-icon>
         Delete
       </button>
+    } @else {
+      <button mat-stroked-button (click)="fileInput.click()">
+        <mat-icon>input</mat-icon>
+        Import Course
+      </button>
+      <input
+        hidden
+        (change)="onFileSelected(fileInput)"
+        #fileInput
+        type="file"
+        id="file"
+        accept="application/json"
+      />
     }
     <button
       mat-stroked-button
@@ -156,12 +169,12 @@
       }
     </button>
   </div>
-  <div class="full-width-center space-evenly">
-    @if (courseIdToEdit) {
+  @if (courseIdToEdit) {
+    <div class="full-width-center space-evenly">
       <button mat-stroked-button (click)="shareCourse()">
         <mat-icon>ios_share</mat-icon>
         Share
       </button>
-    }
-  </div>
+    </div>
+  }
 </ng-template>

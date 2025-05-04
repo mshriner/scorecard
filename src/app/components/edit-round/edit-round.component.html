@@ -303,12 +303,25 @@
 </ng-template>
 
 <ng-template #saveActions>
-  <div class="full-width-center space-evenly">
+  <div class="full-width-center space-evenly padding-bottom-8">
     @if (roundIdToEdit) {
       <button mat-stroked-button (click)="deleteRound()">
         <mat-icon>delete</mat-icon>
         Delete
       </button>
+    } @else {
+      <button mat-stroked-button (click)="fileInput.click()">
+        <mat-icon>input</mat-icon>
+        Import Round
+      </button>
+      <input
+        hidden
+        (change)="onFileSelected(fileInput)"
+        #fileInput
+        type="file"
+        id="file"
+        accept="application/json"
+      />
     }
     <button
       mat-stroked-button
@@ -329,4 +342,12 @@
       }
     </button>
   </div>
+  @if (roundIdToEdit) {
+    <div class="full-width-center space-evenly">
+      <button mat-stroked-button (click)="shareRound()">
+        <mat-icon>ios_share</mat-icon>
+        Share
+      </button>
+    </div>
+  }
 </ng-template>

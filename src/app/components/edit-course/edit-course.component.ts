@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -41,8 +41,9 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
   templateUrl: './edit-course.component.html',
   styleUrl: './edit-course.component.scss',
 })
-export class EditCourseComponent {
-  private originalCourse: Course;
+export class EditCourseComponent implements OnInit {
+  private readonly originalCourse: Course;
+  private readonly redirectToHome: boolean = false;
   public editingCourse: Course;
   public courseIdToEdit: string;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
@@ -71,19 +72,19 @@ export class EditCourseComponent {
 
   constructor(
     public appStateService: AppStateService,
-    private courseService: CourseService,
-    private dialog: MatDialog,
-    private roundService: RoundService,
-    private router: Router,
-    private shareService: SharingService,
-    private snackBerService: SnackBarService,
+    private readonly courseService: CourseService,
+    private readonly dialog: MatDialog,
+    private readonly roundService: RoundService,
+    private readonly router: Router,
+    private readonly sharingService: SharingService,
+    private readonly snackBarService: SnackBarService,
   ) {
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
       ];
     console.log(`id if this is an existing course: ${this.courseIdToEdit}`);
-    this.snackBerService.openTemporarySnackBar(
+    this.snackBarService.openTemporarySnackBar(
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.MESSAGE
       ],
@@ -91,8 +92,8 @@ export class EditCourseComponent {
     if (this.courseIdToEdit) {
       const retrieved = this.courseService.getCourse(this.courseIdToEdit);
       if (!retrieved) {
-        this.router.navigateByUrl(APP_ROUTES.HOME);
         this.editingCourse = {} as Course;
+        this.redirectToHome = true;
       } else {
         this.editingCourse = JSON.parse(JSON.stringify(retrieved));
         this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
@@ -106,6 +107,12 @@ export class EditCourseComponent {
       this.appStateService.setPageTitle(`Create Course`);
     }
     this.originalCourse = JSON.parse(JSON.stringify(this.editingCourse));
+  }
+
+  ngOnInit(): void {
+    if (this.redirectToHome) {
+      this.router.navigateByUrl(APP_ROUTES.HOME);
+    }
   }
 
   public parPlusOne(index: number) {
@@ -191,7 +198,7 @@ export class EditCourseComponent {
     if (!this.courseIdToEdit) {
       return;
     }
-    this.shareService
+    this.sharingService
       .shareData({ data: this.editingCourse, objectType: 'course' })
       .subscribe((result) => {
         console.log(result);
@@ -206,6 +213,32 @@ export class EditCourseComponent {
           this.editingCourse.name
         }"`,
       },
+    });
+  }
+
+  public onFileSelected(input: HTMLInputElement): void {
+    const file = input.files?.[0];
+    file?.text().then((uploaded) => {
+      const parsed = this.sharingService.convertDTOToDomain(
+        JSON.parse(uploaded),
+      );
+      console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
+      if (parsed?.objectType === 'course') {
+        const importedCourse = parsed.data as Course;
+        this.courseService.setCourse(importedCourse);
+        this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
+          this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
+            state: {
+              [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: importedCourse.id,
+              [NAVIGATION_STATE_KEYS.MESSAGE]: `Course "${importedCourse.name}" was saved successfully.`,
+            },
+          });
+        });
+      } else {
+        this.snackBarService.openTemporarySnackBar(
+          'Failed to import the course.',
+        );
+      }
     });
   }
 }

@@ -8,9 +8,14 @@ export interface ExportedItem {
   objectType: ImportType;
 }
 
+export interface RoundWithCourse {
+  round: Round;
+  course: Course;
+}
+
 export interface DataToShare {
   objectType: ImportType;
-  data: Course | User | Round;
+  data: Course | User | RoundWithCourse;
 }
 
 export type ImportType = 'course' | 'round' | 'user';

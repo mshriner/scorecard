@@ -1,4 +1,4 @@
-import { CourseDTO } from './course';
+import { COURSE_EXAMPLE, CourseDTO } from './course';
 import { ExportedItem } from './data-transfer';
 import { StorageObject } from './storage-object';
 
@@ -27,4 +27,12 @@ export const DisplayRoundVariety: Record<RoundVariety, string> = {
   BACK_NINE: 'Back nine (9 holes)',
 };
 
-type ROUND_OBJECT_KEYS = (keyof Round)[];
+export const ROUND_EXAMPLE: Round = {
+  id: 'id',
+  dateStringISO: new Date().toISOString(),
+  courseId: COURSE_EXAMPLE.id,
+  strokes: new Array(18).fill(4),
+  putts: new Array(18).fill(1),
+  roundVariety: RoundVariety.EIGHTEEN,
+  generalNotes: 'note',
+};

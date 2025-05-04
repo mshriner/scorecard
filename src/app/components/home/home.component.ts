@@ -42,6 +42,7 @@ import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
+import { DataUtils } from '../../util/data-utils';
 
 @Component({
   selector: 'app-home',
@@ -165,10 +166,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
   }
 
-  public viewRound(roundId: string): void {
+  public viewRound(roundId: string, message?: string): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND, {
       state: {
         [NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT]: roundId,
+        [NAVIGATION_STATE_KEYS.MESSAGE]: message,
       },
     });
   }
@@ -314,7 +316,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ): void {
     if (this.currentUser) {
       this.appStateService.currentUser.update((user) => {
-        user!.latestDateISO = this.justBeforeNextDay(
+        user!.latestDateISO = DataUtils.justBeforeNextDay(
           event?.value,
         )?.toISOString();
         return structuredClone(user);
@@ -334,16 +336,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.select?.options?.forEach((item: MatOption) => item.deselect());
       this.reevaluateAllSelectedStatus(true);
     }
-  }
-
-  private justBeforeNextDay(date?: Date | null): Date | null {
-    if (!date) {
-      return null;
-    }
-    const newDate = new Date(date.valueOf());
-    newDate.setDate(date.getDate() + 1);
-    newDate.setMilliseconds(date.getMilliseconds() - 1);
-    return newDate;
   }
 
   public get currentUser(): LocalUserWithFilters | null {

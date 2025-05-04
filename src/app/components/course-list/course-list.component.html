@@ -54,18 +54,4 @@
       </button>
     }
   </div>
-  <div class="full-width-center space-evenly">
-    <button mat-stroked-button (click)="fileInput.click()">
-      <mat-icon>input</mat-icon>
-      Import Course
-    </button>
-    <input
-      hidden
-      (change)="onFileSelected(fileInput)"
-      #fileInput
-      type="file"
-      id="file"
-      accept="application/json"
-    />
-  </div>
 </ng-template>
