@@ -65,6 +65,8 @@ mat-expansion-panel {
   border: 1px solid var(--mat-sys-outline);
 }
 
+th,
+mat-header-cell,
 mat-expansion-panel-header {
   user-select: none;
 }
