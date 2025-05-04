@@ -1,12 +1,27 @@
 import { Injectable } from '@angular/core';
 import { Round, RoundVariety } from '../models/round';
+import { AppStateService } from './app-state.service';
 import { LocalStorageService } from './local-storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoundService {
-  constructor(private localStorageService: LocalStorageService) {}
+  constructor(
+    private localStorageService: LocalStorageService,
+    private appStateService: AppStateService,
+  ) {}
+
+  public getRoundById(roundId: string): Round | null {
+    const retrieved = this.localStorageService.getItem(roundId);
+    if (!retrieved?.id) {
+      return null;
+    }
+    if (!retrieved.roundVariety) {
+      retrieved.roundVariety = RoundVariety.EIGHTEEN;
+    }
+    return retrieved as Round;
+  }
 
   public getRoundsByIds(roundIds?: string[]): Round[] {
     return (
@@ -29,6 +44,26 @@ export class RoundService {
   }
 
   public saveRounds(updatedRounds: Round[]): boolean {
+    this.appStateService.currentUser.update((updatedCurrentUser) => {
+      if (updatedCurrentUser) {
+        for (const round of updatedRounds) {
+          if (!updatedCurrentUser.roundIds?.includes(round.id)) {
+            updatedCurrentUser.roundIds.push(round.id);
+          }
+          if (
+            Array.isArray(updatedCurrentUser.courseStatsFilterSelect) &&
+            !updatedCurrentUser.courseStatsFilterSelect?.includes(
+              round.courseId,
+            )
+          ) {
+            // if the user did not have this course selected
+            // before creating or updating this course, keep all courses selected
+            updatedCurrentUser.courseStatsFilterSelect.push(round.courseId);
+          }
+        }
+      }
+      return structuredClone(updatedCurrentUser);
+    });
     return updatedRounds
       ?.map((round) => {
         // clear strokes and putts not used
@@ -47,6 +82,9 @@ export class RoundService {
             }
             break;
           }
+        }
+        if (!round?.generalNotes?.trim()) {
+          round.generalNotes = '';
         }
         return this.localStorageService.setItem(round?.id, round);
       })

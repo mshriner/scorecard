@@ -5,17 +5,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { AreYouSureDialogConfig } from '../../models/dialog';
 
 @Component({
-  selector: 'app-are-you-sure-dialog',
-  standalone: true,
-  imports: [
-    MatButtonModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatIconModule,
-  ],
-  templateUrl: './are-you-sure-dialog.component.html',
-  styleUrl: './are-you-sure-dialog.component.scss'
+    selector: 'app-are-you-sure-dialog',
+    imports: [
+        MatButtonModule,
+        MatDialogTitle,
+        MatDialogContent,
+        MatDialogActions,
+        MatIconModule,
+    ],
+    templateUrl: './are-you-sure-dialog.component.html',
+    styleUrl: './are-you-sure-dialog.component.scss'
 })
 export class AreYouSureDialogComponent {
 

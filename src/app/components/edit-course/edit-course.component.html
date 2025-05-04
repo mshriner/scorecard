@@ -8,6 +8,10 @@
         [(ngModel)]="editingCourse.name"
         [ngModelOptions]="{ standalone: true }"
         autofocus="true"
+        (change)="updateUnsavedData()"
+        (keyup)="updateUnsavedData()"
+        (paste)="updateUnsavedData()"
+        (input)="updateUnsavedData()"
       />
     </mat-form-field>
   </div>
@@ -126,7 +130,7 @@
 <br />
 
 <ng-template #saveActions>
-  <div class="full-width-center space-evenly">
+  <div class="full-width-center space-evenly padding-bottom-8">
     @if (courseIdToEdit) {
       <button mat-stroked-button (click)="deleteCourse()">
         <mat-icon>delete</mat-icon>
@@ -136,7 +140,7 @@
     <button
       mat-stroked-button
       (click)="saveCourse()"
-      [disabled]="disableSaveButton"
+      [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
     >
       <mat-icon>
         @if (courseIdToEdit) {
@@ -151,5 +155,13 @@
         Save
       }
     </button>
+  </div>
+  <div class="full-width-center space-evenly">
+    @if (courseIdToEdit) {
+      <button mat-stroked-button (click)="shareCourse()">
+        <mat-icon>ios_share</mat-icon>
+        Share
+      </button>
+    }
   </div>
 </ng-template>

@@ -7,11 +7,12 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 @Pipe({
   name: 'scoreToPar',
   pure: false,
+  standalone: false,
 })
 export class ScoreToParPipe implements PipeTransform {
   constructor(
     private courseService: CourseService,
-    private roundVarietyScores: RoundVarietyScoresPipe
+    private roundVarietyScores: RoundVarietyScoresPipe,
   ) {}
 
   transform(round: Round, course?: Course | null, half?: RoundVariety): string {
@@ -21,15 +22,16 @@ export class ScoreToParPipe implements PipeTransform {
     if (!course) {
       throw new Error(`course with ID ${round.courseId} not found`);
     }
-    const toPar = this.roundVarietyScores
-      .transform(
-        round.strokes.map(
-          (holeScore, index) =>
-            (holeScore || course.par[index]) - course.par[index]
-        ),
-        half || round.roundVariety
-      )
-      .reduce((prev, curr) => prev + curr);
+    const toPar =
+      this.roundVarietyScores
+        .transform(
+          round.strokes.map(
+            (holeScore, index) =>
+              (holeScore || course.par[index]) - course.par[index],
+          ),
+          half || round.roundVariety,
+        )
+        .reduce((prev, curr) => (prev || 0) + (curr || 0)) || 0;
     if (toPar > 0) {
       return `+${toPar}`;
     } else if (toPar < 0) {

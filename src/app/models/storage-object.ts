@@ -9,6 +9,7 @@ export type StorageObject = {
     | boolean[]
     | number
     | number[]
+    | (number | null)[]
     | StorageObject
     | StorageObject[];
 };

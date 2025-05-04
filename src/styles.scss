@@ -1,18 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
-@import "@angular/material";
+@use '@angular/material' as mat;
 
 html,
 body {
   height: 100%;
   overscroll-behavior: none;
+  --mat-toolbar-mobile-height: 56px;
+
   -webkit-text-size-adjust: none;
   font-size-adjust: none;
   width: 100vw;
   zoom: 1;
+
+  h3 {
+    margin: 0;
+  }
 }
+
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
   background: var(
     --mat-toolbar-container-background-color,
     var(--mat-app-surface)
@@ -54,6 +61,16 @@ body {
   display: grid;
 }
 
+mat-expansion-panel {
+  border: 1px solid var(--mat-sys-outline);
+}
+
+th,
+mat-header-cell,
+mat-expansion-panel-header {
+  user-select: none;
+}
+
 @mixin text-centering {
   text-align: center;
 }
@@ -69,18 +86,15 @@ div {
 
 td.border-top {
   border-top: solid 0.8px;
-  border-top-color: var(
-    --mat-table-row-item-outline-color,
-    var(--mat-app-outline, rgba(0, 0, 0, 0.12))
-  );
+  border-top-color: (--mat-sys-outline);
 }
 
 td.thick-bottom-border {
-  border-bottom-width: 3px;
+  border-bottom-width: 2px;
 }
 
 td.thick-top-border {
-  border-top-width: 3px;
+  border-top-width: 2px;
 }
 
 mat-form-field.almost-full-width-input {
@@ -109,6 +123,14 @@ mat-dialog-actions.no-padding {
   padding-bottom: 8px;
 }
 
+.padding-top-16 {
+  padding-top: 16px;
+}
+
+.padding-bottom-16 {
+  padding-bottom: 16px;
+}
+
 .no-margin {
   margin: 0 !important;
 }
@@ -120,8 +142,10 @@ mat-dialog-actions.no-padding {
 // hacky way to get select all option to work in mat-select
 .select-all {
   padding: 5px 5px;
+
   mat-checkbox > div {
     width: 100%;
+
     label {
       width: 100%;
     }

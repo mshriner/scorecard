@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
+import equal from 'fast-deep-equal';
 import {
   APP_ROUTES,
   DELETE_COURSE,
@@ -19,11 +20,13 @@ import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
+import { SharingService } from '../../services/sharing.service';
+import { SnackBarService } from '../../services/snack-bar.service';
+import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
   selector: 'app-edit-course',
-  standalone: true,
   imports: [
     FormsModule,
     MatButtonModule,
@@ -39,6 +42,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
   styleUrl: './edit-course.component.scss',
 })
 export class EditCourseComponent {
+  private originalCourse: Course;
   public editingCourse: Course;
   public courseIdToEdit: string;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
@@ -66,44 +70,54 @@ export class EditCourseComponent {
   ];
 
   constructor(
-    private appStateService: AppStateService,
+    public appStateService: AppStateService,
     private courseService: CourseService,
     private dialog: MatDialog,
     private roundService: RoundService,
     private router: Router,
+    private shareService: SharingService,
+    private snackBerService: SnackBarService,
   ) {
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
       ];
-    console.log(this.courseIdToEdit);
+    console.log(`id if this is an existing course: ${this.courseIdToEdit}`);
+    this.snackBerService.openTemporarySnackBar(
+      router.getCurrentNavigation()?.extras?.state?.[
+        NAVIGATION_STATE_KEYS.MESSAGE
+      ],
+    );
     if (this.courseIdToEdit) {
       const retrieved = this.courseService.getCourse(this.courseIdToEdit);
       if (!retrieved) {
         this.router.navigateByUrl(APP_ROUTES.HOME);
         this.editingCourse = {} as Course;
-        return;
+      } else {
+        this.editingCourse = JSON.parse(JSON.stringify(retrieved));
+        this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
       }
-      this.editingCourse = JSON.parse(JSON.stringify(retrieved));
-      this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
     } else {
       this.editingCourse = {
-        id: `course-${crypto.randomUUID()}`,
+        id: DataUtils.generateUUID('course'),
         par: new Array(18).fill(4),
         name: '',
       };
       this.appStateService.setPageTitle(`Create Course`);
     }
+    this.originalCourse = JSON.parse(JSON.stringify(this.editingCourse));
   }
 
   public parPlusOne(index: number) {
     this.editingCourse.par[index]++;
+    this.updateUnsavedData();
   }
 
   public parMinusOne(index: number) {
     if (this.editingCourse.par[index]) {
       this.editingCourse.par[index]--;
     }
+    this.updateUnsavedData();
   }
 
   public showSummaryRow(index: number): boolean {
@@ -112,6 +126,12 @@ export class EditCourseComponent {
 
   public returnTrue(): boolean {
     return true;
+  }
+
+  public updateUnsavedData(): void {
+    this.appStateService.unsavedDataOnPage.set(
+      !equal(this.originalCourse, this.editingCourse),
+    );
   }
 
   public get disableSaveButton(): boolean {
@@ -129,42 +149,63 @@ export class EditCourseComponent {
       .afterClosed()
       .subscribe((confirmed) => {
         if (confirmed) {
-          const updatedCurrentUser = this.appStateService.currentUser;
-          if (updatedCurrentUser) {
-            if (updatedCurrentUser?.roundIds?.length) {
-              const roundIdsToRemove: Set<string> = new Set(
-                this.roundService
-                  .getRoundsByIds(updatedCurrentUser.roundIds)
-                  .filter((round) => round.courseId === this.courseIdToEdit)
-                  .map((round) => round.id),
-              );
-              updatedCurrentUser.roundIds = updatedCurrentUser.roundIds.filter(
-                (roundId) => !roundIdsToRemove.has(roundId),
-              );
-              this.roundService.deleteRounds([...roundIdsToRemove]);
-              updatedCurrentUser.courseStatsFilterSelect =
-                updatedCurrentUser.courseStatsFilterSelect?.filter(
+          this.appStateService.currentUser.update((updatedCurrentUser) => {
+            if (updatedCurrentUser) {
+              if (updatedCurrentUser?.roundIds?.length) {
+                const roundIdsToRemove: Set<string> = new Set(
+                  this.roundService
+                    .getRoundsByIds(updatedCurrentUser.roundIds)
+                    .filter((round) => round.courseId === this.courseIdToEdit)
+                    .map((round) => round.id),
+                );
+                updatedCurrentUser.roundIds =
+                  updatedCurrentUser.roundIds.filter(
+                    (roundId) => !roundIdsToRemove.has(roundId),
+                  );
+                this.roundService.deleteRounds([...roundIdsToRemove]);
+                updatedCurrentUser.courseStatsFilterSelect =
+                  updatedCurrentUser.courseStatsFilterSelect?.filter(
+                    (courseId) => courseId !== this.courseIdToEdit,
+                  ) || [];
+              }
+              updatedCurrentUser.courseIds =
+                updatedCurrentUser.courseIds?.filter(
                   (courseId) => courseId !== this.courseIdToEdit,
                 ) || [];
             }
-            updatedCurrentUser.courseIds =
-              updatedCurrentUser.courseIds?.filter(
-                (courseId) => courseId !== this.courseIdToEdit,
-              ) || [];
-          }
-          this.appStateService.currentUser = updatedCurrentUser;
+            return structuredClone(updatedCurrentUser);
+          });
           this.courseService.deleteCourses([this.courseIdToEdit]);
-          this.router.navigateByUrl(APP_ROUTES.HOME);
+          this.router.navigateByUrl(APP_ROUTES.COURSES, {
+            state: {
+              [NAVIGATION_STATE_KEYS.MESSAGE]: `Deleted course "${
+                this.editingCourse.name
+              }"`,
+            },
+          });
         }
       });
   }
 
-  public saveCourse(): void {
+  public shareCourse(): void {
     if (!this.courseIdToEdit) {
-      this.appStateService.currentUser?.courseIds.push(this.editingCourse.id);
+      return;
     }
-    this.appStateService.saveCurrentUser();
+    this.shareService
+      .shareData({ data: this.editingCourse, objectType: 'course' })
+      .subscribe((result) => {
+        console.log(result);
+      });
+  }
+
+  public saveCourse(): void {
     this.courseService.setCourse(this.editingCourse);
-    this.router.navigateByUrl(APP_ROUTES.COURSES);
+    this.router.navigateByUrl(APP_ROUTES.COURSES, {
+      state: {
+        [NAVIGATION_STATE_KEYS.MESSAGE]: `Saved course "${
+          this.editingCourse.name
+        }"`,
+      },
+    });
   }
 }

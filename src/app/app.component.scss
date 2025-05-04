@@ -7,7 +7,9 @@ mat-toolbar {
   top: 0;
   left: 0;
   right: 0;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.16),
+    0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
 .spacer {
@@ -36,10 +38,10 @@ div.flex-menu-option {
   display: inline-flex;
   justify-items: center;
   align-items: center;
+  width: 100%;
   * {
     padding: 8px;
   }
-  width: 100%;
 }
 
 .sidenav {
@@ -50,10 +52,6 @@ div.flex-menu-option {
 mat-divider {
   margin-top: 4px;
   margin-bottom: 4px;
-}
-
-h6 {
-  margin: 0;
 }
 
 .bottom-options {

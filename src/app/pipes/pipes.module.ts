@@ -5,6 +5,7 @@ import {
   AverageScoreToParPipe,
   CountValidRoundsToAveragePipe,
 } from './average-score.pipe';
+import { FormatTextSizePipe } from './format-text-size.pipe';
 import { ParPipe } from './par.pipe';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 import { RoundVarietyPipe } from './round-variety.pipe';
@@ -23,6 +24,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScorePipe,
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
+    FormatTextSizePipe,
   ],
   exports: [
     ParPipe,
@@ -34,6 +36,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScorePipe,
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
+    FormatTextSizePipe,
   ],
   providers: [
     ParPipe,
@@ -45,6 +48,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScorePipe,
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
+    FormatTextSizePipe,
     DecimalPipe,
     DatePipe,
   ],
