@@ -71,14 +71,18 @@ export class SharingService {
         map(() => true),
         catchError((e) => {
           // The data could not be shared.
-          this.snackBarService.openTemporarySnackBar(`Error: ${e}`);
+          if (e.name === 'AbortError') {
+            this.snackBarService.openTemporarySnackBar('Sharing was cancelled');
+          } else {
+            this.snackBarService.openTemporarySnackBar(`Error: ${e}`);
+          }
           return of(false);
         }),
       );
       // The data was shared successfully.
     } catch (e) {
       // The data could not be shared.
-      console.error(`Error: ${e}`);
+      this.snackBarService.openTemporarySnackBar(`Error: ${e}`);
       return of(false);
     }
   }
