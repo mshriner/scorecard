@@ -35,7 +35,10 @@ export class CourseService {
 
   private saveCourses(updatedCourses: Course[]): boolean {
     return updatedCourses
-      ?.map((course) => this.localStorageService.setItem(course?.id, course))
+      ?.map((course) => {
+        course.name = course.name?.trim() || '';
+        return this.localStorageService.setItem(course?.id, course);
+      })
       ?.every((result) => !!result);
   }
 

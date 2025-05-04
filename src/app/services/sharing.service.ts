@@ -86,9 +86,9 @@ export class SharingService {
   private getShareFileName(dataToShare: DataToShare) {
     switch (dataToShare.objectType) {
       case 'course':
-        return `course-${(dataToShare.data as Course)?.name?.replace(/\s+/g, '-')}`;
+        return `course-${(dataToShare.data as Course)?.name?.trim()?.replace(/\s+/g, '-')}`;
       case 'round':
-        return `round-on-${this.DATE_PIPE.transform((dataToShare.data as RoundWithCourse)?.round?.dateStringISO, 'MM-dd')}-at-${(dataToShare.data as RoundWithCourse)?.course?.name?.replace(/\s+/g, '-')}`;
+        return `round-on-${this.DATE_PIPE.transform((dataToShare.data as RoundWithCourse)?.round?.dateStringISO, 'MM-dd')}-at-${(dataToShare.data as RoundWithCourse)?.course?.name?.trim().replace(/\s+/g, '-')}`;
       default:
         return 'unknown';
     }

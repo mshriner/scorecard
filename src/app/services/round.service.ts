@@ -81,8 +81,10 @@ export class RoundService {
             break;
           }
         }
-        if (!round?.generalNotes?.trim()) {
+        if (!round?.generalNotes) {
           round.generalNotes = '';
+        } else {
+          round.generalNotes = round.generalNotes.trim();
         }
         return this.localStorageService.setItem(round?.id, round);
       })
