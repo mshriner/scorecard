@@ -312,7 +312,7 @@ export class EditRoundComponent implements OnInit {
           this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND, {
             state: {
               [NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT]: importedRound.round.id,
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Round at "${importedRound.course.name}" was imported successfully.`,
+              [NAVIGATION_STATE_KEYS.MESSAGE]: `Round at "${this.courseService.getCourse(importedRound.course.id)?.name}" was imported successfully.`,
             },
           });
         });
