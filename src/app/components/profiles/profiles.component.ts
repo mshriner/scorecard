@@ -32,7 +32,7 @@ import {
   CLEAR_ALL_APP_DATA,
   DELETE_PROFILE,
 } from '../../models/constants';
-import { LocalUserWithFilters } from '../../models/user';
+import { LocalUserWithFilters, ROUND_DATE_SORT_COL } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
@@ -61,11 +61,11 @@ export class ProfilesComponent {
 
   constructor(
     public appStateService: AppStateService,
-    private userService: UserService,
-    private roundService: RoundService,
-    private couseService: CourseService,
-    private router: Router,
-    private changeDetection: ChangeDetectorRef,
+    private readonly userService: UserService,
+    private readonly roundService: RoundService,
+    private readonly couseService: CourseService,
+    private readonly router: Router,
+    private readonly changeDetection: ChangeDetectorRef,
   ) {
     this.appStateService.setPageTitle('Profiles');
     effect(() => {
@@ -93,6 +93,8 @@ export class ProfilesComponent {
             roundIds: [],
             courseIds: [],
             appFontScaling: 0,
+            sortBy: ROUND_DATE_SORT_COL,
+            sortDescending: true,
           };
           this.profiles.set(this.userService.createUser(newProfile));
         }

@@ -36,7 +36,12 @@ import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course } from '../../models/course';
 import { Round } from '../../models/round';
-import { LocalUserWithFilters } from '../../models/user';
+import {
+  LocalUserWithFilters,
+  ResultsSorting,
+  ROUND_DATE_SORT_COL,
+  ROUND_SCORE_SORT_COL,
+} from '../../models/user';
 import { PipesModule } from '../../pipes/pipes.module';
 import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
 import { AppStateService } from '../../services/app-state.service';
@@ -108,8 +113,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ]);
 
   public readonly COURSE_NAME_COL = 'courseName';
-  public readonly ROUND_DATE_COL = 'roundDate';
-  public readonly ROUND_SCORE_COL = 'roundScore';
+  public readonly ROUND_DATE_COL = ROUND_DATE_SORT_COL;
+  public readonly ROUND_SCORE_COL = ROUND_SCORE_SORT_COL;
   public readonly ROUND_TABLE_COLUMNS = [
     this.ROUND_DATE_COL,
     this.COURSE_NAME_COL,
@@ -229,7 +234,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public sortData(sort: Sort): void {
     if (this.currentUser) {
       this.appStateService.currentUser.update((user) => {
-        user!.sortBy = sort.active;
+        user!.sortBy = sort.active as ResultsSorting;
         user!.sortDescending = sort.direction === 'desc';
         return structuredClone(user);
       });
@@ -241,7 +246,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const roundsToShow =
       this.rounds()?.filter((round) => this.shouldShowRound(round)) || [];
     if (this.currentUser && !this.currentUser?.sortBy) {
-      this.currentUser.sortBy = 'date';
+      this.currentUser.sortBy = ROUND_DATE_SORT_COL;
     }
     roundsToShow.sort((a, b) => {
       const roundAScore = Number(this.roundScorePipe.transform(a));

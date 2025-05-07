@@ -30,7 +30,7 @@
     ></mat-row>
   </mat-table>
 } @else {
-  <div class="full-width-center">No golf courses created</div>
+  <div class="full-width-center">No golf courses created.</div>
   <br />
   <ng-container *ngTemplateOutlet="addActions"></ng-container>
 }
@@ -44,14 +44,12 @@
       }
       Course
     </button>
-    @if (courses().length) {
-      <button mat-stroked-button (click)="addNewRound()">
-        <mat-icon>add</mat-icon>
-        @if (!appStateService.useSmallerButtons()) {
-          New
-        }
-        Round
-      </button>
-    }
+    <button mat-stroked-button (click)="addNewRound()">
+      <mat-icon>add</mat-icon>
+      @if (!appStateService.useSmallerButtons()) {
+        New
+      }
+      Round
+    </button>
   </div>
 </ng-template>

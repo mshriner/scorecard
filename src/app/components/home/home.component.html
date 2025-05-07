@@ -297,7 +297,7 @@
     <ng-container *ngTemplateOutlet="addActions"></ng-container>
   }
 } @else {
-  <div class="full-width-center">No rounds of golf recorded</div>
+  <div class="full-width-center">No rounds of golf recorded.</div>
   <br />
   <ng-container *ngTemplateOutlet="addActions"></ng-container>
 }
@@ -311,14 +311,12 @@
       }
       Course
     </button>
-    @if (currentUser?.courseIds?.length) {
-      <button mat-stroked-button (click)="addNewRound()">
-        <mat-icon>add</mat-icon>
-        @if (!appStateService.useSmallerButtons()) {
-          New
-        }
-        Round
-      </button>
-    }
+    <button mat-stroked-button (click)="addNewRound()">
+      <mat-icon>add</mat-icon>
+      @if (!appStateService.useSmallerButtons()) {
+        New
+      }
+      Round
+    </button>
   </div>
 </ng-template>

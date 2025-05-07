@@ -7,7 +7,12 @@ import {
   ExportedItem,
   RoundWithCourse,
 } from '../models/data-transfer';
-import { Round, ROUND_EXAMPLE, RoundDTO } from '../models/round';
+import {
+  Round,
+  ROUND_EXAMPLE,
+  ROUND_NOTES_MAX_LENGTH,
+  RoundDTO,
+} from '../models/round';
 import { UserDTO } from '../models/user';
 import { DataUtils } from '../util/data-utils';
 import { AppStateService } from './app-state.service';
@@ -20,6 +25,7 @@ export class SharingService {
   public readonly CAN_SHARE_DATA = this.canBrowserShareData('test');
   public readonly CAN_SHARE_FILES = this.canBrowserShareFiles();
   private readonly DATE_PIPE = new DatePipe('en-US');
+  private readonly IMPORTED_MESSAGE = ' (imported)';
 
   constructor(
     private readonly appStateService: AppStateService,
@@ -183,6 +189,13 @@ export class SharingService {
     if (!importedCourse) {
       return null;
     }
+    if (
+      (importedRound?.generalNotes?.length || 0) <
+      ROUND_NOTES_MAX_LENGTH - this.IMPORTED_MESSAGE.length
+    ) {
+      importedRound.generalNotes =
+        `${importedRound.generalNotes || ''}${this.IMPORTED_MESSAGE}`.trim();
+    }
     return {
       round: importedRound,
       course: importedCourse,
@@ -208,7 +221,7 @@ export class SharingService {
     if (!valid) {
       return null;
     }
-    importedCourse.name = `${importedCourse.name} (imported)`;
+    importedCourse.name = `${importedCourse.name}${this.IMPORTED_MESSAGE}`;
     return importedCourse;
   }
 

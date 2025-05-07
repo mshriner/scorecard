@@ -17,7 +17,11 @@ import {
   NAVIGATION_STATE_KEYS,
 } from '../../models/constants';
 import { Course } from '../../models/course';
-import { Round, RoundVariety } from '../../models/round';
+import {
+  ROUND_NOTES_MAX_LENGTH,
+  Round,
+  RoundVariety,
+} from '../../models/round';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
@@ -68,6 +72,7 @@ export class EditRoundComponent implements OnInit {
   public coursesToChooseFrom: Course[];
   public currentCourse: Course | null = null;
   public roundIdToEdit: string;
+  public readonly ROUND_NOTES_MAX_LENGTH = ROUND_NOTES_MAX_LENGTH;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
   public readonly HOLE_COL = 'hole';
@@ -291,7 +296,15 @@ export class EditRoundComponent implements OnInit {
         parsed.data.course
       ) {
         const importedRound = parsed.data as RoundWithCourse;
-        if (!this.courseService.getCourse(importedRound.round.courseId)) {
+        if (
+          !this.appStateService
+            .currentUser()
+            ?.courseIds?.includes(importedRound.round.courseId) ||
+          !this.courseService.getCourse(importedRound.round.courseId)
+        ) {
+          const newCourseId = DataUtils.generateUUID('course');
+          importedRound.course.id = newCourseId;
+          importedRound.round.courseId = newCourseId;
           this.courseService.setCourse(importedRound.course);
         }
         this.roundService.saveRounds([importedRound.round]);
@@ -299,7 +312,7 @@ export class EditRoundComponent implements OnInit {
           this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND, {
             state: {
               [NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT]: importedRound.round.id,
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Round at "${importedRound.course.name}" was saved successfully.`,
+              [NAVIGATION_STATE_KEYS.MESSAGE]: `Round at "${importedRound.course.name}" was imported successfully.`,
             },
           });
         });

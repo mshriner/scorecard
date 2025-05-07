@@ -225,12 +225,13 @@ export class EditCourseComponent implements OnInit {
       console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
       if (parsed?.objectType === 'course') {
         const importedCourse = parsed.data as Course;
+        importedCourse.id = DataUtils.generateUUID('course');
         this.courseService.setCourse(importedCourse);
         this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
           this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
             state: {
               [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: importedCourse.id,
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Course "${importedCourse.name}" was saved successfully.`,
+              [NAVIGATION_STATE_KEYS.MESSAGE]: `Course "${importedCourse.name}" was imported successfully.`,
             },
           });
         });
