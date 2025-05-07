@@ -95,7 +95,7 @@ describe('SharingService', () => {
     expect(round.strokes).toEqual(new Array(18).fill(4));
     expect(round.putts).toEqual(new Array(18).fill(1));
     expect(round.roundVariety).toBe(RoundVariety.EIGHTEEN);
-    expect(round.generalNotes).toBe('Test round');
+    expect(round.generalNotes).toBe('Test round (imported)'); // Name appended in parseCourse
     expect((round as any).extraField).toBeUndefined();
     // Validate the embedded course
     const course: Course = roundWithCourse.course;
@@ -209,7 +209,7 @@ describe('SharingService', () => {
     expect(round.strokes).toEqual(new Array(18).fill(4));
     expect(round.putts).toEqual(new Array(18).fill(1));
     expect(round.roundVariety).toBe(RoundVariety.EIGHTEEN);
-    expect(round.generalNotes).toBe('Test round');
+    expect(round.generalNotes).toBe('Test round (imported)'); // Name appended in parseCourse
     expect((round as any).extraField).toBeUndefined();
 
     // Validate the embedded course
