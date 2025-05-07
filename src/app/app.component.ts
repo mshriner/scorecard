@@ -153,13 +153,9 @@ export class AppComponent {
   }
 
   public addNewRound(): void {
-    if (!this.appStateService.currentUser()?.courseIds?.length) {
-      this.snackBarService.openTemporarySnackBar('Please add a course first.');
-    } else {
-      this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND).then(() => {
-        this.sidenav.close();
-      });
-    }
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND).then(() => {
+      this.sidenav.close();
+    });
   }
 
   public checkForUpdates(): void {
