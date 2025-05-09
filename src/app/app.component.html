@@ -42,19 +42,17 @@
         </span>
       </div>
     </div>
-    @if (currentUser?.courseIds?.length) {
-      <div style="display: block">
-        <div mat-ripple (click)="addNewRound()" class="flex-menu-option">
-          <mat-icon>add</mat-icon>
-          <span>
-            @if (!appStateService.useSmallerButtons()) {
-              New
-            }
-            Round
-          </span>
-        </div>
+    <div style="display: block">
+      <div mat-ripple (click)="addNewRound()" class="flex-menu-option">
+        <mat-icon>add</mat-icon>
+        <span>
+          @if (!appStateService.useSmallerButtons()) {
+            New
+          }
+          Round
+        </span>
       </div>
-    }
+    </div>
     <div class="bottom-options">
       @if (currentUser) {
         <div style="display: block; margin-bottom: 4px; text-align: center">

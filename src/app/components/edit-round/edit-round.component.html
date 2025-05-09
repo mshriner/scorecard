@@ -1,178 +1,189 @@
 <form>
-  <div class="full-width-center">
-    <mat-form-field class="almost-full-width-input">
-      <mat-label>Select Course</mat-label>
-      <mat-select
-        [(value)]="editingRound.courseId"
-        (selectionChange)="updateCurrentCourse($event.value)"
-      >
-        @for (course of coursesToChooseFrom; track $index) {
-          <mat-option value="{{ course.id }}"
-            >{{ course.name }} (Par {{ course | par }})</mat-option
-          >
-        }
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field class="almost-full-width-input">
-      <mat-label>Select Holes Played</mat-label>
-      <mat-select
-        [(value)]="editingRound.roundVariety"
-        (selectionChange)="updateRoundVariety($event.value)"
-      >
-        @for (variety of ROUND_VARIETIES; track $index) {
-          <mat-option value="{{ variety }}">{{
-            variety | roundVariety
-          }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-    <mat-form-field class="almost-full-width-input">
-      <mat-label>Change Date</mat-label>
-      <input
-        matInput
-        [matDatepicker]="picker3"
-        [value]="editingRound.dateStringISO"
-        (dateInput)="dateChanged($event)"
-      />
-      <mat-hint>MM/DD/YYYY</mat-hint>
-      <mat-datepicker-toggle
-        matIconSuffix
-        [for]="picker3"
-      ></mat-datepicker-toggle>
-      <mat-datepicker touchUi #picker3></mat-datepicker>
-    </mat-form-field>
-    <mat-form-field class="almost-full-width-input">
-      <mat-label>Add Notes For Your Round</mat-label>
-      <textarea
-        matInput
-        autosize
-        [minRows]="1"
-        #notes
-        maxlength="1000"
-        [(ngModel)]="editingRound.generalNotes"
-        [ngModelOptions]="{ standalone: true }"
-        placeholder="Ex. Nice approach on 3..."
-        (change)="updateUnsavedData()"
-        (keyup)="updateUnsavedData()"
-        (paste)="updateUnsavedData()"
-        (input)="updateUnsavedData()"
-      >
-      </textarea>
-      <mat-hint align="end">{{ notes?.value?.length || 0 }} / 1000</mat-hint>
-    </mat-form-field>
-  </div>
-
-  <ng-container *ngTemplateOutlet="saveActions"></ng-container>
-
-  <table
-    mat-table
-    multiTemplateDataRows
-    [dataSource]="
-      editingRound.strokes | roundVarietyScores: editingRound.roundVariety
-    "
-  >
-    <!-- score rows -->
-    @for (column of ROUND_TABLE_COLUMNS; track $index) {
-      <ng-container [matColumnDef]="column.columnDef">
-        <th mat-header-cell *matHeaderCellDef class="center-text">
-          {{ column.header }}
-        </th>
-        <td
-          mat-cell
-          *matCellDef="let row; let rowIndex = dataIndex"
-          class="center-text"
+  @if (coursesToChooseFrom.length) {
+    <div class="full-width-center">
+      <mat-form-field class="almost-full-width-input">
+        <mat-label>Select Course</mat-label>
+        <mat-select
+          [(value)]="editingRound.courseId"
+          (selectionChange)="updateCurrentCourse($event.value)"
         >
-          <ng-container
-            *ngTemplateOutlet="
-              editRoundRow;
-              context: {
-                holeIndex:
-                  rowIndex + (editingRound.roundVariety === BACK_NINE ? 9 : 0),
-                column: column,
-              }
-            "
-          ></ng-container>
-        </td>
-        <td
-          mat-footer-cell
-          *matFooterCellDef
-          class="center-text border-top thick-top-border"
-        >
-          @switch (column.columnDef) {
-            @case (HOLE_COL) {
-              <b> Total </b>
-              @if (currentCourse) {
-                <br />
-                <div>Par {{ currentCourse | par: editingRound }}</div>
-              }
-            }
-            @case (STROKES_COL) {
-              <b>
-                {{ editingRound | totalRoundScore }}
-              </b>
-              @if (currentCourse) {
-                <br />
-                <b> ({{ editingRound | scoreToPar: currentCourse }}) </b>
-              }
-            }
-            @case (PUTTS_COL) {
-              <b>
-                {{ editingRound | totalPutts }}
-              </b>
-            }
+          @for (course of coursesToChooseFrom; track $index) {
+            <mat-option value="{{ course.id }}"
+              >{{ course.name }} (Par {{ course | par }})</mat-option
+            >
           }
-        </td>
-      </ng-container>
-    }
-
-    <!-- summary row -->
-    @for (column of ROUND_TABLE_SUMMARY_COLUMN_IDS; track $index) {
-      <ng-container [matColumnDef]="column">
-        <td
-          mat-cell
-          *matCellDef="let row; let rowIndex = dataIndex"
-          class="center-text thick-bottom-border"
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="almost-full-width-input">
+        <mat-label>Select Holes Played</mat-label>
+        <mat-select
+          [(value)]="editingRound.roundVariety"
+          (selectionChange)="updateRoundVariety($event.value)"
         >
-          <ng-container
-            *ngTemplateOutlet="
-              roundSummaryRow;
-              context: {
-                outOrIn:
-                  rowIndex === 17 || editingRound.roundVariety === BACK_NINE
-                    ? BACK_NINE
-                    : FRONT_NINE,
-                columnId: column,
-              }
-            "
-          ></ng-container>
-        </td>
-      </ng-container>
-    }
+          @for (variety of ROUND_VARIETIES; track $index) {
+            <mat-option value="{{ variety }}">{{
+              variety | roundVariety
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field class="almost-full-width-input">
+        <mat-label>Change Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker3"
+          [value]="editingRound.dateStringISO"
+          (dateInput)="dateChanged($event)"
+        />
+        <mat-hint>MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker3"
+        ></mat-datepicker-toggle>
+        <mat-datepicker touchUi #picker3></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field class="almost-full-width-input">
+        <mat-label>Add Notes For Your Round</mat-label>
+        <textarea
+          matInput
+          autosize
+          [minRows]="1"
+          #notes
+          maxlength="{{ ROUND_NOTES_MAX_LENGTH }}"
+          [(ngModel)]="editingRound.generalNotes"
+          [ngModelOptions]="{ standalone: true }"
+          placeholder="Ex. Nice approach on 3..."
+          (change)="updateUnsavedData()"
+          (keyup)="updateUnsavedData()"
+          (paste)="updateUnsavedData()"
+          (input)="updateUnsavedData()"
+        >
+        </textarea>
+        <mat-hint align="end">{{ notes?.value?.length || 0 }} / 1000</mat-hint>
+      </mat-form-field>
+    </div>
+  } @else {
+    <div class="full-width-center">No golf courses created.</div>
+    <div class="full-width-center">
+      Please create a course or import a round.
+    </div>
+    <br />
+  }
 
-    <tr
-      mat-header-row
-      *matHeaderRowDef="ROUND_TABLE_COLUMN_IDS; sticky: true"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: ROUND_TABLE_COLUMN_IDS; when: returnTrue"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="
-        let row;
-        columns: ROUND_TABLE_SUMMARY_COLUMN_IDS;
-        when: showSummaryRow
-      "
-    ></tr>
-    <tr
-      mat-footer-row
-      *matFooterRowDef="ROUND_TABLE_COLUMN_IDS; sticky: true"
-    ></tr>
-  </table>
-
-  <br />
   <ng-container *ngTemplateOutlet="saveActions"></ng-container>
+
+  @if (coursesToChooseFrom.length) {
+    <table
+      mat-table
+      multiTemplateDataRows
+      [dataSource]="
+        editingRound.strokes | roundVarietyScores: editingRound.roundVariety
+      "
+    >
+      <!-- score rows -->
+      @for (column of ROUND_TABLE_COLUMNS; track $index) {
+        <ng-container [matColumnDef]="column.columnDef">
+          <th mat-header-cell *matHeaderCellDef class="center-text">
+            {{ column.header }}
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let row; let rowIndex = dataIndex"
+            class="center-text"
+          >
+            <ng-container
+              *ngTemplateOutlet="
+                editRoundRow;
+                context: {
+                  holeIndex:
+                    rowIndex +
+                    (editingRound.roundVariety === BACK_NINE ? 9 : 0),
+                  column: column,
+                }
+              "
+            ></ng-container>
+          </td>
+          <td
+            mat-footer-cell
+            *matFooterCellDef
+            class="center-text border-top thick-top-border"
+          >
+            @switch (column.columnDef) {
+              @case (HOLE_COL) {
+                <b> Total </b>
+                @if (currentCourse) {
+                  <br />
+                  <div>Par {{ currentCourse | par: editingRound }}</div>
+                }
+              }
+              @case (STROKES_COL) {
+                <b>
+                  {{ editingRound | totalRoundScore }}
+                </b>
+                @if (currentCourse) {
+                  <br />
+                  <b> ({{ editingRound | scoreToPar: currentCourse }}) </b>
+                }
+              }
+              @case (PUTTS_COL) {
+                <b>
+                  {{ editingRound | totalPutts }}
+                </b>
+              }
+            }
+          </td>
+        </ng-container>
+      }
+
+      <!-- summary row -->
+      @for (column of ROUND_TABLE_SUMMARY_COLUMN_IDS; track $index) {
+        <ng-container [matColumnDef]="column">
+          <td
+            mat-cell
+            *matCellDef="let row; let rowIndex = dataIndex"
+            class="center-text thick-bottom-border"
+          >
+            <ng-container
+              *ngTemplateOutlet="
+                roundSummaryRow;
+                context: {
+                  outOrIn:
+                    rowIndex === 17 || editingRound.roundVariety === BACK_NINE
+                      ? BACK_NINE
+                      : FRONT_NINE,
+                  columnId: column,
+                }
+              "
+            ></ng-container>
+          </td>
+        </ng-container>
+      }
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="ROUND_TABLE_COLUMN_IDS; sticky: true"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ROUND_TABLE_COLUMN_IDS; when: returnTrue"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="
+          let row;
+          columns: ROUND_TABLE_SUMMARY_COLUMN_IDS;
+          when: showSummaryRow
+        "
+      ></tr>
+      <tr
+        mat-footer-row
+        *matFooterRowDef="ROUND_TABLE_COLUMN_IDS; sticky: true"
+      ></tr>
+    </table>
+
+    <br />
+    <ng-container *ngTemplateOutlet="saveActions"></ng-container>
+  }
 </form>
 <br />
 
@@ -303,12 +314,25 @@
 </ng-template>
 
 <ng-template #saveActions>
-  <div class="full-width-center space-evenly">
+  <div class="full-width-center space-evenly padding-bottom-8">
     @if (roundIdToEdit) {
       <button mat-stroked-button (click)="deleteRound()">
         <mat-icon>delete</mat-icon>
         Delete
       </button>
+    } @else {
+      <button mat-stroked-button (click)="fileInput.click()">
+        <mat-icon>input</mat-icon>
+        Import Round
+      </button>
+      <input
+        hidden
+        (change)="onFileSelected(fileInput)"
+        #fileInput
+        type="file"
+        id="file"
+        accept="application/json"
+      />
     }
     <button
       mat-stroked-button
@@ -329,4 +353,12 @@
       }
     </button>
   </div>
+  @if (roundIdToEdit) {
+    <div class="full-width-center space-evenly">
+      <button mat-stroked-button (click)="shareRound()">
+        <mat-icon>ios_share</mat-icon>
+        Share
+      </button>
+    </div>
+  }
 </ng-template>

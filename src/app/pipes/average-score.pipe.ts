@@ -15,7 +15,7 @@ interface NineHoleScoreWithCourse {
   standalone: false,
 })
 export class AverageScorePipe implements PipeTransform {
-  constructor(private decimal: DecimalPipe) {}
+  constructor(private readonly decimal: DecimalPipe) {}
 
   transform(rounds: Round[], eighteenHolesOnly: 9 | 18): string {
     const roundHalvesThatCount = getNineHoleRoundsToCount(
@@ -29,8 +29,8 @@ export class AverageScorePipe implements PipeTransform {
 
     return `${this.decimal.transform(
       roundHalvesThatCount
-        .map((toCount) => toCount.score.reduce((p, c) => p + c))
-        .reduce((prev, curr) => prev + curr) /
+        .map((toCount) => toCount.score.reduce((p, c) => p + c, 0))
+        .reduce((prev, curr) => prev + curr, 0) /
         (roundHalvesThatCount.length * (eighteenHolesOnly === 18 ? 0.5 : 1)),
       '1.0-1',
     )}`;
@@ -43,8 +43,8 @@ export class AverageScorePipe implements PipeTransform {
 })
 export class AverageScoreToParPipe implements PipeTransform {
   constructor(
-    private roundVarietyScores: RoundVarietyScoresPipe,
-    private decimal: DecimalPipe,
+    private readonly roundVarietyScores: RoundVarietyScoresPipe,
+    private readonly decimal: DecimalPipe,
   ) {}
 
   transform(
@@ -64,17 +64,17 @@ export class AverageScoreToParPipe implements PipeTransform {
 
     for (const roundHalf of roundHalvesThatCount) {
       scoresToPar.push(
-        roundHalf.score.reduce((p, c) => p + c) -
+        roundHalf.score.reduce((p, c) => p + c, 0) -
           (this.roundVarietyScores
             .transform(
               courseMap.get(roundHalf.courseId)?.par,
               roundHalf.frontOrBack,
             )
-            .reduce((p, c) => (p || 0) + (c || 0)) || 0),
+            .reduce((p, c) => (p ?? 0) + (c ?? 0), 0) ?? 0),
       );
     }
     const toPar =
-      scoresToPar.reduce((prev, curr) => prev + curr) /
+      scoresToPar.reduce((prev, curr) => prev + curr, 0) /
       (scoresToPar.length * (eighteenHolesOnly === 18 ? 0.5 : 1));
     if (toPar > 0) {
       return `+${this.decimal.transform(toPar, '1.0-1')}`;
@@ -104,36 +104,40 @@ function getNineHoleRoundsToCount(
   eighteenHolesOnly: 9 | 18,
 ): NineHoleScoreWithCourse[] {
   const toCount: NineHoleScoreWithCourse[] = [];
-  if (rounds?.length) {
-    for (let index = 0; index < rounds.length; index++) {
-      const round = rounds[index];
-      const frontNine = round?.strokes?.slice(0, 9)?.length
-        ? round?.strokes?.slice(0, 9)
-        : EMPTY_NINE_HOLES;
-      const backNine = round?.strokes?.slice(9, 18)?.length
-        ? round?.strokes?.slice(9, 18)
-        : EMPTY_NINE_HOLES;
-      const countFrontNine = !frontNine?.some((stroke) => !stroke);
-      const countBackNine = !backNine?.some((stroke) => !stroke);
 
-      if (eighteenHolesOnly === 18 && (!countFrontNine || !countBackNine)) {
-        continue;
-      }
+  if (!rounds?.length) {
+    return toCount;
+  }
 
-      if (countFrontNine) {
-        toCount.push({
-          score: frontNine,
-          courseId: round.courseId,
-          frontOrBack: RoundVariety.FRONT_NINE,
-        });
-      }
-      if (countBackNine) {
-        toCount.push({
-          score: backNine,
-          courseId: round.courseId,
-          frontOrBack: RoundVariety.BACK_NINE,
-        });
-      }
+  for (const round of rounds) {
+    const strokes = round?.strokes ?? [];
+    const frontNine =
+      strokes.slice(0, 9).length === 9 ? strokes.slice(0, 9) : EMPTY_NINE_HOLES;
+    const backNine =
+      strokes.slice(9, 18).length === 9
+        ? strokes.slice(9, 18)
+        : EMPTY_NINE_HOLES;
+
+    const isFrontValid = !frontNine.some((stroke) => !stroke);
+    const isBackValid = !backNine.some((stroke) => !stroke);
+
+    if (eighteenHolesOnly === 18 && (!isFrontValid || !isBackValid)) {
+      continue;
+    }
+
+    if (isFrontValid) {
+      toCount.push({
+        score: frontNine,
+        courseId: round.courseId,
+        frontOrBack: RoundVariety.FRONT_NINE,
+      });
+    }
+    if (isBackValid) {
+      toCount.push({
+        score: backNine,
+        courseId: round.courseId,
+        frontOrBack: RoundVariety.BACK_NINE,
+      });
     }
   }
 

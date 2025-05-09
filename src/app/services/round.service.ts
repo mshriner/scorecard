@@ -8,8 +8,8 @@ import { LocalStorageService } from './local-storage.service';
 })
 export class RoundService {
   constructor(
-    private localStorageService: LocalStorageService,
-    private appStateService: AppStateService,
+    private readonly localStorageService: LocalStorageService,
+    private readonly appStateService: AppStateService,
   ) {}
 
   public getRoundById(roundId: string): Round | null {
@@ -17,9 +17,7 @@ export class RoundService {
     if (!retrieved?.id) {
       return null;
     }
-    if (!retrieved.roundVariety) {
-      retrieved.roundVariety = RoundVariety.EIGHTEEN;
-    }
+    retrieved.roundVariety ??= RoundVariety.EIGHTEEN;
     return retrieved as Round;
   }
 
@@ -70,21 +68,23 @@ export class RoundService {
         switch (round?.roundVariety) {
           case RoundVariety.BACK_NINE: {
             for (let index = 0; index < 9; index++) {
-              delete round.putts[index];
+              round.putts[index] = null;
               round.strokes[index] = 0;
             }
             break;
           }
           case RoundVariety.FRONT_NINE: {
             for (let index = 9; index < 18; index++) {
-              delete round.putts[index];
+              round.putts[index] = null;
               round.strokes[index] = 0;
             }
             break;
           }
         }
-        if (!round?.generalNotes?.trim()) {
+        if (!round?.generalNotes) {
           round.generalNotes = '';
+        } else {
+          round.generalNotes = round.generalNotes.trim();
         }
         return this.localStorageService.setItem(round?.id, round);
       })

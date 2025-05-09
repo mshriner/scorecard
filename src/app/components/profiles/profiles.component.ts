@@ -1,6 +1,8 @@
+import { DecimalPipe } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   model,
@@ -32,7 +34,7 @@ import {
   CLEAR_ALL_APP_DATA,
   DELETE_PROFILE,
 } from '../../models/constants';
-import { LocalUserWithFilters } from '../../models/user';
+import { LocalUserWithFilters, ROUND_DATE_SORT_COL } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
@@ -48,6 +50,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     MatCardModule,
     MatRippleModule,
     MatDividerModule,
+    DecimalPipe,
   ],
   templateUrl: './profiles.component.html',
   styleUrl: './profiles.component.scss',
@@ -58,14 +61,20 @@ export class ProfilesComponent {
   readonly APP_NAME = APP_NAME;
   readonly CLEAR_ALL = CLEAR_ALL_APP_DATA;
   public readonly PROFILE_TABLE_COLUMNS = ['edit', 'username', 'delete'];
+  public readonly localStorageUsed = computed(() => {
+    if (!this.profiles()?.length) {
+      return 0;
+    }
+    return new Blob(Object.values(localStorage)).size;
+  });
 
   constructor(
     public appStateService: AppStateService,
-    private userService: UserService,
-    private roundService: RoundService,
-    private couseService: CourseService,
-    private router: Router,
-    private changeDetection: ChangeDetectorRef,
+    private readonly userService: UserService,
+    private readonly roundService: RoundService,
+    private readonly couseService: CourseService,
+    private readonly router: Router,
+    private readonly changeDetection: ChangeDetectorRef,
   ) {
     this.appStateService.setPageTitle('Profiles');
     effect(() => {
@@ -93,6 +102,9 @@ export class ProfilesComponent {
             roundIds: [],
             courseIds: [],
             appFontScaling: 0,
+            sortBy: ROUND_DATE_SORT_COL,
+            sortDescending: true,
+            homeTab: 0,
           };
           this.profiles.set(this.userService.createUser(newProfile));
         }

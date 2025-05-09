@@ -61,6 +61,22 @@ body {
   display: grid;
 }
 
+@mixin sticky-overflow {
+  overflow: inherit !important;
+}
+
+.preserve-sticky-header {
+  div.mat-mdc-tab-body-wrapper {
+    @include sticky-overflow;
+    mat-tab-body:has(mat-table) {
+      @include sticky-overflow;
+      div {
+        @include sticky-overflow;
+      }
+    }
+  }
+}
+
 mat-expansion-panel {
   border: 1px solid var(--mat-sys-outline);
 }

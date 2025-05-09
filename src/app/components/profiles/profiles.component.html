@@ -72,10 +72,16 @@
   </button>
 </div>
 <div class="full-width-center">
-  <br style="margin-top: 32px" />
+  <br />
+  <br />
+  <br />
   Advanced Options
 </div>
 <mat-divider></mat-divider>
+<br />
+<div class="full-width-center">
+  Total storage used: {{ localStorageUsed() | number }} bytes
+</div>
 <br />
 <div class="full-width-center">
   <button mat-stroked-button (click)="clearAllData()">

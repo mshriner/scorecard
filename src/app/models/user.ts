@@ -16,8 +16,15 @@ export interface LocalUserWithFilters extends User {
   earliestDateISO?: string;
   latestDateISO?: string;
   sortDescending?: boolean;
-  sortBy?: string; // 'roundDate' | 'roundScore'
+  sortBy?: ResultsSorting;
+  homeTabIndex?: number;
 }
+
+export const ROUND_DATE_SORT_COL = 'roundDate';
+export const ROUND_SCORE_SORT_COL = 'roundScore';
+export type ResultsSorting =
+  | typeof ROUND_DATE_SORT_COL
+  | typeof ROUND_SCORE_SORT_COL;
 
 export interface UserDTO extends User, ExportedItem {
   courseDTOs: CourseDTO[];
