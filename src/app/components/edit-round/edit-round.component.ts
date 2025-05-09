@@ -32,7 +32,6 @@ import {
   MatDatepickerModule,
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import equal from 'fast-deep-equal';
 import { RoundWithCourse } from '../../models/data-transfer';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
@@ -215,7 +214,7 @@ export class EditRoundComponent implements OnInit {
 
   public updateUnsavedData(): void {
     this.appStateService.unsavedDataOnPage.set(
-      !equal(this.originalRound, this.editingRound),
+      !DataUtils.deepEqual(this.originalRound, this.editingRound),
     );
   }
 
