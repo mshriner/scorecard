@@ -8,7 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
-import equal from 'fast-deep-equal';
 import {
   APP_ROUTES,
   DELETE_COURSE,
@@ -137,7 +136,7 @@ export class EditCourseComponent implements OnInit {
 
   public updateUnsavedData(): void {
     this.appStateService.unsavedDataOnPage.set(
-      !equal(this.originalCourse, this.editingCourse),
+      !DataUtils.deepEqual(this.originalCourse, this.editingCourse),
     );
   }
 
