@@ -61,13 +61,17 @@ body {
   display: grid;
 }
 
+@mixin sticky-overflow {
+  overflow: inherit !important;
+}
+
 .preserve-sticky-header {
   div.mat-mdc-tab-body-wrapper {
-    overflow: inherit !important;
-    mat-tab-body {
-      overflow: inherit !important;
+    @include sticky-overflow;
+    mat-tab-body:has(mat-table) {
+      @include sticky-overflow;
       div {
-        overflow: inherit !important;
+        @include sticky-overflow;
       }
     }
   }

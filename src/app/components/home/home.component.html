@@ -149,210 +149,213 @@
     <ng-container *ngTemplateOutlet="addActions"></ng-container>
     <br />
     <mat-tab-group
-      dynamicHeight
       class="preserve-sticky-header"
       [selectedIndex]="currentUser?.homeTabIndex || 0"
       (selectedIndexChange)="homeTabIndexChanged($event)"
     >
       <mat-tab label="Rounds">
-        <mat-table
-          matSort
-          [matSortActive]="currentUser?.sortBy || ''"
-          [matSortDirection]="currentUser?.sortDescending ? 'desc' : 'asc'"
-          [dataSource]="filteredRounds()"
-          (matSortChange)="sortData($event)"
-        >
-          <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
-            <mat-header-cell
-              *matHeaderCellDef
-              class="center-text"
-              mat-sort-header="{{ ROUND_DATE_COL }}"
-              disableClear
-            >
-              Date
-            </mat-header-cell>
-            <mat-cell *matCellDef="let round" class="center-text">
-              {{ round.dateStringISO | date }}
-            </mat-cell>
-          </ng-container>
-          <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
-            <mat-header-cell *matHeaderCellDef class="center-text">
-              Course
-            </mat-header-cell>
-            <mat-cell *matCellDef="let round" class="center-text">
-              {{ courseMap().get(round.courseId)?.name }}
-            </mat-cell>
-          </ng-container>
-          <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
-            <mat-header-cell
-              *matHeaderCellDef
-              class="center-text"
-              mat-sort-header="{{ ROUND_SCORE_COL }}"
-              disableClear
-            >
-              Score
-            </mat-header-cell>
-            <mat-cell *matCellDef="let round" class="center-text">
-              {{ round | totalRoundScore }} ({{
-                round | scoreToPar: courseMap().get(round.courseId)
-              }})
-            </mat-cell>
-          </ng-container>
-          <mat-header-row
-            *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"
-          ></mat-header-row>
-          <mat-row
-            mat-ripple
-            *matRowDef="let round; columns: ROUND_TABLE_COLUMNS"
-            (click)="viewRound(round.id)"
-            (keydown.enter)="viewRound(round.id)"
-          ></mat-row>
-        </mat-table>
+        <ng-template matTabContent>
+          <mat-table
+            matSort
+            [matSortActive]="currentUser?.sortBy || ''"
+            [matSortDirection]="currentUser?.sortDescending ? 'desc' : 'asc'"
+            [dataSource]="filteredRounds()"
+            (matSortChange)="sortData($event)"
+          >
+            <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
+              <mat-header-cell
+                *matHeaderCellDef
+                class="center-text"
+                mat-sort-header="{{ ROUND_DATE_COL }}"
+                disableClear
+              >
+                Date
+              </mat-header-cell>
+              <mat-cell *matCellDef="let round" class="center-text">
+                {{ round.dateStringISO | date }}
+              </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="{{ COURSE_NAME_COL }}">
+              <mat-header-cell *matHeaderCellDef class="center-text">
+                Course
+              </mat-header-cell>
+              <mat-cell *matCellDef="let round" class="center-text">
+                {{ courseMap().get(round.courseId)?.name }}
+              </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
+              <mat-header-cell
+                *matHeaderCellDef
+                class="center-text"
+                mat-sort-header="{{ ROUND_SCORE_COL }}"
+                disableClear
+              >
+                Score
+              </mat-header-cell>
+              <mat-cell *matCellDef="let round" class="center-text">
+                {{ round | totalRoundScore }} ({{
+                  round | scoreToPar: courseMap().get(round.courseId)
+                }})
+              </mat-cell>
+            </ng-container>
+            <mat-header-row
+              *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"
+            ></mat-header-row>
+            <mat-row
+              mat-ripple
+              *matRowDef="let round; columns: ROUND_TABLE_COLUMNS"
+              (click)="viewRound(round.id)"
+              (keydown.enter)="viewRound(round.id)"
+            ></mat-row>
+          </mat-table>
+        </ng-template>
       </mat-tab>
       <mat-tab label="Stats">
-        <br />
-        <div class="stat-cards">
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
-              <mat-card-content class="padding-inline-8">
-                <sub>
-                  @if (appStateService.useSmallerButtons()) {
-                    Avg.
-                  } @else {
-                    Average
-                  }
-                  9 Holes
-                </sub>
-                <br />
-                <sup>
-                  @if (
-                    filteredRounds() | countValidRoundsToAverage: 9;
-                    as nineCount
-                  ) {
-                    @if (nineCount === 1) {
-                      1 Nine
-                    } @else {
-                      {{ nineCount }} Nines
-                    }
-                  } @else {
-                    Unfinished
-                  }
-                </sup>
-                <h3 class="average-result">
-                  {{ filteredRounds() | averageScore: 9 }} ({{
-                    filteredRounds() | averageScoreToPar: courseMap() : 9
-                  }})
-                </h3>
-              </mat-card-content>
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
-              <mat-card-content class="padding-inline-8">
-                <sub>
-                  @if (appStateService.useSmallerButtons()) {
-                    Avg.
-                  } @else {
-                    Average
-                  }
-                  18 Holes
-                </sub>
-                <br />
-                <sup>
-                  @if (
-                    (filteredRounds() | countValidRoundsToAverage: 18) / 2;
-                    as eighteenCount
-                  ) {
-                    @if (eighteenCount === 1) {
-                      1 Full Round
-                    } @else {
-                      {{ eighteenCount }} Full Rounds
-                    }
-                  } @else {
-                    No Full Rounds
-                  }
-                </sup>
-                <h3 class="average-result">
-                  {{ filteredRounds() | averageScore: 18 }} ({{
-                    filteredRounds() | averageScoreToPar: courseMap() : 18
-                  }})
-                </h3>
-              </mat-card-content>
-            </mat-card>
-          </div>
+        <ng-template matTabContent>
           <br />
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
-              <mat-card-content class="padding-inline-8">
-                <sub>
-                  @if (appStateService.useSmallerButtons()) {
-                    Avg.
-                  } @else {
-                    Average
-                  }
-                  Putts
-                </sub>
-                <br />
-                <sup> Per 9 Holes </sup>
-                <h3 class="average-result">
-                  @if (holeResultTotals().holesPlayedWithPutts) {
-                    {{
-                      (holeResultTotals().putts * 9) /
-                        holeResultTotals().holesPlayedWithPutts
-                        | number: '1.0-1'
-                    }}
-                  } @else {
-                    --
-                  }
-                </h3>
-              </mat-card-content>
-            </mat-card>
+          <div class="stat-cards">
+            <div class="full-width-center space-evenly padding-inline-4">
+              <mat-card appearance="outlined" class="center-text">
+                <mat-card-title></mat-card-title>
+                <mat-card-content class="padding-inline-8">
+                  <sub>
+                    @if (appStateService.useSmallerButtons()) {
+                      Avg.
+                    } @else {
+                      Average
+                    }
+                    9 Holes
+                  </sub>
+                  <br />
+                  <sup>
+                    @if (
+                      filteredRounds() | countValidRoundsToAverage: 9;
+                      as nineCount
+                    ) {
+                      @if (nineCount === 1) {
+                        1 Nine
+                      } @else {
+                        {{ nineCount }} Nines
+                      }
+                    } @else {
+                      Unfinished
+                    }
+                  </sup>
+                  <h3 class="average-result">
+                    {{ filteredRounds() | averageScore: 9 }} ({{
+                      filteredRounds() | averageScoreToPar: courseMap() : 9
+                    }})
+                  </h3>
+                </mat-card-content>
+              </mat-card>
+              <mat-card appearance="outlined" class="center-text">
+                <mat-card-title></mat-card-title>
+                <mat-card-content class="padding-inline-8">
+                  <sub>
+                    @if (appStateService.useSmallerButtons()) {
+                      Avg.
+                    } @else {
+                      Average
+                    }
+                    18 Holes
+                  </sub>
+                  <br />
+                  <sup>
+                    @if (
+                      (filteredRounds() | countValidRoundsToAverage: 18) / 2;
+                      as eighteenCount
+                    ) {
+                      @if (eighteenCount === 1) {
+                        1 Full Round
+                      } @else {
+                        {{ eighteenCount }} Full Rounds
+                      }
+                    } @else {
+                      No Full Rounds
+                    }
+                  </sup>
+                  <h3 class="average-result">
+                    {{ filteredRounds() | averageScore: 18 }} ({{
+                      filteredRounds() | averageScoreToPar: courseMap() : 18
+                    }})
+                  </h3>
+                </mat-card-content>
+              </mat-card>
+            </div>
+            <br />
+            <div class="full-width-center space-evenly padding-inline-4">
+              <mat-card appearance="outlined" class="center-text">
+                <mat-card-title></mat-card-title>
+                <mat-card-content class="padding-inline-8">
+                  <sub>
+                    @if (appStateService.useSmallerButtons()) {
+                      Avg.
+                    } @else {
+                      Average
+                    }
+                    Putts
+                  </sub>
+                  <br />
+                  <sup> Per 9 Holes </sup>
+                  <h3 class="average-result">
+                    @if (holeResultTotals().holesPlayedWithPutts) {
+                      {{
+                        (holeResultTotals().putts * 9) /
+                          holeResultTotals().holesPlayedWithPutts
+                          | number: '1.0-1'
+                      }}
+                    } @else {
+                      --
+                    }
+                  </h3>
+                </mat-card-content>
+              </mat-card>
+            </div>
+            <mat-divider
+              style="margin-top: 14px; margin-bottom: 14px"
+            ></mat-divider>
+            <div class="full-width-center space-evenly padding-inline-4">
+              <mat-card appearance="outlined" class="center-text">
+                <mat-card-title></mat-card-title>
+                <mat-card-content class="padding-inline-8">
+                  <sub> Eagles or Better </sub>
+                  <h3>{{ holeResultTotals().eaglesOrBetter }}</h3>
+                </mat-card-content>
+              </mat-card>
+              <mat-card appearance="outlined" class="center-text">
+                <mat-card-title></mat-card-title>
+                <mat-card-content class="padding-inline-8">
+                  <sub>Birdies</sub>
+                  <h3>{{ holeResultTotals().birdies }}</h3>
+                </mat-card-content>
+              </mat-card>
+              <mat-card appearance="outlined" class="center-text">
+                <mat-card-title></mat-card-title>
+                <mat-card-content class="padding-inline-8">
+                  <sub>Pars</sub>
+                  <h3>{{ holeResultTotals().pars }}</h3>
+                </mat-card-content>
+              </mat-card>
+            </div>
+            <br />
+            <div class="full-width-center space-evenly padding-inline-4">
+              <mat-card appearance="outlined" class="center-text">
+                <mat-card-title></mat-card-title>
+                <mat-card-content class="padding-inline-8">
+                  <sub>Bogeys</sub>
+                  <h3>{{ holeResultTotals().bogeys }}</h3>
+                </mat-card-content>
+              </mat-card>
+              <mat-card appearance="outlined" class="center-text">
+                <mat-card-title></mat-card-title>
+                <mat-card-content class="padding-inline-8">
+                  <sub>Doubles or Worse</sub>
+                  <h3>{{ holeResultTotals().doubleBogeysOrWorse }}</h3>
+                </mat-card-content>
+              </mat-card>
+            </div>
           </div>
-          <mat-divider
-            style="margin-top: 14px; margin-bottom: 14px"
-          ></mat-divider>
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
-              <mat-card-content class="padding-inline-8">
-                <sub> Eagles or Better </sub>
-                <h3>{{ holeResultTotals().eaglesOrBetter }}</h3>
-              </mat-card-content>
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
-              <mat-card-content class="padding-inline-8">
-                <sub>Birdies</sub>
-                <h3>{{ holeResultTotals().birdies }}</h3>
-              </mat-card-content>
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
-              <mat-card-content class="padding-inline-8">
-                <sub>Pars</sub>
-                <h3>{{ holeResultTotals().pars }}</h3>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <br />
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
-              <mat-card-content class="padding-inline-8">
-                <sub>Bogeys</sub>
-                <h3>{{ holeResultTotals().bogeys }}</h3>
-              </mat-card-content>
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
-              <mat-card-content class="padding-inline-8">
-                <sub>Doubles or Worse</sub>
-                <h3>{{ holeResultTotals().doubleBogeysOrWorse }}</h3>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </div>
+        </ng-template>
       </mat-tab>
     </mat-tab-group>
     <br />
