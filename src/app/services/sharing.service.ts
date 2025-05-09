@@ -76,7 +76,7 @@ export class SharingService {
       return from(navigator.share(toShare)).pipe(
         map(() => true),
         catchError((e) => {
-          // The data could not be shared.
+          // The data could not be or was not shared.
           if (e.name === 'AbortError') {
             this.snackBarService.openTemporarySnackBar('Sharing was cancelled');
           } else {
@@ -243,8 +243,6 @@ export class SharingService {
       return false;
     }
 
-    // Create some test data with a file, to check if the browser supports
-    // sharing it.
     const testFile = new File(['foo'], 'foo.txt', { type: 'text/plain' });
     const data = { files: [testFile] };
 

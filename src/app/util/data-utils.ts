@@ -16,9 +16,8 @@ export class DataUtils {
   }
 
   /*
-  Forked from https://github.com/epoberezkin/fast-deep-equal (also has MIT license)
+  Forked from https://github.com/epoberezkin/fast-deep-equal
   Needed ESM support or else Angular complains about treeshaking
-  (https://github.com/fullcalendar/fullcalendar-angular/issues/421)
   */
   public static deepEqual(a: any, b: any): boolean {
     if (a === b) return true;
