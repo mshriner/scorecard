@@ -296,10 +296,15 @@
                 <br />
                 <sup> Per 9 Holes </sup>
                 <h3 class="average-result">
-                  {{
-                    (holeResultTotals().putts * 9) /
-                      holeResultTotals().holesPlayedWithPutts | number: '1.0-1'
-                  }}
+                  @if (holeResultTotals().holesPlayedWithPutts) {
+                    {{
+                      (holeResultTotals().putts * 9) /
+                        holeResultTotals().holesPlayedWithPutts
+                        | number: '1.0-1'
+                    }}
+                  } @else {
+                    --
+                  }
                 </h3>
               </mat-card-content>
             </mat-card>
