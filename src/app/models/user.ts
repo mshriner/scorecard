@@ -17,6 +17,7 @@ export interface LocalUserWithFilters extends User {
   latestDateISO?: string;
   sortDescending?: boolean;
   sortBy?: ResultsSorting;
+  homeTabIndex?: number;
 }
 
 export const ROUND_DATE_SORT_COL = 'roundDate';

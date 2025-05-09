@@ -299,12 +299,14 @@ export class EditRoundComponent implements OnInit {
         if (
           !this.appStateService
             .currentUser()
-            ?.courseIds?.includes(importedRound.round.courseId) ||
-          !this.courseService.getCourse(importedRound.round.courseId)
+            ?.courseIds?.includes(importedRound.round.courseId) &&
+          this.courseService.getCourse(importedRound.round.courseId)
         ) {
           const newCourseId = DataUtils.generateUUID('course');
           importedRound.course.id = newCourseId;
           importedRound.round.courseId = newCourseId;
+        }
+        if (!this.courseService.getCourse(importedRound.round.courseId)) {
           this.courseService.setCourse(importedRound.course);
         }
         this.roundService.saveRounds([importedRound.round]);

@@ -80,7 +80,7 @@ export class SharingService {
           if (e.name === 'AbortError') {
             this.snackBarService.openTemporarySnackBar('Sharing was cancelled');
           } else {
-            this.snackBarService.openTemporarySnackBar(`Error: ${e}`);
+            this.snackBarService.openTemporarySnackBar(`${e}`);
           }
           return of(false);
         }),
@@ -88,17 +88,30 @@ export class SharingService {
       // The data was shared successfully.
     } catch (e) {
       // The data could not be shared.
-      this.snackBarService.openTemporarySnackBar(`Error: ${e}`);
+      this.snackBarService.openTemporarySnackBar(`${e}`);
       return of(false);
     }
   }
 
   private getShareFileName(dataToShare: DataToShare) {
     switch (dataToShare.objectType) {
-      case 'course':
-        return `course-${(dataToShare.data as Course)?.name?.trim()?.replace(/\s+/g, '-')}`;
-      case 'round':
-        return `round-on-${this.DATE_PIPE.transform((dataToShare.data as RoundWithCourse)?.round?.dateStringISO, 'MM-dd')}-at-${(dataToShare.data as RoundWithCourse)?.course?.name?.trim().replace(/\s+/g, '-')}`;
+      case 'course': {
+        const exportedCourseName = (dataToShare.data as Course)?.name
+          ?.trim()
+          ?.replace(/\s+/g, '-');
+        return `course-${exportedCourseName}`;
+      }
+      case 'round': {
+        const roundWithCourse = dataToShare.data as RoundWithCourse;
+        const roundDate = this.DATE_PIPE.transform(
+          roundWithCourse?.round?.dateStringISO,
+          'MM-dd',
+        );
+        const exportedCourseName = roundWithCourse?.course?.name
+          ?.trim()
+          .replace(/\s+/g, '-');
+        return `round-on-${roundDate}-at-${exportedCourseName}`;
+      }
       default:
         return 'unknown';
     }
@@ -107,26 +120,26 @@ export class SharingService {
   public convertDomainToDTO(
     dataToShare: DataToShare,
   ): CourseDTO | RoundDTO | null {
-    switch (dataToShare.objectType) {
-      case 'course': {
-        return {
-          ...dataToShare.data,
-          objectType: dataToShare.objectType,
-          fromProfileId: this.appStateService.currentUser()!.id,
-          fromProfileName: this.appStateService.currentUser()!.name,
-        } as CourseDTO;
-      }
-      case 'round': {
-        const roundWithCourse = dataToShare.data.round as RoundDTO;
-        return {
-          ...roundWithCourse,
-          courseDTO: dataToShare.data.course,
-          objectType: dataToShare.objectType,
-          fromProfileId: this.appStateService.currentUser()!.id,
-          fromProfileName: this.appStateService.currentUser()!.name,
-        } as RoundDTO;
-      }
+    const currentUser = this.appStateService.currentUser();
+
+    const metadataDTO = {
+      objectType: dataToShare.objectType,
+      fromProfileId: currentUser?.id ?? '',
+      fromProfileName: currentUser?.name ?? '',
+    };
+
+    if (dataToShare.objectType === 'course') {
+      return { ...dataToShare.data, ...metadataDTO } as CourseDTO;
     }
+
+    if (dataToShare.objectType === 'round') {
+      return {
+        ...(dataToShare.data as RoundWithCourse).round,
+        courseDTO: dataToShare.data.course,
+        ...metadataDTO,
+      } as RoundDTO;
+    }
+
     return null;
   }
 

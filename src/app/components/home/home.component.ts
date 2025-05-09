@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -32,6 +32,7 @@ import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course } from '../../models/course';
@@ -49,16 +50,27 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { DataUtils } from '../../util/data-utils';
 
+interface HoleResults {
+  eaglesOrBetter: number;
+  birdies: number;
+  pars: number;
+  bogeys: number;
+  doubleBogeysOrWorse: number;
+  holesPlayed: number;
+  holesPlayedWithPutts: number;
+  putts: number;
+}
+
 @Component({
   selector: 'app-home',
   imports: [
     MatTableModule,
     MatIconModule,
     PipesModule,
-    DatePipe,
     MatDatepickerModule,
     MatButtonModule,
     MatRippleModule,
+    MatTabsModule,
     MatCardModule,
     MatSliderModule,
     FormsModule,
@@ -90,6 +102,49 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
     return map;
+  });
+  public holeResultTotals: Signal<HoleResults> = computed(() => {
+    const holeResults: HoleResults = {
+      eaglesOrBetter: 0,
+      birdies: 0,
+      pars: 0,
+      bogeys: 0,
+      doubleBogeysOrWorse: 0,
+      holesPlayed: 0,
+      holesPlayedWithPutts: 0,
+      putts: 0,
+    };
+    if (!this.filteredRounds()?.length) {
+      return holeResults;
+    }
+    this.filteredRounds().forEach((round) => {
+      const course = this.courseMap().get(round.courseId);
+      for (let index = 0; index < round.strokes.length; index++) {
+        const strokes = round.strokes[index];
+        if (strokes === 0) {
+          continue;
+        }
+        holeResults.holesPlayed++;
+        const holeResultToPar = strokes - (course?.par[index] ?? 0);
+        if (holeResultToPar <= -2) {
+          holeResults.eaglesOrBetter++;
+        } else if (holeResultToPar === -1) {
+          holeResults.birdies++;
+        } else if (holeResultToPar === 0) {
+          holeResults.pars++;
+        } else if (holeResultToPar === 1) {
+          holeResults.bogeys++;
+        } else if (holeResultToPar >= 2) {
+          holeResults.doubleBogeysOrWorse++;
+        }
+
+        if (round.putts[index] || round.putts[index] === 0) {
+          holeResults.holesPlayedWithPutts++;
+          holeResults.putts += round.putts[index] ?? 0;
+        }
+      }
+    });
+    return holeResults;
   });
 
   public datePickerFilterOutBefore = (d: Date | null): boolean => {
@@ -231,6 +286,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  public homeTabIndexChanged(index: number): void {
+    if (this.currentUser) {
+      this.appStateService.currentUser.update((user) => {
+        user!.homeTabIndex = index;
+        return structuredClone(user);
+      });
+    }
+  }
+
   public sortData(sort: Sort): void {
     if (this.currentUser) {
       this.appStateService.currentUser.update((user) => {
@@ -303,7 +367,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   public earliestDateChanged(
     event: MatDatepickerInputEvent<Date> | null,
-    picker: MatDatepicker<Date>,
+    picker?: MatDatepicker<Date>,
   ): void {
     if (this.currentUser) {
       this.appStateService.currentUser.update((user) => {
@@ -311,13 +375,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
         return structuredClone(user);
       });
       this.updateFilteredRounds();
-      picker.close();
+      picker?.close();
     }
   }
 
   public latestDateChanged(
     event: MatDatepickerInputEvent<Date> | null,
-    picker: MatDatepicker<Date>,
+    picker?: MatDatepicker<Date>,
   ): void {
     if (this.currentUser) {
       this.appStateService.currentUser.update((user) => {
@@ -327,7 +391,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         return structuredClone(user);
       });
       this.updateFilteredRounds();
-      picker.close();
+      picker?.close();
     }
   }
 

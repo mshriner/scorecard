@@ -20,3 +20,14 @@
 .mat-column-roundScore {
   flex: 0 0 30%;
 }
+
+.stat-cards {
+  mat-card {
+    mat-card-content {
+      padding-bottom: 6px;
+    }
+  }
+  .average-result {
+    margin-top: -4px;
+  }
+}

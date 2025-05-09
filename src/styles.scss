@@ -61,6 +61,18 @@ body {
   display: grid;
 }
 
+.preserve-sticky-header {
+  div.mat-mdc-tab-body-wrapper {
+    overflow: inherit !important;
+    mat-tab-body {
+      overflow: inherit !important;
+      div {
+        overflow: inherit !important;
+      }
+    }
+  }
+}
+
 mat-expansion-panel {
   border: 1px solid var(--mat-sys-outline);
 }
