@@ -66,6 +66,12 @@ body {
 }
 
 .preserve-sticky-header {
+  mat-tab-header {
+    position: sticky !important;
+    top: 0;
+    background: var(--mat-sys-background);
+    z-index: 2 !important;
+  }
   div.mat-mdc-tab-body-wrapper {
     @include sticky-overflow;
     mat-tab-body:has(mat-table) {

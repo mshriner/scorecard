@@ -20,6 +20,7 @@ import { Course } from '../../models/course';
 import {
   ROUND_NOTES_MAX_LENGTH,
   Round,
+  RoundDTO,
   RoundVariety,
 } from '../../models/round';
 import { PipesModule } from '../../pipes/pipes.module';
@@ -305,15 +306,21 @@ export class EditRoundComponent implements OnInit {
           importedRound.course.id = newCourseId;
           importedRound.round.courseId = newCourseId;
         }
+        let neededToSaveCourse = false;
         if (!this.courseService.getCourse(importedRound.round.courseId)) {
           this.courseService.setCourse(importedRound.course);
+          neededToSaveCourse = true;
         }
         this.roundService.saveRounds([importedRound.round]);
         this.router.navigateByUrl(APP_ROUTES.HOME).then(() => {
           this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND, {
             state: {
               [NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT]: importedRound.round.id,
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Round at "${this.courseService.getCourse(importedRound.course.id)?.name}" was imported successfully.`,
+              [NAVIGATION_STATE_KEYS.MESSAGE]: `Round at "${
+                neededToSaveCourse
+                  ? (JSON.parse(uploaded) as RoundDTO)?.courseDTO?.name
+                  : this.courseService.getCourse(importedRound.course.id)?.name
+              }" was imported successfully.`,
             },
           });
         });
