@@ -1,5 +1,5 @@
 npm install -g @angular/cli@latest
-npm install @angular/cli@$AngularVersion
+npm install @angular/cli@latest --save-dev
 
 git reset
 git add .\package.json .\package-lock.json
