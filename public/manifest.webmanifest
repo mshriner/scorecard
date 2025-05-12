@@ -1,8 +1,8 @@
 {
   "name": "Scorecard",
   "short_name": "Scorecard",
-  "theme_color": "#191c1c",
-  "background_color": "#fafafa",
+  "theme_color": "#101414",
+  "background_color": "#101414",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
