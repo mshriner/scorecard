@@ -31,3 +31,9 @@
     margin-top: -4px;
   }
 }
+
+mat-table {
+  mat-header-row {
+    top: 48px !important; // height of the tab header
+  }
+}

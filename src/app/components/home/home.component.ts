@@ -36,7 +36,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course } from '../../models/course';
-import { Round } from '../../models/round';
+import { Round, RoundVariety } from '../../models/round';
 import {
   LocalUserWithFilters,
   ResultsSorting,
@@ -59,6 +59,8 @@ interface HoleResults {
   holesPlayed: number;
   holesPlayedWithPutts: number;
   putts: number;
+  holesPlayedWithPuttsInFullRounds: number;
+  puttsInFullRounds: number;
 }
 
 @Component({
@@ -113,6 +115,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       holesPlayed: 0,
       holesPlayedWithPutts: 0,
       putts: 0,
+      holesPlayedWithPuttsInFullRounds: 0,
+      puttsInFullRounds: 0,
     };
     if (!this.filteredRounds()?.length) {
       return holeResults;
@@ -141,6 +145,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
         if (round.putts[index] || round.putts[index] === 0) {
           holeResults.holesPlayedWithPutts++;
           holeResults.putts += round.putts[index] ?? 0;
+          if (round.roundVariety === RoundVariety.EIGHTEEN) {
+            holeResults.holesPlayedWithPuttsInFullRounds++;
+            holeResults.puttsInFullRounds += round.putts[index] ?? 0;
+          }
         }
       }
     });

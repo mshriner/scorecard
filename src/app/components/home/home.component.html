@@ -308,10 +308,46 @@
                 </h3>
               </mat-card-content>
             </mat-card>
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title></mat-card-title>
+              <mat-card-content class="padding-inline-8">
+                <sub>
+                  @if (appStateService.useSmallerButtons()) {
+                    Avg.
+                  } @else {
+                    Average
+                  }
+                  Putts
+                </sub>
+                <br />
+                <sup> Full Rounds </sup>
+                <h3 class="average-result">
+                  @if (holeResultTotals().holesPlayedWithPuttsInFullRounds) {
+                    {{
+                      (holeResultTotals().puttsInFullRounds * 18) /
+                        holeResultTotals().holesPlayedWithPuttsInFullRounds
+                        | number: '1.0-1'
+                    }}
+                  } @else {
+                    --
+                  }
+                </h3>
+              </mat-card-content>
+            </mat-card>
           </div>
           <mat-divider
             style="margin-top: 14px; margin-bottom: 14px"
           ></mat-divider>
+          <div class="full-width-center space-evenly padding-inline-4">
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title></mat-card-title>
+              <mat-card-content class="padding-inline-8">
+                <sub>Total Holes Played</sub>
+                <h3>{{ holeResultTotals().holesPlayed }}</h3>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <br />
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
