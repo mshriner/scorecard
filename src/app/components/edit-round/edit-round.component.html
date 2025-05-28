@@ -236,7 +236,7 @@
                 scoreGraphic;
                 context: {
                   scoreToPar:
-                    editingRound.strokes[holeIndex] -
+                    (editingRound.strokes[holeIndex] || 0) -
                     currentCourse!.par[holeIndex],
                   score: editingRound.strokes[holeIndex],
                 }

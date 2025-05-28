@@ -13,7 +13,7 @@ import {
   DELETE_COURSE,
   NAVIGATION_STATE_KEYS,
 } from '../../models/constants';
-import { Course } from '../../models/course';
+import { Course, EIGHTEEN_NUMBERS_ZEROED } from '../../models/course';
 import { RoundVariety } from '../../models/round';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
@@ -100,7 +100,7 @@ export class EditCourseComponent implements OnInit {
     } else {
       this.editingCourse = {
         id: DataUtils.generateUUID('course'),
-        par: new Array(18).fill(4),
+        par: structuredClone(EIGHTEEN_NUMBERS_ZEROED).fill(4),
         name: '',
       };
       this.appStateService.setPageTitle(`Create Course`);

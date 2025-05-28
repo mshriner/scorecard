@@ -18,6 +18,7 @@ import {
 } from '../../models/constants';
 import { Course } from '../../models/course';
 import {
+  EMPTY_EIGHTEEN_NUMBERS,
   ROUND_NOTES_MAX_LENGTH,
   Round,
   RoundDTO,
@@ -156,8 +157,8 @@ export class EditRoundComponent implements OnInit {
     } else {
       this.editingRound = {
         id: DataUtils.generateUUID('round'),
-        strokes: new Array(18).fill(0),
-        putts: new Array(18).fill(undefined),
+        strokes: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
+        putts: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
         courseId: '',
         dateStringISO: new Date().toISOString(),
         roundVariety: RoundVariety.EIGHTEEN,
@@ -187,12 +188,15 @@ export class EditRoundComponent implements OnInit {
   }
 
   public strokesPlusOne(index: number) {
+    this.editingRound.strokes[index] ??= 0;
     this.editingRound.strokes[index]++;
     this.updateUnsavedData();
   }
 
   public strokesMinusOne(index: number) {
-    if (this.editingRound.strokes[index]) {
+    if (!this.editingRound.strokes[index]) {
+      this.editingRound.strokes[index] = null;
+    } else {
       this.editingRound.strokes[index]--;
     }
     this.updateUnsavedData();

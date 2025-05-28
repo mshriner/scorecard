@@ -1,11 +1,12 @@
 import { DecimalPipe } from '@angular/common';
 import { Pipe, PipeTransform } from '@angular/core';
-import { Course } from '../models/course';
+import { Course, NINE_NUMBERS_ZEROED } from '../models/course';
 import { Round, RoundVariety } from '../models/round';
+import { NineNumbers } from '../models/storage-object';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 interface NineHoleScoreWithCourse {
-  score: number[];
+  score: NineNumbers;
   courseId: string;
   frontOrBack: RoundVariety;
 }
@@ -97,8 +98,6 @@ export class CountValidRoundsToAveragePipe implements PipeTransform {
   }
 }
 
-const EMPTY_NINE_HOLES = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-
 function getNineHoleRoundsToCount(
   rounds: Round[],
   eighteenHolesOnly: 9 | 18,
@@ -112,11 +111,13 @@ function getNineHoleRoundsToCount(
   for (const round of rounds) {
     const strokes = round?.strokes ?? [];
     const frontNine =
-      strokes.slice(0, 9).length === 9 ? strokes.slice(0, 9) : EMPTY_NINE_HOLES;
+      strokes.slice(0, 9).length === 9
+        ? strokes.slice(0, 9)
+        : NINE_NUMBERS_ZEROED;
     const backNine =
       strokes.slice(9, 18).length === 9
         ? strokes.slice(9, 18)
-        : EMPTY_NINE_HOLES;
+        : NINE_NUMBERS_ZEROED;
 
     const isFrontValid = !frontNine.some((stroke) => !stroke);
     const isBackValid = !backNine.some((stroke) => !stroke);
@@ -127,14 +128,14 @@ function getNineHoleRoundsToCount(
 
     if (isFrontValid) {
       toCount.push({
-        score: frontNine,
+        score: frontNine as NineNumbers,
         courseId: round.courseId,
         frontOrBack: RoundVariety.FRONT_NINE,
       });
     }
     if (isBackValid) {
       toCount.push({
-        score: backNine,
+        score: backNine as NineNumbers,
         courseId: round.courseId,
         frontOrBack: RoundVariety.BACK_NINE,
       });

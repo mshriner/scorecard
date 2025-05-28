@@ -61,6 +61,21 @@ describe('SharingService', () => {
     expect((course as any).extraField).toBeUndefined();
   });
 
+  it('should reject an imported CourseDTO object with par.length !== 9 or 18', () => {
+    const rawCourseDTO: CourseDTO = {
+      id: 'course1',
+      name: 'Test Course',
+      par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+      fromProfileId: 'ignore',
+      fromProfileName: 'ignore',
+      objectType: 'course',
+    } as any;
+
+    // Call protected method via type assertion to any.
+    const result = (service as any).convertDTOToDomain(rawCourseDTO);
+    expect(result).toBeNull();
+  });
+
   it('should sanitize an imported RoundDTO object by removing extraneous properties', () => {
     const rawRoundDTO: RoundDTO = {
       id: 'round1',

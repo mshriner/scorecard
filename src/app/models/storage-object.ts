@@ -13,3 +13,29 @@ export type StorageObject = {
     | StorageObject
     | StorageObject[];
 };
+
+export type NineNumbers = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+];
+export type EighteenNumbers = [...NineNumbers, ...NineNumbers];
+
+export type NineNumbersOrNulls = [
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+];
+export type EighteenNumbersOrNulls = [...NineNumbersOrNulls, ...NineNumbersOrNulls];

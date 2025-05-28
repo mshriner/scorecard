@@ -125,7 +125,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       const course = this.courseMap().get(round.courseId);
       for (let index = 0; index < round.strokes.length; index++) {
         const strokes = round.strokes[index];
-        if (strokes === 0) {
+        if (!strokes) {
           continue;
         }
         holeResults.holesPlayed++;
