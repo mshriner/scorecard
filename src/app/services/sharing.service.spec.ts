@@ -255,7 +255,7 @@ describe('SharingService', () => {
       id: 'round3',
       dateStringISO: '2023-01-01T00:00:00Z',
       courseId: 'course1',
-      strokes: new Array(18).fill(4),
+      // strokes: new Array(18).fill(4),
       putts: new Array(18).fill(1),
       roundVariety: RoundVariety.EIGHTEEN,
       // Missing generalNotes
@@ -274,5 +274,51 @@ describe('SharingService', () => {
 
     const result = (service as any).convertDTOToDomain(rawRoundDTO);
     expect(result).toBeNull();
+  });
+
+  it('should create Round if only generalNotes is missing in the RoundDTO itself', () => {
+    // Missing required field in roundDTO (e.g., generalNotes)
+    const rawRoundDTO: RoundDTO = {
+      id: 'round3',
+      dateStringISO: '2023-01-01T00:00:00Z',
+      courseId: 'course1',
+      strokes: new Array(18).fill(4),
+      putts: new Array(18).fill(1),
+      roundVariety: RoundVariety.EIGHTEEN,
+      // Missing generalNotes
+      courseDTO: {
+        id: 'course1',
+        name: 'Test Course',
+        par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
+        fromProfileId: 'ignore',
+        fromProfileName: 'ignore',
+        objectType: 'course',
+      } as any,
+      fromProfileId: 'ignore',
+      fromProfileName: 'ignore',
+      objectType: 'round',
+    } as any;
+
+    const result = (service as any).convertDTOToDomain(rawRoundDTO);
+    expect(result).not.toBeNull();
+    expect(result.objectType).toBe('round');
+    const roundWithCourse: RoundWithCourse = result.data;
+    const round: Round = roundWithCourse.round;
+    expect(round.dateStringISO).toBe('2023-01-01T00:00:00Z');
+    expect(round.courseId).toBe('course1');
+    expect(round.strokes).toEqual(new Array(18).fill(4));
+    expect(round.putts).toEqual(new Array(18).fill(1));
+    expect(round.roundVariety).toBe(RoundVariety.EIGHTEEN);
+    expect(round.generalNotes).toBe('(imported)'); // Name appended in parseCourse
+    expect((round as any).extraField).toBeUndefined();
+
+    // Validate the embedded course
+    const course: Course = roundWithCourse.course;
+    expect(course.id).toBe('course1');
+    expect(course.name).toBe('Test Course (imported)');
+    expect(course.par).toEqual([4, 4, 4, 4, 4, 4, 4, 4, 4]);
+    expect((course as any).extraField).toBeUndefined();
+    // Check that round ID was replaced using DataUtils.generateUUID
+    expect(round.id).toBe('uuid-test');
   });
 });

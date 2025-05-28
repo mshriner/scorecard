@@ -188,6 +188,9 @@ export class SharingService {
   private parseRound(roundDTO: RoundDTO): RoundWithCourse | null {
     const importedRound = {} as Round;
     let valid = true;
+    if (!roundDTO.generalNotes) {
+      roundDTO.generalNotes = '';
+    }
     Object.keys(ROUND_EXAMPLE).forEach((key) => {
       if (roundDTO[key] !== undefined) {
         importedRound[key] = roundDTO[key];
