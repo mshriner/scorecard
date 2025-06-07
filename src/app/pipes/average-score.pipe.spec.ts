@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { CourseVariety } from '../models/course';
 import { RoundVariety } from '../models/round';
 import {
   AverageScorePipe,
@@ -12,7 +13,6 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 describe('AverageScorePipe', () => {
   let averageScorePipe: AverageScorePipe;
   let averageScoreToParPipe: AverageScoreToParPipe;
-  let roundVarietyScoresPipe: RoundVarietyScoresPipe;
   let countValidRoundsPipe: CountValidRoundsToAveragePipe;
 
   beforeEach(async () => {
@@ -27,7 +27,6 @@ describe('AverageScorePipe', () => {
       ],
     }).compileComponents();
 
-    roundVarietyScoresPipe = TestBed.inject(RoundVarietyScoresPipe);
     averageScorePipe = TestBed.inject(AverageScorePipe);
     averageScoreToParPipe = TestBed.inject(AverageScoreToParPipe);
     countValidRoundsPipe = TestBed.inject(CountValidRoundsToAveragePipe);
@@ -134,6 +133,7 @@ describe('AverageScorePipe', () => {
               courseId: '1',
               id: '1',
               name: '',
+              numberOfHoles: CourseVariety.NINE,
               courseName: 'Test Course',
               par: [3, 3, 3, 3, 3, 3, 3, 3, 3],
             },
@@ -165,6 +165,7 @@ describe('AverageScorePipe', () => {
               courseId: '1',
               id: '1',
               name: '',
+              numberOfHoles: CourseVariety.NINE,
               courseName: 'Test Course',
               par: [3, 3, 3, 3, 3, 3, 3, 3, 3],
             },
@@ -196,6 +197,7 @@ describe('AverageScorePipe', () => {
               courseId: '1',
               id: '1',
               name: '',
+              numberOfHoles: CourseVariety.NINE,
               courseName: 'Test Course',
               par: [3, 3, 3, 3, 3, 3, 3, 3, 3],
             },

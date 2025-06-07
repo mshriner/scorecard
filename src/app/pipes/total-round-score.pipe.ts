@@ -5,7 +5,6 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 @Pipe({
   name: 'totalRoundScore',
   pure: false,
-  standalone: false,
 })
 export class TotalRoundScorePipe implements PipeTransform {
   constructor(private readonly roundVarietyScores: RoundVarietyScoresPipe) {}

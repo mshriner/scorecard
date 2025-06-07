@@ -1,7 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { catchError, from, map, Observable, of } from 'rxjs';
-import { Course, COURSE_EXAMPLE, CourseDTO } from '../models/course';
+import {
+  Course,
+  COURSE_EXAMPLE,
+  CourseDTO,
+  CourseVariety,
+} from '../models/course';
 import {
   DataToShare,
   ExportedItem,
@@ -188,7 +193,7 @@ export class SharingService {
   private parseRound(roundDTO: RoundDTO): RoundWithCourse | null {
     const importedRound = {} as Round;
     let valid = true;
-    if (!roundDTO.generalNotes) {
+    if (!roundDTO.generalNotes?.length) {
       roundDTO.generalNotes = '';
     }
     Object.keys(ROUND_EXAMPLE).forEach((key) => {
@@ -198,6 +203,7 @@ export class SharingService {
         valid = false;
       }
     });
+    console.log('notes', importedRound?.generalNotes, roundDTO.generalNotes);
     if (!valid) {
       return null;
     }
@@ -221,6 +227,16 @@ export class SharingService {
   private parseCourse(domain: CourseDTO): Course | null {
     const importedCourse = {} as Course;
     let valid = true;
+    if (
+      (domain?.par?.length !== 18 && domain?.par?.length !== 9) ||
+      domain?.par.some((p) => p < 1)
+    ) {
+      return null;
+    }
+    if (!domain?.numberOfHoles) {
+      domain.numberOfHoles =
+        domain?.par?.length === 9 ? CourseVariety.NINE : CourseVariety.EIGHTEEN;
+    }
     Object.keys(COURSE_EXAMPLE).forEach((key) => {
       if (domain[key] !== undefined) {
         importedCourse[key] = domain[key];
@@ -228,12 +244,6 @@ export class SharingService {
         valid = false;
       }
     });
-    if (
-      (importedCourse.par?.length !== 18 && importedCourse.par?.length !== 9) ||
-      importedCourse.par.some((p) => p < 1)
-    ) {
-      valid = false;
-    }
     if (!valid) {
       return null;
     }

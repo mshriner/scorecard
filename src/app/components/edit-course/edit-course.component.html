@@ -16,6 +16,32 @@
     </mat-form-field>
   </div>
 
+  @if (courseIdToEdit) {
+    <div class="full-width-center">
+      <span>
+        Course Length:
+        <b>{{ editingCourse.numberOfHoles | courseVariety | titlecase }}</b>
+      </span>
+    </div>
+    <br />
+  } @else {
+    <div class="full-width-center">
+      <mat-form-field class="almost-full-width-input">
+        <mat-label>Course Length</mat-label>
+        <mat-select
+          [(value)]="editingCourse.numberOfHoles"
+          (selectionChange)="updateCourseNumberOfHoles($event.value)"
+        >
+          @for (variety of COURSE_VARIETIES; track $index) {
+            <mat-option value="{{ variety }}">{{
+              variety | courseVariety
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  }
+
   <ng-container *ngTemplateOutlet="saveActions"></ng-container>
 
   <table mat-table multiTemplateDataRows [dataSource]="editingCourse.par">
@@ -108,7 +134,13 @@
     ></tr>
     <tr
       mat-row
-      *matRowDef="let row; columns: COURSE_TABLE_COLUMN_IDS; when: returnTrue"
+      *matRowDef="
+        let row;
+        let i = dataIndex;
+        columns: COURSE_TABLE_COLUMN_IDS;
+        when: returnTrue
+      "
+      [class.invalid]="!editingCourse.par[i]"
     ></tr>
     <tr
       mat-row
@@ -171,7 +203,11 @@
   </div>
   @if (courseIdToEdit) {
     <div class="full-width-center space-evenly">
-      <button mat-stroked-button (click)="shareCourse()">
+      <button
+        mat-stroked-button
+        (click)="shareCourse()"
+        [disabled]="isShareDisabled()"
+      >
         <mat-icon>ios_share</mat-icon>
         Share
       </button>

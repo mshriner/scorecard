@@ -25,7 +25,26 @@ export type NineNumbers = [
   number,
   number,
 ];
-export type EighteenNumbers = [...NineNumbers, ...NineNumbers];
+export type EighteenNumbers = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+];
 
 export type NineNumbersOrNulls = [
   number | null,
@@ -38,4 +57,23 @@ export type NineNumbersOrNulls = [
   number | null,
   number | null,
 ];
-export type EighteenNumbersOrNulls = [...NineNumbersOrNulls, ...NineNumbersOrNulls];
+export type EighteenNumbersOrNulls = [
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+  number | null,
+];

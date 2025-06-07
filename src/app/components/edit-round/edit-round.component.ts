@@ -16,7 +16,7 @@ import {
   DELETE_ROUND,
   NAVIGATION_STATE_KEYS,
 } from '../../models/constants';
-import { Course } from '../../models/course';
+import { Course, CourseVariety } from '../../models/course';
 import {
   EMPTY_EIGHTEEN_NUMBERS,
   ROUND_NOTES_MAX_LENGTH,
@@ -35,6 +35,7 @@ import {
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RoundWithCourse } from '../../models/data-transfer';
+import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { DataUtils } from '../../util/data-utils';
@@ -118,7 +119,12 @@ export class EditRoundComponent implements OnInit {
     outOrIn: RoundVariety;
     columnId: string;
   };
-  public readonly ROUND_VARIETIES = Object.values(RoundVariety);
+  public readonly EIGHTEEN_HOLE_ROUND_VARIETIES = [
+    RoundVariety.EIGHTEEN,
+    RoundVariety.FRONT_NINE,
+    RoundVariety.BACK_NINE,
+  ];
+  public readonly NINE_HOLE_ROUND_VARIETIES = [RoundVariety.FULL_NINE];
   public readonly ROUND_VARIETY_ENUM = RoundVariety;
 
   constructor(
@@ -129,8 +135,10 @@ export class EditRoundComponent implements OnInit {
     private readonly dialog: MatDialog,
     private readonly sharingService: SharingService,
     private readonly snackBarService: SnackBarService,
+    private readonly roundVarietyScoresPipe: RoundVarietyScoresPipe,
     datePipe: DatePipe,
   ) {
+    this.showSummaryRow = this.showSummaryRow.bind(this);
     this.coursesToChooseFrom = this.courseService.getAllCoursesForCurrentUser();
     this.roundIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
@@ -178,6 +186,28 @@ export class EditRoundComponent implements OnInit {
   public updateCurrentCourse(newCourseId: string): void {
     console.log('selected course', newCourseId);
     this.currentCourse = this.courseService.getCourse(newCourseId);
+    if (this.isNineHoleCourse) {
+      if (this.editingRound.roundVariety !== RoundVariety.FULL_NINE) {
+        this.editingRound.roundVariety = RoundVariety.FULL_NINE;
+      }
+    } else {
+      if (this.editingRound.strokes.length === 9) {
+        this.editingRound.strokes = this.roundVarietyScoresPipe.transform(
+          this.editingRound.strokes,
+          RoundVariety.EIGHTEEN,
+        );
+      }
+      if (this.editingRound.putts.length === 9) {
+        this.editingRound.putts = this.roundVarietyScoresPipe.transform(
+          this.editingRound.putts,
+          RoundVariety.EIGHTEEN,
+        );
+      }
+      if (this.editingRound.roundVariety === RoundVariety.FULL_NINE) {
+        this.editingRound.roundVariety = RoundVariety.FRONT_NINE;
+      }
+    }
+
     this.updateUnsavedData();
   }
 
@@ -223,8 +253,12 @@ export class EditRoundComponent implements OnInit {
     );
   }
 
+  public get isNineHoleCourse(): boolean {
+    return this.currentCourse?.numberOfHoles === CourseVariety.NINE;
+  }
+
   public showSummaryRow(index: number): boolean {
-    return (index + 1) % 9 === 0;
+    return !this.isNineHoleCourse && (index + 1) % 9 === 0;
   }
 
   public returnTrue(): boolean {

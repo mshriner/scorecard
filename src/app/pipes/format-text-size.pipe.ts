@@ -1,9 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({
-  name: 'formatTextSize',
-  standalone: false,
-})
+@Pipe({ name: 'formatTextSize' })
 export class FormatTextSizePipe implements PipeTransform {
   transform(value: number | string): string | number {
     switch (value) {

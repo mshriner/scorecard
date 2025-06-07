@@ -6,6 +6,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import {
@@ -13,8 +14,13 @@ import {
   DELETE_COURSE,
   NAVIGATION_STATE_KEYS,
 } from '../../models/constants';
-import { Course, EIGHTEEN_NUMBERS_ZEROED } from '../../models/course';
+import {
+  Course,
+  CourseVariety,
+  EIGHTEEN_NUMBERS_ZEROED,
+} from '../../models/course';
 import { RoundVariety } from '../../models/round';
+import { CourseVarietySlicePipe } from '../../pipes/course-variety-slice.pipe';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
@@ -34,6 +40,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     MatIconModule,
     MatInputModule,
     MatDialogModule,
+    MatSelectModule,
     CommonModule,
     PipesModule,
   ],
@@ -68,6 +75,7 @@ export class EditCourseComponent implements OnInit {
     this.HOLE_SUMMARY_COL,
     this.PAR_SUMMARY_COL,
   ];
+  public readonly COURSE_VARIETIES = Object.values(CourseVariety);
 
   constructor(
     public appStateService: AppStateService,
@@ -77,7 +85,9 @@ export class EditCourseComponent implements OnInit {
     private readonly router: Router,
     private readonly sharingService: SharingService,
     private readonly snackBarService: SnackBarService,
+    private readonly courseVarietySlicePipe: CourseVarietySlicePipe,
   ) {
+    this.showSummaryRow = this.showSummaryRow.bind(this);
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
@@ -95,11 +105,18 @@ export class EditCourseComponent implements OnInit {
         this.redirectToHome = true;
       } else {
         this.editingCourse = JSON.parse(JSON.stringify(retrieved));
+        if (!this.editingCourse.numberOfHoles) {
+          this.editingCourse.numberOfHoles =
+            this.editingCourse.par.length === 9
+              ? CourseVariety.NINE
+              : CourseVariety.EIGHTEEN;
+        }
         this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
       }
     } else {
       this.editingCourse = {
         id: DataUtils.generateUUID('course'),
+        numberOfHoles: CourseVariety.EIGHTEEN,
         par: structuredClone(EIGHTEEN_NUMBERS_ZEROED).fill(4),
         name: '',
       };
@@ -112,6 +129,10 @@ export class EditCourseComponent implements OnInit {
     if (this.redirectToHome) {
       this.router.navigateByUrl(APP_ROUTES.HOME);
     }
+  }
+
+  public isShareDisabled(): boolean {
+    return this.editingCourse?.par.some((p) => p < 1);
   }
 
   public parPlusOne(index: number) {
@@ -127,7 +148,10 @@ export class EditCourseComponent implements OnInit {
   }
 
   public showSummaryRow(index: number): boolean {
-    return (index + 1) % 9 === 0;
+    return (
+      this.editingCourse.numberOfHoles === CourseVariety.EIGHTEEN &&
+      (index + 1) % 9 === 0
+    );
   }
 
   public returnTrue(): boolean {
@@ -145,6 +169,16 @@ export class EditCourseComponent implements OnInit {
       !this.editingCourse.name.length ||
       this.editingCourse.par.some((hole) => (hole || 0) <= 0)
     );
+  }
+
+  public updateCourseNumberOfHoles(newCourseVariety: CourseVariety): void {
+    console.log('selected course length', newCourseVariety);
+    this.editingCourse.numberOfHoles = newCourseVariety;
+    this.editingCourse.par = this.courseVarietySlicePipe.transform(
+      this.editingCourse.par,
+      newCourseVariety,
+    );
+    this.updateUnsavedData();
   }
 
   public deleteCourse(): void {

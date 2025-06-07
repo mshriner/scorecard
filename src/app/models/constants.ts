@@ -27,6 +27,8 @@ export const CLEAR_ALL_APP_DATA: AreYouSureDialogConfig = {
   message: 'Are you sure? This will clear ALL profiles.',
   confirmButtonText: 'Clear All',
   confirmButtonIcon: 'delete_forever',
+  nonConfirmButtonText: 'Cancel',
+  nonConfirmButtonIcon: 'cancel',
 };
 
 export const DELETE_PROFILE: AreYouSureDialogConfig = {
@@ -35,6 +37,8 @@ export const DELETE_PROFILE: AreYouSureDialogConfig = {
     'Are you sure? This will clear ALL courses and rounds for this user.',
   confirmButtonText: 'Delete',
   confirmButtonIcon: 'delete',
+  nonConfirmButtonText: 'Cancel',
+  nonConfirmButtonIcon: 'cancel',
 };
 
 export const DELETE_ROUND: AreYouSureDialogConfig = {
@@ -42,6 +46,8 @@ export const DELETE_ROUND: AreYouSureDialogConfig = {
   message: 'Are you sure? This action cannot be undone.',
   confirmButtonText: 'Delete',
   confirmButtonIcon: 'delete',
+  nonConfirmButtonText: 'Cancel',
+  nonConfirmButtonIcon: 'cancel',
 };
 
 export const DELETE_COURSE: AreYouSureDialogConfig = {
@@ -50,6 +56,8 @@ export const DELETE_COURSE: AreYouSureDialogConfig = {
     'Are you sure? This will also delete ALL recorded rounds for this course.',
   confirmButtonText: 'Delete',
   confirmButtonIcon: 'delete',
+  nonConfirmButtonText: 'Cancel',
+  nonConfirmButtonIcon: 'cancel',
 };
 
 export const UNSAVED_DATA: AreYouSureDialogConfig = {
@@ -58,4 +66,6 @@ export const UNSAVED_DATA: AreYouSureDialogConfig = {
     'Are you sure you want to leave this page? Unsaved changes will be lost.',
   confirmButtonText: 'Leave',
   confirmButtonIcon: 'arrow_back',
+  nonConfirmButtonText: 'Edit',
+  nonConfirmButtonIcon: 'edit',
 };

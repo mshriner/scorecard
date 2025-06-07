@@ -11,10 +11,7 @@ interface NineHoleScoreWithCourse {
   frontOrBack: RoundVariety;
 }
 
-@Pipe({
-  name: 'averageScore',
-  standalone: false,
-})
+@Pipe({ name: 'averageScore' })
 export class AverageScorePipe implements PipeTransform {
   constructor(private readonly decimal: DecimalPipe) {}
 
@@ -38,10 +35,7 @@ export class AverageScorePipe implements PipeTransform {
   }
 }
 
-@Pipe({
-  name: 'averageScoreToPar',
-  standalone: false,
-})
+@Pipe({ name: 'averageScoreToPar' })
 export class AverageScoreToParPipe implements PipeTransform {
   constructor(
     private readonly roundVarietyScores: RoundVarietyScoresPipe,
@@ -86,10 +80,7 @@ export class AverageScoreToParPipe implements PipeTransform {
   }
 }
 
-@Pipe({
-  name: 'countValidRoundsToAverage',
-  standalone: false,
-})
+@Pipe({ name: 'countValidRoundsToAverage' })
 export class CountValidRoundsToAveragePipe implements PipeTransform {
   constructor() {}
 

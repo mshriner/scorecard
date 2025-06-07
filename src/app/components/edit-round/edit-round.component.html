@@ -20,10 +20,18 @@
           [(value)]="editingRound.roundVariety"
           (selectionChange)="updateRoundVariety($event.value)"
         >
-          @for (variety of ROUND_VARIETIES; track $index) {
-            <mat-option value="{{ variety }}">{{
-              variety | roundVariety
-            }}</mat-option>
+          @if (isNineHoleCourse) {
+            @for (variety of NINE_HOLE_ROUND_VARIETIES; track $index) {
+              <mat-option value="{{ variety }}">{{
+                variety | roundVariety
+              }}</mat-option>
+            }
+          } @else {
+            @for (variety of EIGHTEEN_HOLE_ROUND_VARIETIES; track $index) {
+              <mat-option value="{{ variety }}">{{
+                variety | roundVariety
+              }}</mat-option>
+            }
           }
         </mat-select>
       </mat-form-field>

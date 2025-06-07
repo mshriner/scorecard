@@ -4,8 +4,10 @@
 </mat-dialog-content>
 <mat-dialog-actions class="no-padding" align="center">
   <button mat-stroked-button (click)="onNoClick()" cdkFocusInitial>
-    <mat-icon>cancel</mat-icon>
-    Cancel
+    @if (data.nonConfirmButtonIcon) {
+      <mat-icon>{{ data.nonConfirmButtonIcon }}</mat-icon>
+    }
+    {{ data.nonConfirmButtonText }}
   </button>
   <button mat-stroked-button (click)="clear()">
     @if (data.confirmButtonIcon) {
