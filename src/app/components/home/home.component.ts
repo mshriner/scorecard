@@ -136,55 +136,64 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.filteredRounds().forEach((round) => {
       const course = this.courseMap().get(round.courseId);
       for (let index = 0; index < round.strokes.length; index++) {
-        const strokes = round.strokes[index];
-        if (!strokes) {
-          continue;
-        }
-        holeResults.holesPlayed++;
-        const parOnHole = course?.par[index] ?? 0;
-        const holeResultToPar = strokes - parOnHole;
-        if (holeResultToPar <= -2) {
-          holeResults.eaglesOrBetter++;
-        } else if (holeResultToPar === -1) {
-          holeResults.birdies++;
-        } else if (holeResultToPar === 0) {
-          holeResults.pars++;
-        } else if (holeResultToPar === 1) {
-          holeResults.bogeys++;
-        } else if (holeResultToPar >= 2) {
-          holeResults.doubleBogeysOrWorse++;
-        }
-
-        switch (parOnHole) {
-          case 3: {
-            holeResults.par3sPlayed++;
-            holeResults.totalStrokesOnPar3s += strokes;
-            break;
-          }
-          case 4: {
-            holeResults.par4sPlayed++;
-            holeResults.totalStrokesOnPar4s += strokes;
-            break;
-          }
-          case 5: {
-            holeResults.par5sPlayed++;
-            holeResults.totalStrokesOnPar5s += strokes;
-            break;
-          }
-        }
-
-        if (round.putts[index] || round.putts[index] === 0) {
-          holeResults.holesPlayedWithPutts++;
-          holeResults.putts += round.putts[index] ?? 0;
-          if (round.roundVariety === RoundVariety.EIGHTEEN) {
-            holeResults.holesPlayedWithPuttsInFullRounds++;
-            holeResults.puttsInFullRounds += round.putts[index] ?? 0;
-          }
-        }
+        this.processHoleResult(holeResults, round, course, index);
       }
     });
     return holeResults;
   });
+
+  private processHoleResult(
+    holeResults: HoleResults,
+    round: Round,
+    course: Course | null | undefined,
+    index: number
+  ): void {
+    const strokes = round.strokes[index];
+    if (!strokes) {
+      return;
+    }
+    holeResults.holesPlayed++;
+    const parOnHole = course?.par[index] ?? 0;
+    const holeResultToPar = strokes - parOnHole;
+    if (holeResultToPar <= -2) {
+      holeResults.eaglesOrBetter++;
+    } else if (holeResultToPar === -1) {
+      holeResults.birdies++;
+    } else if (holeResultToPar === 0) {
+      holeResults.pars++;
+    } else if (holeResultToPar === 1) {
+      holeResults.bogeys++;
+    } else if (holeResultToPar >= 2) {
+      holeResults.doubleBogeysOrWorse++;
+    }
+
+    switch (parOnHole) {
+      case 3: {
+        holeResults.par3sPlayed++;
+        holeResults.totalStrokesOnPar3s += strokes;
+        break;
+      }
+      case 4: {
+        holeResults.par4sPlayed++;
+        holeResults.totalStrokesOnPar4s += strokes;
+        break;
+      }
+      case 5: {
+        holeResults.par5sPlayed++;
+        holeResults.totalStrokesOnPar5s += strokes;
+        break;
+      }
+    }
+
+    if (round.putts[index] || round.putts[index] === 0) {
+      holeResults.holesPlayedWithPutts++;
+      holeResults.putts += round.putts[index] ?? 0;
+      if (round.roundVariety === RoundVariety.EIGHTEEN) {
+        holeResults.holesPlayedWithPuttsInFullRounds++;
+        holeResults.puttsInFullRounds += round.putts[index] ?? 0;
+      }
+    }
+  }
 
   public datePickerFilterOutBefore = (d: Date | null): boolean => {
     if (!this.currentUser?.earliestDateISO || !d) {
