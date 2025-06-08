@@ -61,6 +61,12 @@ interface HoleResults {
   putts: number;
   holesPlayedWithPuttsInFullRounds: number;
   puttsInFullRounds: number;
+  par3sPlayed: number;
+  totalStrokesOnPar3s: number;
+  par4sPlayed: number;
+  totalStrokesOnPar4s: number;
+  par5sPlayed: number;
+  totalStrokesOnPar5s: number;
 }
 
 @Component({
@@ -117,6 +123,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
       putts: 0,
       holesPlayedWithPuttsInFullRounds: 0,
       puttsInFullRounds: 0,
+      par3sPlayed: 0,
+      totalStrokesOnPar3s: 0,
+      par4sPlayed: 0,
+      totalStrokesOnPar4s: 0,
+      par5sPlayed: 0,
+      totalStrokesOnPar5s: 0,
     };
     if (!this.filteredRounds()?.length) {
       return holeResults;
@@ -129,7 +141,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
           continue;
         }
         holeResults.holesPlayed++;
-        const holeResultToPar = strokes - (course?.par[index] ?? 0);
+        const parOnHole = course?.par[index] ?? 0;
+        const holeResultToPar = strokes - parOnHole;
         if (holeResultToPar <= -2) {
           holeResults.eaglesOrBetter++;
         } else if (holeResultToPar === -1) {
@@ -140,6 +153,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
           holeResults.bogeys++;
         } else if (holeResultToPar >= 2) {
           holeResults.doubleBogeysOrWorse++;
+        }
+
+        switch (parOnHole) {
+          case 3: {
+            holeResults.par3sPlayed++;
+            holeResults.totalStrokesOnPar3s += strokes;
+            break;
+          }
+          case 4: {
+            holeResults.par4sPlayed++;
+            holeResults.totalStrokesOnPar4s += strokes;
+            break;
+          }
+          case 5: {
+            holeResults.par5sPlayed++;
+            holeResults.totalStrokesOnPar5s += strokes;
+            break;
+          }
         }
 
         if (round.putts[index] || round.putts[index] === 0) {
