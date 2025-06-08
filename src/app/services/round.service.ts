@@ -90,7 +90,7 @@ export class RoundService {
               RoundVariety.FULL_NINE,
             );
             round.strokes = this.roundVarietyScoresPipe.transform(
-              round.putts,
+              round.strokes,
               RoundVariety.FULL_NINE,
             );
           }
