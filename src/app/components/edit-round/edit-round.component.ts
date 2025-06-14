@@ -1,12 +1,18 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  Signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { AutosizeModule } from 'ngx-autosize';
@@ -19,8 +25,8 @@ import {
 import { Course, CourseVariety } from '../../models/course';
 import {
   EMPTY_EIGHTEEN_NUMBERS,
-  ROUND_NOTES_MAX_LENGTH,
   Round,
+  ROUND_NOTES_MAX_LENGTH,
   RoundDTO,
   RoundVariety,
 } from '../../models/round';
@@ -74,6 +80,8 @@ export class EditRoundComponent implements OnInit {
   public coursesToChooseFrom: Course[];
   public currentCourse: Course | null = null;
   public roundIdToEdit: string;
+  public imported = false;
+  private needToSaveImportedCourse = false;
   public readonly ROUND_NOTES_MAX_LENGTH = ROUND_NOTES_MAX_LENGTH;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
@@ -126,6 +134,16 @@ export class EditRoundComponent implements OnInit {
   ];
   public readonly NINE_HOLE_ROUND_VARIETIES = [RoundVariety.FULL_NINE];
   public readonly ROUND_VARIETY_ENUM = RoundVariety;
+
+  courseSelectInput: Signal<MatSelect | undefined> = viewChild('courseSelect');
+
+  @HostListener('document:keydown.enter', ['$event'])
+  handleEnterKey(event: KeyboardEvent): void {
+    if (!this.disableSaveButton && this.appStateService.unsavedDataOnPage()) {
+      this.saveRound();
+    }
+    event.preventDefault();
+  }
 
   constructor(
     public appStateService: AppStateService,
@@ -303,6 +321,10 @@ export class EditRoundComponent implements OnInit {
   }
 
   public saveRound(): void {
+    if (this.currentCourse && this.needToSaveImportedCourse) {
+      this.courseService.setCourse(this.currentCourse);
+      this.needToSaveImportedCourse = false;
+    }
     this.roundService.saveRounds([this.editingRound]);
     this.router.navigateByUrl(APP_ROUTES.HOME);
   }
@@ -329,44 +351,57 @@ export class EditRoundComponent implements OnInit {
       );
       console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
       if (
-        parsed?.objectType === 'round' &&
-        parsed.data.round &&
-        parsed.data.course
+        parsed?.objectType !== 'round' ||
+        !parsed?.data?.round ||
+        !parsed?.data?.course
       ) {
-        const importedRound = parsed.data as RoundWithCourse;
-        if (
-          !this.appStateService
-            .currentUser()
-            ?.courseIds?.includes(importedRound.round.courseId) &&
-          this.courseService.getCourse(importedRound.round.courseId)
-        ) {
-          const newCourseId = DataUtils.generateUUID('course');
-          importedRound.course.id = newCourseId;
-          importedRound.round.courseId = newCourseId;
-        }
-        let neededToSaveCourse = false;
-        if (!this.courseService.getCourse(importedRound.round.courseId)) {
-          this.courseService.setCourse(importedRound.course);
-          neededToSaveCourse = true;
-        }
-        this.roundService.saveRounds([importedRound.round]);
-        this.router.navigateByUrl(APP_ROUTES.HOME).then(() => {
-          this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND, {
-            state: {
-              [NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT]: importedRound.round.id,
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Round at "${
-                neededToSaveCourse
-                  ? (JSON.parse(uploaded) as RoundDTO)?.courseDTO?.name
-                  : this.courseService.getCourse(importedRound.course.id)?.name
-              }" was imported successfully.`,
-            },
-          });
-        });
-      } else {
         this.snackBarService.openTemporarySnackBar(
           'Failed to import the round.',
         );
+        return;
       }
+
+      const importedRound = parsed.data as RoundWithCourse;
+      if (
+        this.doesAnotherUserHaveThisCourseOnThisDevice(
+          importedRound.round.courseId,
+        )
+      ) {
+        const newCourseId = DataUtils.generateUUID('course');
+        importedRound.course.id = newCourseId;
+        importedRound.round.courseId = newCourseId;
+      }
+      this.needToSaveImportedCourse = false;
+      this.imported = true;
+      if (this.courseService.getCourse(importedRound.round.courseId)) {
+        this.currentCourse = this.courseService.getCourse(
+          importedRound.round.courseId,
+        );
+      } else {
+        this.currentCourse = importedRound.course;
+        this.needToSaveImportedCourse = true;
+      }
+      this.editingRound = importedRound.round;
+      this.roundIdToEdit = importedRound.round.id;
+      this.coursesToChooseFrom = [this.currentCourse!];
+      this.updateUnsavedData();
+      setTimeout(() => {
+        this.courseSelectInput()?.writeValue(this.currentCourse?.id);
+      });
+      this.snackBarService.openTemporarySnackBar(
+        `Round at "${
+          this.needToSaveImportedCourse
+            ? (JSON.parse(uploaded) as RoundDTO)?.courseDTO?.name
+            : this.courseService.getCourse(importedRound.course.id)?.name
+        }" was imported successfully.`,
+      );
     });
+  }
+
+  private doesAnotherUserHaveThisCourseOnThisDevice(courseId: string) {
+    return (
+      !this.appStateService.currentUser()?.courseIds?.includes(courseId) &&
+      this.courseService.getCourse(courseId)
+    );
   }
 }

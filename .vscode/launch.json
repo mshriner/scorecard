@@ -3,14 +3,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Chrome",
+      "name": "Launch in Chrome",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
       "url": "http://localhost:4200/"
     },
     {
-      "name": "ng test",
+      "name": "Run local tests",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: test:local",

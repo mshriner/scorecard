@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -52,6 +52,7 @@ export class EditCourseComponent implements OnInit {
   private readonly redirectToHome: boolean = false;
   public editingCourse: Course;
   public courseIdToEdit: string;
+  public imported = false;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
   public readonly HOLE_COL = 'hole';
@@ -76,6 +77,14 @@ export class EditCourseComponent implements OnInit {
     this.PAR_SUMMARY_COL,
   ];
   public readonly COURSE_VARIETIES = Object.values(CourseVariety);
+
+  @HostListener('document:keydown.enter', ['$event'])
+  handleEnterKey(event: KeyboardEvent): void {
+    if (!this.disableSaveButton && this.appStateService.unsavedDataOnPage()) {
+      this.saveCourse();
+    }
+    event.preventDefault();
+  }
 
   constructor(
     public appStateService: AppStateService,
@@ -149,13 +158,19 @@ export class EditCourseComponent implements OnInit {
 
   public showSummaryRow(index: number): boolean {
     return (
-      this.editingCourse.numberOfHoles === CourseVariety.EIGHTEEN &&
+      this.editingCourse?.numberOfHoles === CourseVariety.EIGHTEEN &&
       (index + 1) % 9 === 0
     );
   }
 
   public returnTrue(): boolean {
     return true;
+  }
+
+  public get parToShow(): RoundVariety {
+    return this.editingCourse?.numberOfHoles === CourseVariety.NINE
+      ? RoundVariety.FULL_NINE
+      : RoundVariety.EIGHTEEN;
   }
 
   public updateUnsavedData(): void {
@@ -171,14 +186,12 @@ export class EditCourseComponent implements OnInit {
     );
   }
 
-  public updateCourseNumberOfHoles(newCourseVariety: CourseVariety): void {
-    console.log('selected course length', newCourseVariety);
-    this.editingCourse.numberOfHoles = newCourseVariety;
+  public updateCourseNumberOfHoles(): void {
+    console.log('selected course length', this.editingCourse.numberOfHoles);
     this.editingCourse.par = this.courseVarietySlicePipe.transform(
       this.editingCourse.par,
-      newCourseVariety,
+      this.editingCourse.numberOfHoles,
     );
-    this.updateUnsavedData();
   }
 
   public deleteCourse(): void {
@@ -239,6 +252,7 @@ export class EditCourseComponent implements OnInit {
   }
 
   public saveCourse(): void {
+    this.updateCourseNumberOfHoles();
     this.courseService.setCourse(this.editingCourse);
     this.router.navigateByUrl(APP_ROUTES.COURSES, {
       state: {
@@ -259,15 +273,12 @@ export class EditCourseComponent implements OnInit {
       if (parsed?.objectType === 'course') {
         const importedCourse = parsed.data as Course;
         importedCourse.id = DataUtils.generateUUID('course');
-        this.courseService.setCourse(importedCourse);
-        this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
-          this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
-            state: {
-              [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: importedCourse.id,
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Course "${importedCourse.name}" was imported successfully.`,
-            },
-          });
-        });
+        this.editingCourse = importedCourse;
+        this.imported = true;
+        this.updateUnsavedData();
+        this.snackBarService.openTemporarySnackBar(
+          `Course "${importedCourse.name}" was imported successfully.`,
+        );
       } else {
         this.snackBarService.openTemporarySnackBar(
           'Failed to import the course.',

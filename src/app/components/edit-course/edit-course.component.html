@@ -30,7 +30,7 @@
         <mat-label>Course Length</mat-label>
         <mat-select
           [(value)]="editingCourse.numberOfHoles"
-          (selectionChange)="updateCourseNumberOfHoles($event.value)"
+          (selectionChange)="updateUnsavedData()"
         >
           @for (variety of COURSE_VARIETIES; track $index) {
             <mat-option value="{{ variety }}">{{
@@ -44,7 +44,13 @@
 
   <ng-container *ngTemplateOutlet="saveActions"></ng-container>
 
-  <table mat-table multiTemplateDataRows [dataSource]="editingCourse.par">
+  <table
+    mat-table
+    multiTemplateDataRows
+    [dataSource]="
+      editingCourse.par | courseVarietySlice: editingCourse.numberOfHoles
+    "
+  >
     @for (column of COURSE_TABLE_COLUMNS; track $index) {
       <ng-container [matColumnDef]="column.columnDef">
         <th mat-header-cell *matHeaderCellDef class="center-text">
@@ -63,23 +69,27 @@
             }
             @case (PAR_COL) {
               <div class="hole-par-adjustment">
-                <button
-                  mat-icon-button
-                  class="plusminus"
-                  (click)="parMinusOne(index)"
-                >
-                  <mat-icon>remove</mat-icon>
-                </button>
+                @if (!imported) {
+                  <button
+                    mat-icon-button
+                    class="plusminus"
+                    (click)="parMinusOne(index)"
+                  >
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                }
                 <div class="par-value-box">
                   {{ editingCourse.par[index] }}
                 </div>
-                <button
-                  mat-icon-button
-                  class="plusminus"
-                  (click)="parPlusOne(index)"
-                >
-                  <mat-icon>add</mat-icon>
-                </button>
+                @if (!imported) {
+                  <button
+                    mat-icon-button
+                    class="plusminus"
+                    (click)="parPlusOne(index)"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
+                }
               </div>
             }
           }
@@ -95,7 +105,7 @@
                 Total
               }
               @case (PAR_COL) {
-                {{ editingCourse | par }}
+                {{ editingCourse | par: undefined : parToShow }}
               }
             }
           </b>
@@ -168,7 +178,7 @@
         <mat-icon>delete</mat-icon>
         Delete
       </button>
-    } @else {
+    } @else if (!imported) {
       <button mat-stroked-button (click)="fileInput.click()">
         <mat-icon>input</mat-icon>
         Import Course
@@ -188,20 +198,20 @@
       [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
     >
       <mat-icon>
-        @if (courseIdToEdit) {
+        @if (courseIdToEdit && !imported) {
           save_as
         } @else {
           save
         }
       </mat-icon>
-      @if (courseIdToEdit) {
+      @if (courseIdToEdit && !imported) {
         Update
       } @else {
         Save
       }
     </button>
   </div>
-  @if (courseIdToEdit) {
+  @if (courseIdToEdit && !imported) {
     <div class="full-width-center space-evenly">
       <button
         mat-stroked-button
