@@ -5,6 +5,8 @@ import {
   AverageScoreToParPipe,
   CountValidRoundsToAveragePipe,
 } from './average-score.pipe';
+import { CourseVarietySlicePipe } from './course-variety-slice.pipe';
+import { CourseVarietyPipe } from './course-variety.pipe';
 import { FormatTextSizePipe } from './format-text-size.pipe';
 import { ParPipe } from './par.pipe';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
@@ -14,9 +16,11 @@ import { TotalPuttsPipe } from './total-putts.pipe';
 import { TotalRoundScorePipe } from './total-round-score.pipe';
 
 @NgModule({
-  declarations: [
+  imports: [
     ParPipe,
+    CourseVarietyPipe,
     RoundVarietyPipe,
+    CourseVarietySlicePipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
     TotalPuttsPipe,
@@ -28,7 +32,9 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
   ],
   exports: [
     ParPipe,
+    CourseVarietyPipe,
     RoundVarietyPipe,
+    CourseVarietySlicePipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
     TotalPuttsPipe,
@@ -40,7 +46,9 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
   ],
   providers: [
     ParPipe,
+    CourseVarietyPipe,
     RoundVarietyPipe,
+    CourseVarietySlicePipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
     TotalPuttsPipe,

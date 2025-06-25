@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import {
@@ -13,8 +14,13 @@ import {
   DELETE_COURSE,
   NAVIGATION_STATE_KEYS,
 } from '../../models/constants';
-import { Course } from '../../models/course';
+import {
+  Course,
+  CourseVariety,
+  EIGHTEEN_NUMBERS_ZEROED,
+} from '../../models/course';
 import { RoundVariety } from '../../models/round';
+import { CourseVarietySlicePipe } from '../../pipes/course-variety-slice.pipe';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
@@ -34,6 +40,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     MatIconModule,
     MatInputModule,
     MatDialogModule,
+    MatSelectModule,
     CommonModule,
     PipesModule,
   ],
@@ -45,6 +52,7 @@ export class EditCourseComponent implements OnInit {
   private readonly redirectToHome: boolean = false;
   public editingCourse: Course;
   public courseIdToEdit: string;
+  public imported = false;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
   public readonly HOLE_COL = 'hole';
@@ -68,6 +76,15 @@ export class EditCourseComponent implements OnInit {
     this.HOLE_SUMMARY_COL,
     this.PAR_SUMMARY_COL,
   ];
+  public readonly COURSE_VARIETIES = Object.values(CourseVariety);
+
+  @HostListener('document:keydown.enter', ['$event'])
+  handleEnterKey(event: KeyboardEvent): void {
+    if (!this.disableSaveButton && this.appStateService.unsavedDataOnPage()) {
+      this.saveCourse();
+    }
+    event.preventDefault();
+  }
 
   constructor(
     public appStateService: AppStateService,
@@ -77,17 +94,21 @@ export class EditCourseComponent implements OnInit {
     private readonly router: Router,
     private readonly sharingService: SharingService,
     private readonly snackBarService: SnackBarService,
+    private readonly courseVarietySlicePipe: CourseVarietySlicePipe,
   ) {
+    this.showSummaryRow = this.showSummaryRow.bind(this);
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
       ];
     console.log(`id if this is an existing course: ${this.courseIdToEdit}`);
-    this.snackBarService.openTemporarySnackBar(
+    const navigationMessage =
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.MESSAGE
-      ],
-    );
+      ];
+    if (navigationMessage) {
+      this.snackBarService.openTemporarySnackBar(navigationMessage);
+    }
     if (this.courseIdToEdit) {
       const retrieved = this.courseService.getCourse(this.courseIdToEdit);
       if (!retrieved) {
@@ -95,12 +116,19 @@ export class EditCourseComponent implements OnInit {
         this.redirectToHome = true;
       } else {
         this.editingCourse = JSON.parse(JSON.stringify(retrieved));
+        if (!this.editingCourse.numberOfHoles) {
+          this.editingCourse.numberOfHoles =
+            this.editingCourse.par.length === 9
+              ? CourseVariety.NINE
+              : CourseVariety.EIGHTEEN;
+        }
         this.appStateService.setPageTitle(`Editing ${retrieved?.name}`);
       }
     } else {
       this.editingCourse = {
         id: DataUtils.generateUUID('course'),
-        par: new Array(18).fill(4),
+        numberOfHoles: CourseVariety.EIGHTEEN,
+        par: structuredClone(EIGHTEEN_NUMBERS_ZEROED).fill(4),
         name: '',
       };
       this.appStateService.setPageTitle(`Create Course`);
@@ -112,6 +140,10 @@ export class EditCourseComponent implements OnInit {
     if (this.redirectToHome) {
       this.router.navigateByUrl(APP_ROUTES.HOME);
     }
+  }
+
+  public isShareDisabled(): boolean {
+    return this.editingCourse?.par.some((p) => p < 1);
   }
 
   public parPlusOne(index: number) {
@@ -127,11 +159,20 @@ export class EditCourseComponent implements OnInit {
   }
 
   public showSummaryRow(index: number): boolean {
-    return (index + 1) % 9 === 0;
+    return (
+      this.editingCourse?.numberOfHoles === CourseVariety.EIGHTEEN &&
+      (index + 1) % 9 === 0
+    );
   }
 
   public returnTrue(): boolean {
     return true;
+  }
+
+  public get parToShow(): RoundVariety {
+    return this.editingCourse?.numberOfHoles === CourseVariety.NINE
+      ? RoundVariety.FULL_NINE
+      : RoundVariety.EIGHTEEN;
   }
 
   public updateUnsavedData(): void {
@@ -144,6 +185,14 @@ export class EditCourseComponent implements OnInit {
     return (
       !this.editingCourse.name.length ||
       this.editingCourse.par.some((hole) => (hole || 0) <= 0)
+    );
+  }
+
+  public updateCourseNumberOfHoles(): void {
+    console.log('selected course length', this.editingCourse.numberOfHoles);
+    this.editingCourse.par = this.courseVarietySlicePipe.transform(
+      this.editingCourse.par,
+      this.editingCourse.numberOfHoles,
     );
   }
 
@@ -205,6 +254,7 @@ export class EditCourseComponent implements OnInit {
   }
 
   public saveCourse(): void {
+    this.updateCourseNumberOfHoles();
     this.courseService.setCourse(this.editingCourse);
     this.router.navigateByUrl(APP_ROUTES.COURSES, {
       state: {
@@ -215,30 +265,39 @@ export class EditCourseComponent implements OnInit {
     });
   }
 
-  public onFileSelected(input: HTMLInputElement): void {
+  public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
     const file = input.files?.[0];
-    file?.text().then((uploaded) => {
-      const parsed = this.sharingService.convertDTOToDomain(
-        JSON.parse(uploaded),
-      );
-      console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
-      if (parsed?.objectType === 'course') {
-        const importedCourse = parsed.data as Course;
-        importedCourse.id = DataUtils.generateUUID('course');
-        this.courseService.setCourse(importedCourse);
-        this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
-          this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
-            state: {
-              [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: importedCourse.id,
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Course "${importedCourse.name}" was imported successfully.`,
-            },
-          });
-        });
-      } else {
-        this.snackBarService.openTemporarySnackBar(
-          'Failed to import the course.',
+    if (!file?.text?.call) {
+      input.value = '';
+      return Promise.resolve(false);
+    }
+    return file.text().then(
+      (uploaded) => {
+        const parsed = this.sharingService.convertDTOToDomain(
+          JSON.parse(uploaded),
         );
-      }
-    });
+        input.value = '';
+        if (parsed?.objectType === 'course') {
+          const importedCourse = parsed.data as Course;
+          importedCourse.id = DataUtils.generateUUID('course');
+          this.editingCourse = importedCourse;
+          this.imported = true;
+          this.updateUnsavedData();
+          this.snackBarService.openTemporarySnackBar(
+            `Course "${importedCourse.name}" was imported successfully.`,
+          );
+          return Promise.resolve(true);
+        } else {
+          this.snackBarService.openTemporarySnackBar(
+            'Failed to import the course.',
+          );
+          return Promise.resolve(false);
+        }
+      },
+      (reject) => {
+        input.value = '';
+        return Promise.reject(new Error(reject));
+      },
+    );
   }
 }

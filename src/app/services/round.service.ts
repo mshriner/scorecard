@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Round, RoundVariety } from '../models/round';
+import { RoundVarietyScoresPipe } from '../pipes/round-variety-scores.pipe';
 import { AppStateService } from './app-state.service';
 import { LocalStorageService } from './local-storage.service';
 
@@ -7,6 +8,8 @@ import { LocalStorageService } from './local-storage.service';
   providedIn: 'root',
 })
 export class RoundService {
+  private readonly roundVarietyScoresPipe = new RoundVarietyScoresPipe();
+
   constructor(
     private readonly localStorageService: LocalStorageService,
     private readonly appStateService: AppStateService,
@@ -69,18 +72,36 @@ export class RoundService {
           case RoundVariety.BACK_NINE: {
             for (let index = 0; index < 9; index++) {
               round.putts[index] = null;
-              round.strokes[index] = 0;
+              round.strokes[index] = null;
             }
             break;
           }
           case RoundVariety.FRONT_NINE: {
             for (let index = 9; index < 18; index++) {
               round.putts[index] = null;
-              round.strokes[index] = 0;
+              round.strokes[index] = null;
             }
             break;
           }
+
+          case RoundVariety.FULL_NINE: {
+            round.putts = this.roundVarietyScoresPipe.transform(
+              round.putts,
+              RoundVariety.FULL_NINE,
+            );
+            round.strokes = this.roundVarietyScoresPipe.transform(
+              round.strokes,
+              RoundVariety.FULL_NINE,
+            );
+          }
         }
+
+        for (let index = 0; index < round.strokes.length; index++) {
+          if (!round.strokes[index]) {
+            round.strokes[index] = null;
+          }
+        }
+
         if (!round?.generalNotes) {
           round.generalNotes = '';
         } else {

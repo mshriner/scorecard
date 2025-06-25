@@ -1,14 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 
+import { provideZonelessChangeDetection } from '@angular/core';
 import { LocalStorageService } from './local-storage.service';
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 
 describe('LocalStorageService', () => {
   let service: LocalStorageService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideExperimentalZonelessChangeDetection()],});
+      providers: [provideZonelessChangeDetection()],
+    });
     service = TestBed.inject(LocalStorageService);
   });
 

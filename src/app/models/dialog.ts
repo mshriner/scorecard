@@ -3,4 +3,6 @@ export interface AreYouSureDialogConfig {
   message: string;
   confirmButtonText: string;
   confirmButtonIcon?: string;
+  nonConfirmButtonText: string;
+  nonConfirmButtonIcon?: string;
 }

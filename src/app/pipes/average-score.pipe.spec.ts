@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { CourseVariety } from '../models/course';
 import { RoundVariety } from '../models/round';
 import {
   AverageScorePipe,
@@ -12,7 +13,6 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 describe('AverageScorePipe', () => {
   let averageScorePipe: AverageScorePipe;
   let averageScoreToParPipe: AverageScoreToParPipe;
-  let roundVarietyScoresPipe: RoundVarietyScoresPipe;
   let countValidRoundsPipe: CountValidRoundsToAveragePipe;
 
   beforeEach(async () => {
@@ -23,11 +23,10 @@ describe('AverageScorePipe', () => {
         CountValidRoundsToAveragePipe,
         DecimalPipe,
         RoundVarietyScoresPipe,
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
       ],
     }).compileComponents();
 
-    roundVarietyScoresPipe = TestBed.inject(RoundVarietyScoresPipe);
     averageScorePipe = TestBed.inject(AverageScorePipe);
     averageScoreToParPipe = TestBed.inject(AverageScoreToParPipe);
     countValidRoundsPipe = TestBed.inject(CountValidRoundsToAveragePipe);
@@ -91,7 +90,7 @@ describe('AverageScorePipe', () => {
         ],
         9,
       ),
-    ).toBe('36');
+    ).toBe('36.0');
   });
 
   it('should calculate average round score and return correct value for full 18-hole rounds', () => {
@@ -110,7 +109,7 @@ describe('AverageScorePipe', () => {
         ],
         18,
       ),
-    ).toBe('72');
+    ).toBe('72.0');
   });
 
   it('should calculate average round score to par and return "E" for even par', () => {
@@ -134,6 +133,7 @@ describe('AverageScorePipe', () => {
               courseId: '1',
               id: '1',
               name: '',
+              numberOfHoles: CourseVariety.NINE,
               courseName: 'Test Course',
               par: [3, 3, 3, 3, 3, 3, 3, 3, 3],
             },
@@ -144,7 +144,7 @@ describe('AverageScorePipe', () => {
     ).toBe('E');
   });
 
-  it('should calculate average round score to par and return "+1.0" for over par', () => {
+  it('should calculate average round score to par and return "+3.0" for over par', () => {
     expect(
       averageScoreToParPipe.transform(
         [
@@ -165,6 +165,7 @@ describe('AverageScorePipe', () => {
               courseId: '1',
               id: '1',
               name: '',
+              numberOfHoles: CourseVariety.NINE,
               courseName: 'Test Course',
               par: [3, 3, 3, 3, 3, 3, 3, 3, 3],
             },
@@ -172,10 +173,61 @@ describe('AverageScorePipe', () => {
         ]),
         9,
       ),
-    ).toBe('+3');
+    ).toBe('+3.0');
   });
 
-  it('should calculate average round score to par and return "-1.0" for under par', () => {
+  it('should calculate average round score to par and return "+1.5" for over par', () => {
+    expect(
+      averageScoreToParPipe.transform(
+        [
+          {
+            strokes: [3, 3, 3, 3, 3, 3, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            courseId: '1',
+            dateStringISO: '2021-01-01T00:00:00.000Z',
+            id: '1',
+            putts: [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ],
+            roundVariety: RoundVariety.EIGHTEEN,
+            generalNotes: '',
+          },
+        ],
+        new Map([
+          [
+            '1',
+            {
+              courseId: '1',
+              id: '1',
+              name: '',
+              numberOfHoles: CourseVariety.EIGHTEEN,
+              courseName: 'Test Course',
+              par: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            },
+          ],
+        ]),
+        9,
+      ),
+    ).toBe('+1.5');
+  });
+
+  it('should calculate average round score to par and return "-3.0" for under par', () => {
     expect(
       averageScoreToParPipe.transform(
         [
@@ -196,6 +248,7 @@ describe('AverageScorePipe', () => {
               courseId: '1',
               id: '1',
               name: '',
+              numberOfHoles: CourseVariety.NINE,
               courseName: 'Test Course',
               par: [3, 3, 3, 3, 3, 3, 3, 3, 3],
             },
@@ -203,7 +256,7 @@ describe('AverageScorePipe', () => {
         ]),
         9,
       ),
-    ).toBe('-3');
+    ).toBe('-3.0');
   });
 
   it('should count valid rounds and return 0 for no valid rounds', () => {

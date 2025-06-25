@@ -1,6 +1,6 @@
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Course } from '../models/course';
+import { Course, CourseVariety } from '../models/course';
 import { Round, RoundVariety } from '../models/round';
 import { CourseService } from '../services/course.service';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
@@ -21,7 +21,7 @@ describe('ScoreToParPipe', () => {
         ScoreToParPipe,
         RoundVarietyScoresPipe,
         { provide: CourseService, useValue: courseServiceSpy },
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
       ],
     }).compileComponents();
 
@@ -40,6 +40,7 @@ describe('ScoreToParPipe', () => {
     const mockCourse: Course = {
       id: '1',
       name: 'Test Course',
+      numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     const mockRound: Round = {
@@ -65,6 +66,7 @@ describe('ScoreToParPipe', () => {
     const mockCourse: Course = {
       id: '1',
       name: 'Test Course',
+      numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     const mockRound: Round = {
@@ -90,6 +92,7 @@ describe('ScoreToParPipe', () => {
     const mockCourse: Course = {
       id: '1',
       name: 'Test Course',
+      numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     const mockRound: Round = {
@@ -133,6 +136,7 @@ describe('ScoreToParPipe', () => {
     const mockCourse: Course = {
       id: '1',
       name: 'Test Course',
+      numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     const mockRound: Round = {
@@ -162,6 +166,7 @@ describe('ScoreToParPipe', () => {
     const mockCourse: Course = {
       id: '1',
       name: 'Test Course',
+      numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     const mockRound: Round = {
@@ -187,6 +192,7 @@ describe('ScoreToParPipe', () => {
     const mockCourse: Course = {
       id: '1',
       name: 'Test Course',
+      numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     const mockRound: Round = {

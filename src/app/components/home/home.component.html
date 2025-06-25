@@ -217,11 +217,7 @@
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
                 <sub>
-                  @if (appStateService.useSmallerButtons()) {
-                    Avg.
-                  } @else {
-                    Average
-                  }
+                  <ng-container *ngTemplateOutlet="averageLabel"></ng-container>
                   9 Holes
                 </sub>
                 <br />
@@ -250,11 +246,7 @@
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
                 <sub>
-                  @if (appStateService.useSmallerButtons()) {
-                    Avg.
-                  } @else {
-                    Average
-                  }
+                  <ng-container *ngTemplateOutlet="averageLabel"></ng-container>
                   18 Holes
                 </sub>
                 <br />
@@ -286,11 +278,7 @@
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
                 <sub>
-                  @if (appStateService.useSmallerButtons()) {
-                    Avg.
-                  } @else {
-                    Average
-                  }
+                  <ng-container *ngTemplateOutlet="averageLabel"></ng-container>
                   Putts
                 </sub>
                 <br />
@@ -300,7 +288,7 @@
                     {{
                       (holeResultTotals().putts * 9) /
                         holeResultTotals().holesPlayedWithPutts
-                        | number: '1.0-1'
+                        | number: '1.1-1'
                     }}
                   } @else {
                     --
@@ -312,11 +300,7 @@
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
                 <sub>
-                  @if (appStateService.useSmallerButtons()) {
-                    Avg.
-                  } @else {
-                    Average
-                  }
+                  <ng-container *ngTemplateOutlet="averageLabel"></ng-container>
                   Putts
                 </sub>
                 <br />
@@ -326,7 +310,7 @@
                     {{
                       (holeResultTotals().puttsInFullRounds * 18) /
                         holeResultTotals().holesPlayedWithPuttsInFullRounds
-                        | number: '1.0-1'
+                        | number: '1.1-1'
                     }}
                   } @else {
                     --
@@ -342,7 +326,7 @@
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
-                <sub>Total Holes Played</sub>
+                <sub> Total Holes Played </sub>
                 <h3>{{ holeResultTotals().holesPlayed }}</h3>
               </mat-card-content>
             </mat-card>
@@ -359,14 +343,14 @@
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
-                <sub>Birdies</sub>
+                <sub> Birdies </sub>
                 <h3>{{ holeResultTotals().birdies }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
-                <sub>Pars</sub>
+                <sub> Pars </sub>
                 <h3>{{ holeResultTotals().pars }}</h3>
               </mat-card-content>
             </mat-card>
@@ -376,15 +360,73 @@
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
-                <sub>Bogeys</sub>
+                <sub> Bogeys </sub>
                 <h3>{{ holeResultTotals().bogeys }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
-                <sub>Doubles or Worse</sub>
+                <sub> Doubles or Worse </sub>
                 <h3>{{ holeResultTotals().doubleBogeysOrWorse }}</h3>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <mat-divider
+            style="margin-top: 14px; margin-bottom: 14px"
+          ></mat-divider>
+          <div
+            class="full-width-center space-evenly padding-inline-4 padding-bottom-12"
+          >
+            <sub> Average Strokes On: </sub>
+          </div>
+          <div class="full-width-center space-evenly padding-inline-4">
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title></mat-card-title>
+              <mat-card-content class="padding-inline-8">
+                <sub> Par 3s </sub>
+                <h3>
+                  @if (holeResultTotals().par3sPlayed) {
+                    {{
+                      holeResultTotals().totalStrokesOnPar3s /
+                        holeResultTotals().par3sPlayed | number: '1.1-1'
+                    }}
+                  } @else {
+                    --
+                  }
+                </h3>
+              </mat-card-content>
+            </mat-card>
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title></mat-card-title>
+              <mat-card-content class="padding-inline-8">
+                <sub> Par 4s </sub>
+                <h3>
+                  @if (holeResultTotals().par4sPlayed) {
+                    {{
+                      holeResultTotals().totalStrokesOnPar4s /
+                        holeResultTotals().par4sPlayed | number: '1.1-1'
+                    }}
+                  } @else {
+                    --
+                  }
+                </h3>
+              </mat-card-content>
+            </mat-card>
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title></mat-card-title>
+              <mat-card-content class="padding-inline-8">
+                <sub> Par 5s </sub>
+                <h3>
+                  @if (holeResultTotals().par5sPlayed) {
+                    {{
+                      holeResultTotals().totalStrokesOnPar5s /
+                        holeResultTotals().par5sPlayed | number: '1.1-1'
+                    }}
+                  } @else {
+                    --
+                  }
+                </h3>
               </mat-card-content>
             </mat-card>
           </div>
@@ -425,4 +467,12 @@
       Round
     </button>
   </div>
+</ng-template>
+
+<ng-template #averageLabel>
+  @if (appStateService.useSmallerButtons()) {
+    Avg.
+  } @else {
+    Average
+  }
 </ng-template>

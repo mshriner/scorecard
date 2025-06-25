@@ -4,7 +4,9 @@
       <mat-form-field class="almost-full-width-input">
         <mat-label>Select Course</mat-label>
         <mat-select
+          #courseSelect
           [(value)]="editingRound.courseId"
+          [disabled]="imported"
           (selectionChange)="updateCurrentCourse($event.value)"
         >
           @for (course of coursesToChooseFrom; track $index) {
@@ -18,12 +20,21 @@
         <mat-label>Select Holes Played</mat-label>
         <mat-select
           [(value)]="editingRound.roundVariety"
+          [disabled]="!editingRound.courseId || imported || isNineHoleCourse"
           (selectionChange)="updateRoundVariety($event.value)"
         >
-          @for (variety of ROUND_VARIETIES; track $index) {
-            <mat-option value="{{ variety }}">{{
-              variety | roundVariety
-            }}</mat-option>
+          @if (isNineHoleCourse) {
+            @for (variety of NINE_HOLE_ROUND_VARIETIES; track $index) {
+              <mat-option value="{{ variety }}">{{
+                variety | roundVariety
+              }}</mat-option>
+            }
+          } @else {
+            @for (variety of EIGHTEEN_HOLE_ROUND_VARIETIES; track $index) {
+              <mat-option value="{{ variety }}">{{
+                variety | roundVariety
+              }}</mat-option>
+            }
           }
         </mat-select>
       </mat-form-field>
@@ -222,13 +233,15 @@
     }
     @case (STROKES_COL) {
       <div class="hole-par-adjustment">
-        <button
-          mat-icon-button
-          class="plusminus"
-          (click)="strokesMinusOne(holeIndex)"
-        >
-          <mat-icon>remove</mat-icon>
-        </button>
+        @if (!imported) {
+          <button
+            mat-icon-button
+            class="plusminus"
+            (click)="strokesMinusOne(holeIndex)"
+          >
+            <mat-icon>remove</mat-icon>
+          </button>
+        }
         <div class="par-value-box">
           @if (currentCourse?.par?.[holeIndex]) {
             <ng-container
@@ -236,7 +249,7 @@
                 scoreGraphic;
                 context: {
                   scoreToPar:
-                    editingRound.strokes[holeIndex] -
+                    (editingRound.strokes[holeIndex] || 0) -
                     currentCourse!.par[holeIndex],
                   score: editingRound.strokes[holeIndex],
                 }
@@ -246,34 +259,40 @@
             {{ editingRound.strokes[holeIndex] }}
           }
         </div>
-        <button
-          mat-icon-button
-          class="plusminus"
-          (click)="strokesPlusOne(holeIndex)"
-        >
-          <mat-icon>add</mat-icon>
-        </button>
+        @if (!imported) {
+          <button
+            mat-icon-button
+            class="plusminus"
+            (click)="strokesPlusOne(holeIndex)"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        }
       </div>
     }
     @case (PUTTS_COL) {
       <div class="hole-par-adjustment">
-        <button
-          mat-icon-button
-          class="plusminus"
-          (click)="puttsMinusOne(holeIndex)"
-        >
-          <mat-icon>remove</mat-icon>
-        </button>
+        @if (!imported) {
+          <button
+            mat-icon-button
+            class="plusminus"
+            (click)="puttsMinusOne(holeIndex)"
+          >
+            <mat-icon>remove</mat-icon>
+          </button>
+        }
         <div class="par-value-box">
-          {{ editingRound.putts[holeIndex] }}
+          {{ editingRound.putts[holeIndex] ?? '-' }}
         </div>
-        <button
-          mat-icon-button
-          class="plusminus"
-          (click)="puttsPlusOne(holeIndex)"
-        >
-          <mat-icon>add</mat-icon>
-        </button>
+        @if (!imported) {
+          <button
+            mat-icon-button
+            class="plusminus"
+            (click)="puttsPlusOne(holeIndex)"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        }
       </div>
     }
   }
@@ -320,7 +339,7 @@
         <mat-icon>delete</mat-icon>
         Delete
       </button>
-    } @else {
+    } @else if (!imported) {
       <button mat-stroked-button (click)="fileInput.click()">
         <mat-icon>input</mat-icon>
         Import Round
@@ -340,20 +359,20 @@
       [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
     >
       <mat-icon>
-        @if (roundIdToEdit) {
+        @if (roundIdToEdit && !imported) {
           save_as
         } @else {
           save
         }
       </mat-icon>
-      @if (roundIdToEdit) {
+      @if (roundIdToEdit && !imported) {
         Update
       } @else {
         Save
       }
     </button>
   </div>
-  @if (roundIdToEdit) {
+  @if (roundIdToEdit && !imported) {
     <div class="full-width-center space-evenly">
       <button mat-stroked-button (click)="shareRound()">
         <mat-icon>ios_share</mat-icon>
