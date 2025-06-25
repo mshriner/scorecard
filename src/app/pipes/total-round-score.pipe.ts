@@ -9,22 +9,21 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 export class TotalRoundScorePipe implements PipeTransform {
   constructor(private readonly roundVarietyScores: RoundVarietyScoresPipe) {}
 
-  transform(round: Round, half?: RoundVariety): number | string {
+  transform(round: Round, halfToPreventThruFormat?: RoundVariety): number | string {
     const validStrokes = this.roundVarietyScores.transform(
       round.strokes,
-      half ?? round.roundVariety,
+      halfToPreventThruFormat ?? round.roundVariety,
     );
 
-    if (!half) {
-      const numberOfUncompletedHoles = validStrokes.filter(
-        (hole) => (hole ?? 0) <= 0,
+    if (!halfToPreventThruFormat) {
+      const numberOfCompletedHoles = validStrokes.filter(
+        (hole) => (hole ?? 0) > 0,
       ).length;
-      if (numberOfUncompletedHoles) {
-        return `Thru ${
-          round.roundVariety != RoundVariety.EIGHTEEN
-            ? 9 - numberOfUncompletedHoles
-            : 18 - numberOfUncompletedHoles
-        }`;
+      let numberOfHolesNeededForCompletion =
+        round.roundVariety === RoundVariety.EIGHTEEN ? 18 : 9;
+
+      if (numberOfCompletedHoles !== numberOfHolesNeededForCompletion) {
+        return `Thru ${numberOfCompletedHoles}`;
       }
     }
 

@@ -102,11 +102,13 @@ export class EditCourseComponent implements OnInit {
         NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
       ];
     console.log(`id if this is an existing course: ${this.courseIdToEdit}`);
-    this.snackBarService.openTemporarySnackBar(
+    const navigationMessage =
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.MESSAGE
-      ],
-    );
+      ];
+    if (navigationMessage) {
+      this.snackBarService.openTemporarySnackBar(navigationMessage);
+    }
     if (this.courseIdToEdit) {
       const retrieved = this.courseService.getCourse(this.courseIdToEdit);
       if (!retrieved) {
@@ -263,27 +265,34 @@ export class EditCourseComponent implements OnInit {
     });
   }
 
-  public onFileSelected(input: HTMLInputElement): void {
+  public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
     const file = input.files?.[0];
-    file?.text().then((uploaded) => {
-      const parsed = this.sharingService.convertDTOToDomain(
-        JSON.parse(uploaded),
-      );
-      console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
-      if (parsed?.objectType === 'course') {
-        const importedCourse = parsed.data as Course;
-        importedCourse.id = DataUtils.generateUUID('course');
-        this.editingCourse = importedCourse;
-        this.imported = true;
-        this.updateUnsavedData();
-        this.snackBarService.openTemporarySnackBar(
-          `Course "${importedCourse.name}" was imported successfully.`,
+    return (
+      file?.text().then((uploaded) => {
+        const parsed = this.sharingService.convertDTOToDomain(
+          JSON.parse(uploaded),
         );
-      } else {
-        this.snackBarService.openTemporarySnackBar(
-          'Failed to import the course.',
+        console.log(
+          `received: ${uploaded}`,
+          `parsed: ${JSON.stringify(parsed)}`,
         );
-      }
-    });
+        if (parsed?.objectType === 'course') {
+          const importedCourse = parsed.data as Course;
+          importedCourse.id = DataUtils.generateUUID('course');
+          this.editingCourse = importedCourse;
+          this.imported = true;
+          this.updateUnsavedData();
+          this.snackBarService.openTemporarySnackBar(
+            `Course "${importedCourse.name}" was imported successfully.`,
+          );
+          return Promise.resolve(true);
+        } else {
+          this.snackBarService.openTemporarySnackBar(
+            'Failed to import the course.',
+          );
+          return Promise.resolve(false);
+        }
+      }) || Promise.resolve(false)
+    );
   }
 }

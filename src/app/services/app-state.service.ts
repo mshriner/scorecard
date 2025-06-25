@@ -24,11 +24,11 @@ export class AppStateService implements OnDestroy {
   public readonly unsavedDataOnPage = signal<boolean>(false);
   public readonly currentUser = signal<LocalUserWithFilters | null>(null);
 
-  private routeSubscription: Subscription;
+  private readonly routeSubscription: Subscription;
 
   constructor(
-    private userService: UserService,
-    private router: Router,
+    private readonly userService: UserService,
+    private readonly router: Router,
   ) {
     this.routeSubscription = this.router.events.subscribe(() => {
       this.unsavedDataOnPage.set(false);

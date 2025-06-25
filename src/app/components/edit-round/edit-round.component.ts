@@ -163,11 +163,13 @@ export class EditRoundComponent implements OnInit {
         NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT
       ];
     console.log(`id if this is an existing round: ${this.roundIdToEdit}`);
-    this.snackBarService.openTemporarySnackBar(
+    const navigationMessage =
       router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.MESSAGE
-      ],
-    );
+      ];
+    if (navigationMessage) {
+      this.snackBarService.openTemporarySnackBar(navigationMessage);
+    }
     if (this.roundIdToEdit) {
       const retrieved = this.roundService.getRoundById(this.roundIdToEdit);
       if (!retrieved) {
@@ -343,59 +345,65 @@ export class EditRoundComponent implements OnInit {
       });
   }
 
-  public onFileSelected(input: HTMLInputElement): void {
+  public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
     const file = input.files?.[0];
-    file?.text().then((uploaded) => {
-      const parsed = this.sharingService.convertDTOToDomain(
-        JSON.parse(uploaded),
-      );
-      console.log(`received: ${uploaded}`, `parsed: ${JSON.stringify(parsed)}`);
-      if (
-        parsed?.objectType !== 'round' ||
-        !parsed?.data?.round ||
-        !parsed?.data?.course
-      ) {
-        this.snackBarService.openTemporarySnackBar(
-          'Failed to import the round.',
+    return (
+      file?.text().then((uploaded) => {
+        const parsed = this.sharingService.convertDTOToDomain(
+          JSON.parse(uploaded),
         );
-        return;
-      }
+        console.log(
+          `received: ${uploaded}`,
+          `parsed: ${JSON.stringify(parsed)}`,
+        );
+        if (
+          parsed?.objectType !== 'round' ||
+          !parsed?.data?.round ||
+          !parsed?.data?.course
+        ) {
+          this.snackBarService.openTemporarySnackBar(
+            'Failed to import the round.',
+          );
+          return Promise.resolve(false);
+        }
 
-      const importedRound = parsed.data as RoundWithCourse;
-      if (
-        this.doesAnotherUserHaveThisCourseOnThisDevice(
-          importedRound.round.courseId,
-        )
-      ) {
-        const newCourseId = DataUtils.generateUUID('course');
-        importedRound.course.id = newCourseId;
-        importedRound.round.courseId = newCourseId;
-      }
-      this.needToSaveImportedCourse = false;
-      this.imported = true;
-      if (this.courseService.getCourse(importedRound.round.courseId)) {
-        this.currentCourse = this.courseService.getCourse(
-          importedRound.round.courseId,
+        const importedRound = parsed.data as RoundWithCourse;
+        if (
+          this.doesAnotherUserHaveThisCourseOnThisDevice(
+            importedRound.round.courseId,
+          )
+        ) {
+          const newCourseId = DataUtils.generateUUID('course');
+          importedRound.course.id = newCourseId;
+          importedRound.round.courseId = newCourseId;
+        }
+        this.needToSaveImportedCourse = false;
+        this.imported = true;
+        if (this.courseService.getCourse(importedRound.round.courseId)) {
+          this.currentCourse = this.courseService.getCourse(
+            importedRound.round.courseId,
+          );
+        } else {
+          this.currentCourse = importedRound.course;
+          this.needToSaveImportedCourse = true;
+        }
+        this.editingRound = importedRound.round;
+        this.roundIdToEdit = importedRound.round.id;
+        this.coursesToChooseFrom = [this.currentCourse!];
+        this.updateUnsavedData();
+        setTimeout(() => {
+          this.courseSelectInput()?.writeValue(this.currentCourse?.id);
+        });
+        this.snackBarService.openTemporarySnackBar(
+          `Round at "${
+            this.needToSaveImportedCourse
+              ? (JSON.parse(uploaded) as RoundDTO)?.courseDTO?.name
+              : this.courseService.getCourse(importedRound.course.id)?.name
+          }" was imported successfully.`,
         );
-      } else {
-        this.currentCourse = importedRound.course;
-        this.needToSaveImportedCourse = true;
-      }
-      this.editingRound = importedRound.round;
-      this.roundIdToEdit = importedRound.round.id;
-      this.coursesToChooseFrom = [this.currentCourse!];
-      this.updateUnsavedData();
-      setTimeout(() => {
-        this.courseSelectInput()?.writeValue(this.currentCourse?.id);
-      });
-      this.snackBarService.openTemporarySnackBar(
-        `Round at "${
-          this.needToSaveImportedCourse
-            ? (JSON.parse(uploaded) as RoundDTO)?.courseDTO?.name
-            : this.courseService.getCourse(importedRound.course.id)?.name
-        }" was imported successfully.`,
-      );
-    });
+        return Promise.resolve(true);
+      }) || Promise.resolve(false)
+    );
   }
 
   private doesAnotherUserHaveThisCourseOnThisDevice(courseId: string) {

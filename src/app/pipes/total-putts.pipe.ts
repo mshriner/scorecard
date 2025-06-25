@@ -13,7 +13,7 @@ export class TotalPuttsPipe implements PipeTransform {
     return (
       this.roundVarietyScores
         .transform(round.putts, half || round.roundVariety)
-        .reduce((prev, curr) => (prev || 0) + (curr || 0)) || 0
+        .reduce((prev, curr) => (prev || 0) + (curr || 0), 0) || 0
     );
   }
 }

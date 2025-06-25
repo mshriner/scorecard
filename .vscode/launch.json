@@ -12,9 +12,8 @@
     {
       "name": "Run local tests",
       "type": "chrome",
-      "request": "launch",
-      "preLaunchTask": "npm: test:local",
-      "url": "http://localhost:9876/debug.html"
+      "request": "attach",
+      "preLaunchTask": "npm: test:local"
     }
   ]
 }
