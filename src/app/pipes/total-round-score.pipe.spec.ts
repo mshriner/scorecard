@@ -1,4 +1,4 @@
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   EMPTY_EIGHTEEN_NUMBERS,
@@ -17,7 +17,7 @@ describe('TotalRoundScorePipe', () => {
       providers: [
         TotalRoundScorePipe,
         RoundVarietyScoresPipe,
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
       ],
     }).compileComponents();
     component = TestBed.inject(TotalRoundScorePipe);
