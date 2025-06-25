@@ -267,11 +267,16 @@ export class EditCourseComponent implements OnInit {
 
   public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
     const file = input.files?.[0];
-    return (
-      file?.text().then((uploaded) => {
+    if (!file?.text?.call) {
+      input.value = '';
+      return Promise.resolve(false);
+    }
+    return file.text().then(
+      (uploaded) => {
         const parsed = this.sharingService.convertDTOToDomain(
           JSON.parse(uploaded),
         );
+        input.value = '';
         if (parsed?.objectType === 'course') {
           const importedCourse = parsed.data as Course;
           importedCourse.id = DataUtils.generateUUID('course');
@@ -288,7 +293,11 @@ export class EditCourseComponent implements OnInit {
           );
           return Promise.resolve(false);
         }
-      }) || Promise.resolve(false)
+      },
+      (reject) => {
+        input.value = '';
+        return Promise.reject(new Error(reject));
+      },
     );
   }
 }

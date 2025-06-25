@@ -347,11 +347,16 @@ export class EditRoundComponent implements OnInit {
 
   public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
     const file = input.files?.[0];
-    return (
-      file?.text().then((uploaded) => {
+    if (!file?.text?.call) {
+      input.value = '';
+      return Promise.resolve(false);
+    }
+    return file.text().then(
+      (uploaded) => {
         const parsed = this.sharingService.convertDTOToDomain(
           JSON.parse(uploaded),
         );
+        input.value = '';
         if (
           parsed?.objectType !== 'round' ||
           !parsed?.data?.round ||
@@ -398,7 +403,11 @@ export class EditRoundComponent implements OnInit {
           }" was imported successfully.`,
         );
         return Promise.resolve(true);
-      }) || Promise.resolve(false)
+      },
+      (reject) => {
+        input.value = '';
+        return Promise.reject(new Error(reject));
+      },
     );
   }
 
