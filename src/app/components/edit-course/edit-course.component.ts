@@ -272,10 +272,6 @@ export class EditCourseComponent implements OnInit {
         const parsed = this.sharingService.convertDTOToDomain(
           JSON.parse(uploaded),
         );
-        console.log(
-          `received: ${uploaded}`,
-          `parsed: ${JSON.stringify(parsed)}`,
-        );
         if (parsed?.objectType === 'course') {
           const importedCourse = parsed.data as Course;
           importedCourse.id = DataUtils.generateUUID('course');

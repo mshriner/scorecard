@@ -352,10 +352,6 @@ export class EditRoundComponent implements OnInit {
         const parsed = this.sharingService.convertDTOToDomain(
           JSON.parse(uploaded),
         );
-        console.log(
-          `received: ${uploaded}`,
-          `parsed: ${JSON.stringify(parsed)}`,
-        );
         if (
           parsed?.objectType !== 'round' ||
           !parsed?.data?.round ||

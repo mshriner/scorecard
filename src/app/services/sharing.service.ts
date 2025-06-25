@@ -156,7 +156,12 @@ export class SharingService {
         importedItem;
 
       // only take the properties we want to avoid importing garbage
-      if (!domain || !objectType) {
+      if (!domain) {
+        console.error('Missing domain in imported item');
+        return null;
+      }
+      if (!objectType) {
+        console.error('Missing objectType in imported item');
         return null;
       }
       switch (objectType) {
@@ -203,7 +208,6 @@ export class SharingService {
         valid = false;
       }
     });
-    console.log('notes', importedRound?.generalNotes, roundDTO.generalNotes);
     if (!valid) {
       return null;
     }
