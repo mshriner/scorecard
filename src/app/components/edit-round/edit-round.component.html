@@ -20,7 +20,7 @@
         <mat-label>Select Holes Played</mat-label>
         <mat-select
           [(value)]="editingRound.roundVariety"
-          [disabled]="imported"
+          [disabled]="imported || isNineHoleCourse"
           (selectionChange)="updateRoundVariety($event.value)"
         >
           @if (isNineHoleCourse) {
