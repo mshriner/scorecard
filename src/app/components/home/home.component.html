@@ -287,8 +287,7 @@
                   @if (holeResultTotals().holesPlayedWithPutts) {
                     {{
                       (holeResultTotals().putts * 9) /
-                        holeResultTotals().holesPlayedWithPutts
-                        | number: '1.0-1'
+                        holeResultTotals().holesPlayedWithPutts | number: '1.1'
                     }}
                   } @else {
                     --
@@ -310,7 +309,7 @@
                     {{
                       (holeResultTotals().puttsInFullRounds * 18) /
                         holeResultTotals().holesPlayedWithPuttsInFullRounds
-                        | number: '1.0-1'
+                        | number: '1.1'
                     }}
                   } @else {
                     --
@@ -389,7 +388,7 @@
                   @if (holeResultTotals().par3sPlayed) {
                     {{
                       holeResultTotals().totalStrokesOnPar3s /
-                        holeResultTotals().par3sPlayed | number: '1.0-1'
+                        holeResultTotals().par3sPlayed | number: '1.1'
                     }}
                   } @else {
                     --
@@ -405,7 +404,7 @@
                   @if (holeResultTotals().par4sPlayed) {
                     {{
                       holeResultTotals().totalStrokesOnPar4s /
-                        holeResultTotals().par4sPlayed | number: '1.0-1'
+                        holeResultTotals().par4sPlayed | number: '1.1'
                     }}
                   } @else {
                     --
@@ -421,7 +420,7 @@
                   @if (holeResultTotals().par5sPlayed) {
                     {{
                       holeResultTotals().totalStrokesOnPar5s /
-                        holeResultTotals().par5sPlayed | number: '1.0-1'
+                        holeResultTotals().par5sPlayed | number: '1.1'
                     }}
                   } @else {
                     --
