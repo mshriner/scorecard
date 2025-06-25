@@ -30,7 +30,7 @@ export class AverageScorePipe implements PipeTransform {
         .map((toCount) => toCount.score.reduce((p, c) => p + c, 0))
         .reduce((prev, curr) => prev + curr, 0) /
         (roundHalvesThatCount.length * (eighteenHolesOnly === 18 ? 0.5 : 1)),
-      '1.1',
+      '1.1-1',
     )}`;
   }
 }
@@ -72,9 +72,9 @@ export class AverageScoreToParPipe implements PipeTransform {
       scoresToPar.reduce((prev, curr) => prev + curr, 0) /
       (scoresToPar.length * (eighteenHolesOnly === 18 ? 0.5 : 1));
     if (toPar > 0) {
-      return `+${this.decimal.transform(toPar, '1.1')}`;
+      return `+${this.decimal.transform(toPar, '1.1-1')}`;
     } else if (toPar < 0) {
-      return `${this.decimal.transform(toPar, '1.1')}`;
+      return `${this.decimal.transform(toPar, '1.1-1')}`;
     }
     return `E`;
   }
