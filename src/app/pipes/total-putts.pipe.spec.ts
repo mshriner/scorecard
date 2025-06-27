@@ -1,4 +1,4 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RoundVariety } from '../models/round';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
@@ -12,7 +12,7 @@ describe('TotalPuttsPipe', () => {
       providers: [
         TotalPuttsPipe,
         RoundVarietyScoresPipe,
-        provideZonelessChangeDetection(),
+        provideExperimentalZonelessChangeDetection(),
       ],
     }).compileComponents();
 

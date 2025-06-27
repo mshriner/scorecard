@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { CourseService } from './course.service';
 
 describe('CourseService', () => {
@@ -8,7 +8,7 @@ describe('CourseService', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideExperimentalZonelessChangeDetection()],
     }).compileComponents();
     service = TestBed.inject(CourseService);
   });

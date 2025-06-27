@@ -1,4 +1,4 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Course, CourseDTO, CourseVariety } from '../models/course';
 import { RoundWithCourse } from '../models/data-transfer';
@@ -28,7 +28,7 @@ describe('SharingService', () => {
         SharingService,
         { provide: AppStateService, useValue: appStateServiceSpy },
         { provide: SnackBarService, useValue: snackBarServiceSpy },
-        provideZonelessChangeDetection(),
+        provideExperimentalZonelessChangeDetection(),
       ],
     });
     service = TestBed.inject(SharingService);

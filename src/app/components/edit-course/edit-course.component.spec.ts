@@ -1,4 +1,4 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { Course, CourseDTO, CourseVariety } from '../../models/course';
@@ -23,7 +23,7 @@ describe('EditCourseComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EditCourseComponent],
       providers: [
-        provideZonelessChangeDetection(),
+        provideExperimentalZonelessChangeDetection(),
         provideAnimationsAsync(),
         { provide: SnackBarService, useValue: snackBarService },
         { provide: SharingService, useValue: sharingService },
@@ -63,9 +63,7 @@ describe('EditCourseComponent', () => {
     });
     spyOn(file, 'text').and.returnValue(Promise.resolve(fileContent));
 
-    const input = {
-      files: [file],
-    } as unknown as HTMLInputElement;
+    const input = { files: [file] } as unknown as HTMLInputElement;
 
     const result = await component.onFileSelected(input);
     expect(result).toBeTruthy();
@@ -89,9 +87,7 @@ describe('EditCourseComponent', () => {
     });
     spyOn(file, 'text').and.returnValue(Promise.resolve(fileContent));
 
-    const input = {
-      files: [file],
-    } as unknown as HTMLInputElement;
+    const input = { files: [file] } as unknown as HTMLInputElement;
 
     await component.onFileSelected(input);
 

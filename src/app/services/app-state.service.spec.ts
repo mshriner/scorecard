@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { AppStateService } from './app-state.service';
 
 describe('AppStateService', () => {
@@ -8,7 +8,7 @@ describe('AppStateService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection()],
+      providers: [provideExperimentalZonelessChangeDetection()],
     });
     service = TestBed.inject(AppStateService);
   });
