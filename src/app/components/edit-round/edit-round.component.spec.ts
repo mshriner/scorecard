@@ -1,4 +1,4 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { Course, CourseVariety } from '../../models/course';
@@ -64,7 +64,7 @@ describe('EditRoundComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EditRoundComponent],
       providers: [
-        provideZonelessChangeDetection(),
+        provideExperimentalZonelessChangeDetection(),
         provideAnimationsAsync(),
         { provide: SnackBarService, useValue: snackBarService },
         { provide: SharingService, useValue: sharingService },
@@ -101,10 +101,7 @@ describe('EditRoundComponent', () => {
     };
     const mockParsed: any = {
       objectType: 'round',
-      data: {
-        round: mockRound,
-        course: mockCourse,
-      },
+      data: { round: mockRound, course: mockCourse },
     };
     sharingService.convertDTOToDomain.and.returnValue(mockParsed);
 
@@ -120,9 +117,7 @@ describe('EditRoundComponent', () => {
     });
     spyOn(file, 'text').and.returnValue(Promise.resolve(fileContent));
 
-    const input = {
-      files: [file],
-    } as unknown as HTMLInputElement;
+    const input = { files: [file] } as unknown as HTMLInputElement;
 
     // Mock getCourse to return undefined so it triggers needToSaveImportedCourse
     courseService.getCourse.and.returnValue(undefined as any);
@@ -147,9 +142,7 @@ describe('EditRoundComponent', () => {
     });
     spyOn(file, 'text').and.returnValue(Promise.resolve(fileContent));
 
-    const input = {
-      files: [file],
-    } as unknown as HTMLInputElement;
+    const input = { files: [file] } as unknown as HTMLInputElement;
 
     await component.onFileSelected(input);
 

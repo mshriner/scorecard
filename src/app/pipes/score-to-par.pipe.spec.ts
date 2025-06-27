@@ -1,4 +1,4 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Course, CourseVariety } from '../models/course';
 import { Round, RoundVariety } from '../models/round';
@@ -21,7 +21,7 @@ describe('ScoreToParPipe', () => {
         ScoreToParPipe,
         RoundVarietyScoresPipe,
         { provide: CourseService, useValue: courseServiceSpy },
-        provideZonelessChangeDetection(),
+        provideExperimentalZonelessChangeDetection(),
       ],
     }).compileComponents();
 

@@ -1,4 +1,4 @@
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SwUpdate } from '@angular/service-worker';
 import { AppComponent } from './app.component';
@@ -8,7 +8,7 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        provideZonelessChangeDetection(),
+        provideExperimentalZonelessChangeDetection(),
         { provide: SwUpdate, useValue: {} },
       ],
     }).compileComponents();
