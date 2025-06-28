@@ -176,7 +176,13 @@
       ></tr>
       <tr
         mat-row
-        *matRowDef="let row; columns: ROUND_TABLE_COLUMN_IDS; when: returnTrue"
+        *matRowDef="
+          let row;
+          let i = dataIndex;
+          columns: ROUND_TABLE_COLUMN_IDS;
+          when: returnTrue
+        "
+        [attr.data-hole-index]="i"
       ></tr>
       <tr
         mat-row

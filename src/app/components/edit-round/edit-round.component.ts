@@ -229,10 +229,22 @@ export class EditRoundComponent implements OnInit {
     }
 
     this.updateUnsavedData();
+
+    setTimeout(() => {
+      const firstUnfinishedIndex = this.roundVarietyScoresPipe
+        .transform(this.editingRound.strokes, this.editingRound.roundVariety)
+        .findIndex((s) => !s);
+      if (firstUnfinishedIndex >= 0) {
+        document
+          .querySelector<HTMLElement>(
+            `[data-hole-index="${firstUnfinishedIndex}"]`,
+          )
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
   }
 
   public updateRoundVariety(newRoundVariety: RoundVariety): void {
-    console.log('selected round variety', newRoundVariety);
     this.editingRound.roundVariety = newRoundVariety;
     this.updateUnsavedData();
   }
