@@ -29,6 +29,7 @@ import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-edit-course',
@@ -41,6 +42,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     MatInputModule,
     MatDialogModule,
     MatSelectModule,
+    MatCardModule,
     CommonModule,
     PipesModule,
   ],
