@@ -72,6 +72,8 @@ export class AppComponent {
       .subscribe((e) => {
         this.previousUrl = e[0].urlAfterRedirects; // previous url
       });
+
+    this.appStateService.useSmallerButtons(); // make sure font size gets set
   }
 
   public logout(): void {

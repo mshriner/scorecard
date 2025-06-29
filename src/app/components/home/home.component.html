@@ -153,12 +153,10 @@
             Showing
 
             @if (filteredRounds().length === rounds().length) {
-              all
+              all rounds ({{ rounds().length }})
             } @else {
-              {{ filteredRounds().length }} of {{ rounds().length }}
+              {{ filteredRounds().length }} of {{ rounds().length }} rounds
             }
-
-            rounds
           </span>
         </mat-card-content>
       </mat-card>
