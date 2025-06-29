@@ -26,6 +26,14 @@
         </div>
       </div>
     }
+    @if (!isOnAboutScreen) {
+      <div style="display: block">
+        <div mat-ripple (click)="goToAbout()" class="flex-menu-option">
+          <mat-icon class="material-icons-outlined">info</mat-icon>
+          <span>About</span>
+        </div>
+      </div>
+    }
 
     <mat-divider></mat-divider>
 
@@ -92,7 +100,12 @@
   <mat-sidenav-content>
     <mat-toolbar color="primary">
       @if (currentUser && !isOnWipeDataScreen) {
-        @if (isOnProfilesScreen || isOnHomeScreen || isOnCoursesScreen) {
+        @if (
+          isOnProfilesScreen ||
+          isOnHomeScreen ||
+          isOnCoursesScreen ||
+          isOnAboutScreen
+        ) {
           <button mat-icon-button (click)="sidenav.toggle()">
             <mat-icon>menu</mat-icon>
           </button>

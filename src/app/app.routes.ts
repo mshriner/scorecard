@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AboutThisAppComponent } from './components/about-this-app/about-this-app.component';
 import { ClearDataComponent } from './components/clear-data/clear-data.component';
 import { CourseListComponent } from './components/course-list/course-list.component';
 import { EditCourseComponent } from './components/edit-course/edit-course.component';
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: APP_ROUTES.ADD_EDIT_ROUND, component: EditRoundComponent },
   { path: APP_ROUTES.COURSES, component: CourseListComponent },
   { path: APP_ROUTES.HOME, component: HomeComponent },
+  { path: APP_ROUTES.ABOUT, component: AboutThisAppComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/home' },
 ];

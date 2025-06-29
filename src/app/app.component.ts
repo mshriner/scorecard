@@ -146,6 +146,10 @@ export class AppComponent {
     return this.router.url === `/${APP_ROUTES.ADD_EDIT_ROUND}`;
   }
 
+  public get isOnAboutScreen(): boolean {
+    return this.router.url === `/${APP_ROUTES.ABOUT}`;
+  }
+
   public addNewCourse(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE).then(() => {
       this.sidenav.close();
@@ -154,6 +158,12 @@ export class AppComponent {
 
   public addNewRound(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND).then(() => {
+      this.sidenav.close();
+    });
+  }
+
+  public goToAbout(): void {
+    this.router.navigateByUrl(APP_ROUTES.ABOUT).then(() => {
       this.sidenav.close();
     });
   }
