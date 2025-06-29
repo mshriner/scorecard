@@ -146,6 +146,24 @@
   <br />
 
   @if (filteredRounds().length) {
+    <div class="full-width-center">
+      <mat-card appearance="outlined" class="center-text">
+        <mat-card-content>
+          <span>
+            Showing
+
+            @if (filteredRounds().length === rounds().length) {
+              all
+            } @else {
+              {{ filteredRounds().length }} of {{ rounds().length }}
+            }
+
+            rounds
+          </span>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <br />
     <ng-container *ngTemplateOutlet="addActions"></ng-container>
     <br />
     <mat-tab-group

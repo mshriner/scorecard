@@ -18,10 +18,14 @@
 
   @if (courseIdToEdit) {
     <div class="full-width-center">
-      <span>
-        Course Length:
-        <b>{{ editingCourse.numberOfHoles | courseVariety | titlecase }}</b>
-      </span>
+      <mat-card appearance="outlined" class="center-text">
+        <mat-card-content>
+          <span>
+            Course Length:
+            <b>{{ editingCourse.numberOfHoles | courseVariety | titlecase }}</b>
+          </span>
+        </mat-card-content>
+      </mat-card>
     </div>
     <br />
   } @else {
