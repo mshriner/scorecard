@@ -14,6 +14,7 @@ export const APP_ROUTES = {
   ADD_EDIT_ROUND: 'edit-round',
   HOME: 'home',
   CLEAR_DATA: 'clear-data',
+  ABOUT: 'about-this-app',
 };
 
 export const NAVIGATION_STATE_KEYS = {
