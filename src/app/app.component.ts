@@ -198,6 +198,9 @@ export class AppComponent {
       }
       return structuredClone(user);
     });
+    setTimeout(() => {
+      this.appStateService.useSmallerButtons();
+    });
   }
 
   public get currentUser(): LocalUserWithFilters | null {
