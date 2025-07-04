@@ -1,0 +1,63 @@
+<h2 mat-dialog-title>Install This App!</h2>
+<mat-dialog-content>
+  <div>
+    Please consider installing this page as an app on your device for a better
+    experience!
+  </div>
+  <br />
+  @if (isIOS) {
+    <div>
+      To install on your iOS device:
+      <ol>
+        <li>
+          Tap the <mat-icon>ios_share</mat-icon> <strong>Share</strong> button
+          in Safari.
+        </li>
+        <li>
+          Scroll down and tap
+          <mat-icon class="material-icons-outlined">add_box</mat-icon>
+          <strong>Add to Home Screen</strong>.
+        </li>
+        <li>Follow the prompts to add the app.</li>
+      </ol>
+    </div>
+  } @else if (isAndroid) {
+    <div>
+      To install on your Android device:
+      <ol>
+        <li>
+          Tap the
+          <span class="no-wrap">
+            <mat-icon>more_vert</mat-icon> <strong>menu</strong>
+          </span>
+          (three dots) in Chrome.
+        </li>
+        <li>
+          Select <strong>Install app</strong> or
+          <mat-icon>add_to_home_screen</mat-icon>
+          <strong>Add to Home screen</strong>.
+        </li>
+        <li>Follow the prompts to add the app.</li>
+      </ol>
+    </div>
+  } @else {
+    <div>
+      To install as a Progressive Web App (PWA), look for an
+      <span class="no-wrap">
+        <mat-icon style="padding-right: 2px">install_desktop</mat-icon>
+        <strong>Install</strong>
+      </span>
+      or <strong>Add to Home Screen</strong> option in your browser's menu.
+    </div>
+  }
+</mat-dialog-content>
+<mat-dialog-actions class="no-padding">
+  @if (isNeverShowAgainAnOption) {
+    <button mat-stroked-button (click)="neverShowAgain()" cdkFocusInitial>
+      Don't Show Again
+    </button>
+  }
+  <button mat-stroked-button (click)="doNotShowAgainThisSession()">
+    Remind Me Later
+  </button>
+</mat-dialog-actions>
