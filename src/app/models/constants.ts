@@ -65,8 +65,8 @@ export const UNSAVED_DATA: AreYouSureDialogConfig = {
   title: 'Unsaved Data',
   message:
     'Are you sure you want to leave this page? Unsaved changes will be lost.',
-  confirmButtonText: 'Edit',
-  confirmButtonIcon: 'edit',
-  nonConfirmButtonText: 'Leave',
-  nonConfirmButtonIcon: 'arrow_back',
+  confirmButtonText: 'Leave',
+  confirmButtonIcon: 'arrow_back',
+  nonConfirmButtonText: 'Edit',
+  nonConfirmButtonIcon: 'edit',
 };

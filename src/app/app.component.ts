@@ -131,8 +131,8 @@ export class AppComponent implements OnInit {
           data: UNSAVED_DATA,
         })
         .afterClosed()
-        .subscribe((continueEditing) => {
-          if (!continueEditing) {
+        .subscribe((confirmed) => {
+          if (confirmed) {
             this.doGoBack();
           }
         });
