@@ -7,8 +7,8 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { AppStateService } from '../../services/app-state.service';
 import { WhenToShowPWADialogAgain } from '../../models/user';
+import { AppStateService } from '../../services/app-state.service';
 
 @Component({
   selector: 'app-pwa-install-dialog',
@@ -44,6 +44,7 @@ export class PwaInstallDialogComponent {
   public doNotShowAgainThisSession(): void {
     this.close('later');
   }
+
   public neverShowAgain(): void {
     this.close('never');
   }
