@@ -131,8 +131,13 @@ mat-form-field.hundred-percent-input {
   max-width: 500px;
 }
 
-mat-dialog-actions.no-padding {
-  padding-inline: 0;
+mat-dialog-actions {
+  &.no-padding {
+    padding-inline: 0;
+  }
+  &.actions-center {
+    justify-content: center;
+  }
 }
 
 .padding-inline-8 {

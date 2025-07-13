@@ -2,14 +2,14 @@
 <mat-dialog-content>
   {{ data.message }}
 </mat-dialog-content>
-<mat-dialog-actions class="no-padding" align="center">
-  <button mat-stroked-button (click)="onNoClick()" cdkFocusInitial>
+<mat-dialog-actions class="no-padding actions-center">
+  <button mat-stroked-button (click)="nonConfirmClicked()" cdkFocusInitial>
     @if (data.nonConfirmButtonIcon) {
       <mat-icon>{{ data.nonConfirmButtonIcon }}</mat-icon>
     }
     {{ data.nonConfirmButtonText }}
   </button>
-  <button mat-stroked-button (click)="clear()">
+  <button mat-stroked-button (click)="confirmClicked()">
     @if (data.confirmButtonIcon) {
       <mat-icon>{{ data.confirmButtonIcon }}</mat-icon>
     }

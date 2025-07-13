@@ -18,6 +18,7 @@ export interface LocalUserWithFilters extends User {
   sortDescending?: boolean;
   sortBy?: ResultsSorting;
   homeTabIndex?: number;
+  pwaPrompted?: boolean;
 }
 
 export const ROUND_DATE_SORT_COL = 'roundDate';
@@ -25,6 +26,8 @@ export const ROUND_SCORE_SORT_COL = 'roundScore';
 export type ResultsSorting =
   | typeof ROUND_DATE_SORT_COL
   | typeof ROUND_SCORE_SORT_COL;
+
+export type WhenToShowPWADialogAgain = 'later' | 'never';
 
 export interface UserDTO extends User, ExportedItem {
   courseDTOs: CourseDTO[];

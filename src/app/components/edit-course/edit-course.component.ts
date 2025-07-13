@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,7 +30,6 @@ import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
-import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-edit-course',

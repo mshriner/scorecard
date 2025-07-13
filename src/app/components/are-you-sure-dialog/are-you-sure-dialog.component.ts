@@ -1,31 +1,37 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle,
+} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { AreYouSureDialogConfig } from '../../models/dialog';
 
 @Component({
-    selector: 'app-are-you-sure-dialog',
-    imports: [
-        MatButtonModule,
-        MatDialogTitle,
-        MatDialogContent,
-        MatDialogActions,
-        MatIconModule,
-    ],
-    templateUrl: './are-you-sure-dialog.component.html',
-    styleUrl: './are-you-sure-dialog.component.scss'
+  selector: 'app-are-you-sure-dialog',
+  imports: [
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatIconModule,
+  ],
+  templateUrl: './are-you-sure-dialog.component.html',
+  styleUrl: './are-you-sure-dialog.component.scss',
 })
 export class AreYouSureDialogComponent {
-
   readonly dialogRef = inject(MatDialogRef<AreYouSureDialogComponent>);
-  public readonly data: AreYouSureDialogConfig = inject<AreYouSureDialogConfig>(MAT_DIALOG_DATA);
+  public readonly data: AreYouSureDialogConfig =
+    inject<AreYouSureDialogConfig>(MAT_DIALOG_DATA);
 
-  public onNoClick(): void {
+  public nonConfirmClicked(): void {
     this.dialogRef.close();
   }
 
-  public clear(): void {
+  public confirmClicked(): void {
     this.dialogRef.close(true);
   }
 }
