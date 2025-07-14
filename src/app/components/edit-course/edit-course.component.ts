@@ -194,7 +194,7 @@ export class EditCourseComponent implements OnInit {
     console.log('selected course length', this.editingCourse.numberOfHoles);
     this.editingCourse.par = this.courseVarietySlicePipe.transform(
       this.editingCourse.par,
-      this.editingCourse.numberOfHoles,
+      this.editingCourse.numberOfHoles ?? CourseVariety.EIGHTEEN,
     );
   }
 

@@ -477,7 +477,9 @@
                     strokes:
                       holeResultTotals().theoreticalBestRound.get(courseId)!,
                     roundVariety:
-                      FullRoundVarietyAtCourse[course.numberOfHoles],
+                      FullRoundVarietyAtCourse[
+                        course.numberOfHoles ?? CourseVariety.EIGHTEEN
+                      ],
                   };
                 {{ round | totalRoundScore }} ({{ round | scoreToPar: course }})
               </mat-cell>

@@ -115,6 +115,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   public readonly Array = Array;
   public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
+  public readonly CourseVariety = CourseVariety;
   public rounds: WritableSignal<Round[]> = signal([]);
   public filteredRounds: WritableSignal<Round[]> = signal([]);
   public courseMap: Signal<Map<string, Course | null>> = computed(() => {
