@@ -455,9 +455,7 @@
             <sub> Theoretical Best Round(s): </sub>
           </div>
 
-          @let coursesWithBestRound =
-            Array.from(holeResultTotals().theoreticalBestRound.keys());
-          <mat-table [dataSource]="coursesWithBestRound">
+          <mat-table [dataSource]="coursesWithHoleResults()">
             <ng-container matColumnDef="{{ BEST_ROUND_COURSE_NAME_COL }}">
               <mat-header-cell *matHeaderCellDef class="center-text">
                 Course

@@ -162,6 +162,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
     return holeResults;
   });
+  public coursesWithHoleResults: Signal<string[]> = computed(() => {
+    return Array.from(this.holeResultTotals().theoreticalBestRound.keys()).sort(
+      (a, b) => a.localeCompare(b),
+    );
+  });
 
   private processHoleResult(
     holeResults: HoleResults,
