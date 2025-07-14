@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Round, RoundVariety } from '../models/round';
+import { RoundLike, RoundVariety } from '../models/round';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 @Pipe({
@@ -9,7 +9,10 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 export class TotalRoundScorePipe implements PipeTransform {
   constructor(private readonly roundVarietyScores: RoundVarietyScoresPipe) {}
 
-  transform(round: Round, halfToPreventThruFormat?: RoundVariety): number | string {
+  transform(
+    round: RoundLike,
+    halfToPreventThruFormat?: RoundVariety,
+  ): number | string {
     const validStrokes = this.roundVarietyScores.transform(
       round.strokes,
       halfToPreventThruFormat ?? round.roundVariety,

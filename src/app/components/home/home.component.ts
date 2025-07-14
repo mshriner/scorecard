@@ -35,8 +35,18 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
-import { Course } from '../../models/course';
-import { Round, RoundVariety } from '../../models/round';
+import { Course, CourseVariety } from '../../models/course';
+import {
+  EMPTY_EIGHTEEN_NUMBERS,
+  EMPTY_NINE_NUMBERS,
+  FullRoundVarietyAtCourse,
+  Round,
+  RoundVariety,
+} from '../../models/round';
+import {
+  EighteenNumbersOrNulls,
+  NineNumbersOrNulls,
+} from '../../models/storage-object';
 import {
   LocalUserWithFilters,
   ResultsSorting,
@@ -67,6 +77,10 @@ interface HoleResults {
   totalStrokesOnPar4s: number;
   par5sPlayed: number;
   totalStrokesOnPar5s: number;
+  theoreticalBestRound: Map<
+    string,
+    EighteenNumbersOrNulls | NineNumbersOrNulls
+  >;
 }
 
 @Component({
@@ -99,6 +113,8 @@ interface HoleResults {
 export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('courseStatsFilterSelect') select!: MatSelect;
 
+  public readonly Array = Array;
+  public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
   public rounds: WritableSignal<Round[]> = signal([]);
   public filteredRounds: WritableSignal<Round[]> = signal([]);
   public courseMap: Signal<Map<string, Course | null>> = computed(() => {
@@ -129,12 +145,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
       totalStrokesOnPar4s: 0,
       par5sPlayed: 0,
       totalStrokesOnPar5s: 0,
+      theoreticalBestRound: new Map(),
     };
     if (!this.filteredRounds()?.length) {
       return holeResults;
     }
     this.filteredRounds().forEach((round) => {
       const course = this.courseMap().get(round.courseId);
+      if (!course) {
+        return;
+      }
       for (let index = 0; index < round.strokes.length; index++) {
         this.processHoleResult(holeResults, round, course, index);
       }
@@ -145,12 +165,35 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private processHoleResult(
     holeResults: HoleResults,
     round: Round,
-    course: Course | null | undefined,
-    index: number
+    course: Course,
+    index: number,
   ): void {
     const strokes = round.strokes[index];
     if (!strokes) {
       return;
+    }
+    if (!holeResults.theoreticalBestRound.has(course.id)) {
+      switch (course.numberOfHoles) {
+        case CourseVariety.NINE: {
+          holeResults.theoreticalBestRound.set(course.id, [
+            ...EMPTY_NINE_NUMBERS,
+          ]);
+          break;
+        }
+        case CourseVariety.EIGHTEEN:
+        default: {
+          holeResults.theoreticalBestRound.set(course.id, [
+            ...EMPTY_EIGHTEEN_NUMBERS,
+          ]);
+          break;
+        }
+      }
+    }
+    const theoreticalBestRound = holeResults.theoreticalBestRound.get(
+      course.id,
+    );
+    if ((theoreticalBestRound![index] || Infinity) > strokes) {
+      theoreticalBestRound![index] = strokes;
     }
     holeResults.holesPlayed++;
     const parOnHole = course?.par[index] ?? 0;
@@ -222,6 +265,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.ROUND_DATE_COL,
     this.COURSE_NAME_COL,
     this.ROUND_SCORE_COL,
+  ];
+
+  public readonly BEST_ROUND_COURSE_NAME_COL = `${this.COURSE_NAME_COL}-best`;
+  public readonly THEORETICAL_BEST_ROUND_COLUMNS = [
+    this.BEST_ROUND_COURSE_NAME_COL,
+    this.ROUND_DATE_COL,
   ];
 
   constructor(

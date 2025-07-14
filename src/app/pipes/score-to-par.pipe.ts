@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Course } from '../models/course';
-import { Round, RoundVariety } from '../models/round';
+import { RoundLike, RoundVariety } from '../models/round';
 import { EighteenNumbers, NineNumbers } from '../models/storage-object';
 import { CourseService } from '../services/course.service';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
@@ -15,7 +15,11 @@ export class ScoreToParPipe implements PipeTransform {
     private readonly roundVarietyScores: RoundVarietyScoresPipe,
   ) {}
 
-  transform(round: Round, course?: Course | null, half?: RoundVariety): string {
+  transform(
+    round: RoundLike,
+    course?: Course | null,
+    half?: RoundVariety,
+  ): string {
     course ??= this.courseService.getCourse(round.courseId);
     if (!course) {
       throw new Error(`course with ID ${round.courseId} not found`);

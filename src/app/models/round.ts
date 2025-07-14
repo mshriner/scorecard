@@ -1,4 +1,4 @@
-import { COURSE_EXAMPLE, CourseDTO } from './course';
+import { COURSE_EXAMPLE, CourseDTO, CourseVariety } from './course';
 import { ExportedItem } from './data-transfer';
 import {
   EighteenNumbersOrNulls,
@@ -6,12 +6,16 @@ import {
   StorageObject,
 } from './storage-object';
 
-export interface Round extends StorageObject {
+export interface RoundLike {
+  strokes: NineNumbersOrNulls | EighteenNumbersOrNulls;
+  roundVariety: RoundVariety;
+  courseId?: string;
+}
+
+export interface Round extends RoundLike, StorageObject {
   dateStringISO: string;
   courseId: string;
-  strokes: NineNumbersOrNulls | EighteenNumbersOrNulls;
   putts: NineNumbersOrNulls | EighteenNumbersOrNulls;
-  roundVariety: RoundVariety;
   generalNotes: string;
 }
 
@@ -41,6 +45,11 @@ export const ROUND_EXAMPLE: Round = {
   putts: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   roundVariety: RoundVariety.EIGHTEEN,
   generalNotes: 'note',
+};
+
+export const FullRoundVarietyAtCourse: Record<CourseVariety, RoundVariety> = {
+  EIGHTEEN: RoundVariety.EIGHTEEN,
+  NINE: RoundVariety.FULL_NINE,
 };
 
 export const EMPTY_NINE_NUMBERS: NineNumbersOrNulls = [
