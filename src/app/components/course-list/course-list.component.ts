@@ -54,7 +54,11 @@ export class CourseListComponent implements OnInit {
     this.appStateService.setPageTitle(
       `${this.appStateService.currentUser()?.name?.trim()}'s Courses`,
     );
-    this.courses.set(this.courseService.getAllCoursesForCurrentUser());
+    this.courses.set(
+      this.courseService
+        .getAllCoursesForCurrentUser()
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    );
   }
 
   public viewCourse(courseId: string, message?: string): void {
