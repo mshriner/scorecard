@@ -1,6 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
 
+$score-graphic-size: 24px;
+
 html,
 body {
   height: 100%;
@@ -50,16 +52,6 @@ body {
   padding: 4px;
   display: flex;
   justify-content: center;
-}
-
-.par-value-box {
-  border-radius: 8px;
-  border: 1px gray solid;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  display: grid;
 }
 
 @mixin sticky-overflow {
@@ -181,6 +173,50 @@ mat-dialog-actions {
 
     label {
       width: 100%;
+    }
+  }
+}
+
+@mixin smooth-transition {
+  transition: 0.2s;
+}
+
+.par-value-box {
+  border-radius: 8px;
+  border: 1px gray solid;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  display: grid;
+  div {
+    @include smooth-transition;
+    &.score-graphic {
+      border-width: 6px;
+      border-radius: 25%;
+      border-style: solid;
+      border-color: rgba($color: #000000, $alpha: 0);
+      width: $score-graphic-size;
+      height: $score-graphic-size;
+      line-height: normal;
+      align-content: center;
+      justify-content: center;
+      &.double-bogey-or-worse {
+        border-radius: 0;
+        border: 6px double white;
+      }
+      &.bogey-score {
+        border-radius: 0;
+        border: 2px solid white;
+      }
+      &.birdie-score {
+        border-radius: 50%;
+        border: 2px solid white;
+      }
+      &.eagle-or-better {
+        border-radius: 50%;
+        border: 6px double white;
+      }
     }
   }
 }
