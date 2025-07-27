@@ -221,7 +221,6 @@
             mat-ripple
             *matRowDef="let round; columns: ROUND_TABLE_COLUMNS"
             (click)="viewRound(round.id)"
-            (keydown.enter)="viewRound(round.id)"
           ></mat-row>
         </mat-table>
       </mat-tab>
@@ -479,14 +478,18 @@
                         course.numberOfHoles ?? CourseVariety.EIGHTEEN
                       ],
                   };
-                {{ round | totalRoundScore }} ({{ round | scoreToPar: course }})
+                {{ round.strokes | totalRoundScore }} ({{
+                  round.strokes | scoreToPar: course
+                }})
               </mat-cell>
             </ng-container>
             <mat-header-row
               *matHeaderRowDef="THEORETICAL_BEST_ROUND_COLUMNS; sticky: true"
             ></mat-header-row>
             <mat-row
+              mat-ripple
               *matRowDef="let courseId; columns: THEORETICAL_BEST_ROUND_COLUMNS"
+              (click)="viewBestRoundOnCourse(courseId)"
             ></mat-row>
           </mat-table>
         </div>

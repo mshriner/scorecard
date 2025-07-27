@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Course } from '../models/course';
-import { Round, RoundVariety } from '../models/round';
+import { RoundLike, RoundVariety } from '../models/round';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 @Pipe({
@@ -10,7 +10,11 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 export class ParPipe implements PipeTransform {
   constructor(private readonly roundVarietyScores: RoundVarietyScoresPipe) {}
 
-  transform(course: Course, currentRound?: Round, half?: RoundVariety): number {
+  transform(
+    course: Course,
+    currentRound?: RoundLike,
+    half?: RoundVariety,
+  ): number {
     return (
       this.roundVarietyScores
         .transform(course.par, half || currentRound?.roundVariety)

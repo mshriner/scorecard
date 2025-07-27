@@ -1,4 +1,4 @@
-import { COURSE_EXAMPLE, CourseDTO, CourseVariety } from './course';
+import { Course, COURSE_EXAMPLE, CourseDTO, CourseVariety } from './course';
 import { ExportedItem } from './data-transfer';
 import {
   EighteenNumbersOrNulls,
@@ -17,6 +17,11 @@ export interface Round extends RoundLike, StorageObject {
   courseId: string;
   putts: NineNumbersOrNulls | EighteenNumbersOrNulls;
   generalNotes: string;
+}
+
+export interface BestRound extends RoundLike {
+  course: Course;
+  bestScoresRecordedDateISO: string[];
 }
 
 export interface RoundDTO extends Round, ExportedItem {

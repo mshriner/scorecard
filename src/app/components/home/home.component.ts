@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   Component,
   computed,
+  inject,
   OnInit,
   Signal,
   signal,
@@ -23,6 +24,7 @@ import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
 } from '@angular/material/datepicker';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,16 +39,13 @@ import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course, CourseVariety } from '../../models/course';
 import {
+  BestRound,
   EMPTY_EIGHTEEN_NUMBERS,
   EMPTY_NINE_NUMBERS,
   FullRoundVarietyAtCourse,
   Round,
   RoundVariety,
 } from '../../models/round';
-import {
-  EighteenNumbersOrNulls,
-  NineNumbersOrNulls,
-} from '../../models/storage-object';
 import {
   LocalUserWithFilters,
   ResultsSorting,
@@ -59,6 +58,7 @@ import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { DataUtils } from '../../util/data-utils';
+import { BestRoundDialogComponent } from '../best-round-dialog/best-round-dialog.component';
 
 interface HoleResults {
   eaglesOrBetter: number;
@@ -77,10 +77,7 @@ interface HoleResults {
   totalStrokesOnPar4s: number;
   par5sPlayed: number;
   totalStrokesOnPar5s: number;
-  theoreticalBestRound: Map<
-    string,
-    EighteenNumbersOrNulls | NineNumbersOrNulls
-  >;
+  theoreticalBestRound: Map<string, BestRound>;
 }
 
 @Component({
@@ -105,6 +102,7 @@ interface HoleResults {
     MatCheckboxModule,
     CommonModule,
     MatDividerModule,
+    MatDialogModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './home.component.html',
@@ -112,6 +110,8 @@ interface HoleResults {
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('courseStatsFilterSelect') select!: MatSelect;
+
+  readonly dialog = inject(MatDialog);
 
   public readonly Array = Array;
   public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
@@ -181,16 +181,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (!holeResults.theoreticalBestRound.has(course.id)) {
       switch (course.numberOfHoles) {
         case CourseVariety.NINE: {
-          holeResults.theoreticalBestRound.set(course.id, [
-            ...EMPTY_NINE_NUMBERS,
-          ]);
+          holeResults.theoreticalBestRound.set(course.id, {
+            roundVariety: RoundVariety.FULL_NINE,
+            strokes: [...EMPTY_NINE_NUMBERS],
+            course: course,
+            bestScoresRecordedDateISO: Array<string>(9),
+          });
           break;
         }
         case CourseVariety.EIGHTEEN:
         default: {
-          holeResults.theoreticalBestRound.set(course.id, [
-            ...EMPTY_EIGHTEEN_NUMBERS,
-          ]);
+          holeResults.theoreticalBestRound.set(course.id, {
+            roundVariety: RoundVariety.EIGHTEEN,
+            strokes: [...EMPTY_EIGHTEEN_NUMBERS],
+            course: course,
+            bestScoresRecordedDateISO: Array<string>(18),
+          });
           break;
         }
       }
@@ -198,8 +204,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const theoreticalBestRound = holeResults.theoreticalBestRound.get(
       course.id,
     );
-    if ((theoreticalBestRound![index] || Infinity) > strokes) {
-      theoreticalBestRound![index] = strokes;
+    if ((theoreticalBestRound?.strokes?.[index] || Infinity) > strokes) {
+      theoreticalBestRound!.strokes[index] = strokes;
+      theoreticalBestRound!.bestScoresRecordedDateISO[index] =
+        round.dateStringISO;
     }
     holeResults.holesPlayed++;
     const parOnHole = course?.par[index] ?? 0;
@@ -512,5 +520,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   public get currentUser(): LocalUserWithFilters | null {
     return this.appStateService.currentUser();
+  }
+
+  public viewBestRoundOnCourse(courseId: string): void {
+    const bestRound: BestRound =
+      this.holeResultTotals().theoreticalBestRound.get(courseId)!;
+    this.dialog.open(BestRoundDialogComponent, {
+      data: bestRound,
+    });
   }
 }
