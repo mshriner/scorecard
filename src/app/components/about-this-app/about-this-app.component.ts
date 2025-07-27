@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { AppStateService } from '../../services/app-state.service';
@@ -9,12 +9,12 @@ import { AppStateService } from '../../services/app-state.service';
   styleUrls: ['./about-this-app.component.scss'],
   imports: [MatCardModule, MatDividerModule],
 })
-export class AboutThisAppComponent implements OnInit {
+export class AboutThisAppComponent implements AfterViewInit {
   constructor(private readonly appStateService: AppStateService) {
     this.appStateService.setPageTitle(`About This App`);
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     if (sessionStorage.getItem('goToChangeLog')) {
       setTimeout(() => {
         document.getElementById('changelog')?.scrollIntoView({
@@ -22,7 +22,7 @@ export class AboutThisAppComponent implements OnInit {
           block: 'start',
         });
         sessionStorage.removeItem('goToChangeLog');
-      }, 1);
+      }, 100);
     }
   }
 }
