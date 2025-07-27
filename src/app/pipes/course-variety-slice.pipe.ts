@@ -10,7 +10,7 @@ import { EighteenNumbers, NineNumbers } from '../models/storage-object';
 export class CourseVarietySlicePipe implements PipeTransform {
   transform(
     par: NineNumbers | EighteenNumbers,
-    variety: CourseVariety,
+    variety?: CourseVariety,
   ): NineNumbers | EighteenNumbers {
     switch (variety) {
       case CourseVariety.NINE:

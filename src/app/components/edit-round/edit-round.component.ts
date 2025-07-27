@@ -41,16 +41,12 @@ import {
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RoundWithCourse } from '../../models/data-transfer';
+import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
-
-interface ColumnDef {
-  columnDef: string;
-  header: string;
-}
 
 @Component({
   selector: 'app-edit-round',
@@ -181,6 +177,7 @@ export class EditRoundComponent implements OnInit {
           `Editing ${datePipe.transform(retrieved?.dateStringISO)}`,
         );
         this.updateCurrentCourse(this.editingRound.courseId);
+        this.scrollIntoViewIfUnfinished();
       }
     } else {
       this.editingRound = {
@@ -204,12 +201,10 @@ export class EditRoundComponent implements OnInit {
   }
 
   public updateCurrentCourse(newCourseId: string): void {
-    console.log('selected course', newCourseId);
     this.currentCourse = this.courseService.getCourse(newCourseId);
+
     if (this.isNineHoleCourse) {
-      if (this.editingRound.roundVariety !== RoundVariety.FULL_NINE) {
-        this.editingRound.roundVariety = RoundVariety.FULL_NINE;
-      }
+      this.editingRound.roundVariety = RoundVariety.FULL_NINE;
     } else {
       if (this.editingRound.strokes.length === 9) {
         this.editingRound.strokes = this.roundVarietyScoresPipe.transform(
@@ -229,16 +224,18 @@ export class EditRoundComponent implements OnInit {
     }
 
     this.updateUnsavedData();
+  }
 
+  scrollIntoViewIfUnfinished(): void {
     setTimeout(() => {
-      const firstUnfinishedIndex = this.roundVarietyScoresPipe
-        .transform(this.editingRound.strokes, this.editingRound.roundVariety)
-        .findIndex((s) => !s);
-      if (firstUnfinishedIndex >= 0) {
+      const strokes = this.roundVarietyScoresPipe.transform(
+        this.editingRound.strokes,
+        this.editingRound.roundVariety,
+      );
+      const index = strokes.findIndex((s) => !s);
+      if (index >= 0) {
         document
-          .querySelector<HTMLElement>(
-            `[data-hole-index="${firstUnfinishedIndex}"]`,
-          )
+          .querySelector<HTMLElement>(`[data-hole-index="${index}"]`)
           ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     });

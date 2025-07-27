@@ -1,0 +1,224 @@
+<h2 mat-dialog-title>Best of {{ bestPossibleRound.course.name }}</h2>
+<mat-dialog-content>
+  <table
+    mat-table
+    multiTemplateDataRows
+    [dataSource]="
+      bestPossibleRound.strokes
+        | roundVarietyScores: bestPossibleRound.roundVariety
+    "
+  >
+    <!-- score rows -->
+    @for (column of ROUND_TABLE_COLUMNS; track $index) {
+      <ng-container [matColumnDef]="column.columnDef">
+        <th mat-header-cell *matHeaderCellDef class="center-text">
+          {{ column.header }}
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let row; let rowIndex = dataIndex"
+          class="center-text"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              roundRow;
+              context: {
+                holeIndex:
+                  rowIndex +
+                  (bestPossibleRound.roundVariety === BACK_NINE ? 9 : 0),
+                column: column,
+              }
+            "
+          ></ng-container>
+        </td>
+        <td
+          mat-footer-cell
+          *matFooterCellDef
+          class="center-text border-top thick-top-border"
+        >
+          @switch (column.columnDef) {
+            @case (HOLE_COL) {
+              <b> Total </b>
+              @if (bestPossibleRound.course) {
+                <br />
+                <div class="no-wrap">
+                  Par {{ bestPossibleRound.course | par: bestPossibleRound }}
+                </div>
+              }
+            }
+            @case (STROKES_COL) {
+              <b>
+                {{ bestPossibleRound | totalRoundScore }}
+              </b>
+              @if (bestPossibleRound.course) {
+                <br />
+                <b>
+                  ({{
+                    bestPossibleRound | scoreToPar: bestPossibleRound.course
+                  }})
+                </b>
+              }
+            }
+            @case (DATE_RECORDED_COL) {}
+          }
+        </td>
+      </ng-container>
+    }
+
+    <!-- summary row -->
+    @for (column of ROUND_TABLE_SUMMARY_COLUMN_IDS; track $index) {
+      <ng-container [matColumnDef]="column">
+        <td
+          mat-cell
+          *matCellDef="let row; let rowIndex = dataIndex"
+          class="center-text thick-bottom-border"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              roundSummaryRow;
+              context: {
+                outOrIn:
+                  rowIndex === 17 ||
+                  bestPossibleRound.roundVariety === BACK_NINE
+                    ? BACK_NINE
+                    : FRONT_NINE,
+                columnId: column,
+              }
+            "
+          ></ng-container>
+        </td>
+      </ng-container>
+    }
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="ROUND_TABLE_COLUMN_IDS; sticky: true"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="
+        let row;
+        let i = dataIndex;
+        columns: ROUND_TABLE_COLUMN_IDS;
+        when: returnTrue
+      "
+      [attr.data-hole-index]="i"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="
+        let row;
+        columns: ROUND_TABLE_SUMMARY_COLUMN_IDS;
+        when: showSummaryRow
+      "
+    ></tr>
+    <tr
+      mat-footer-row
+      *matFooterRowDef="ROUND_TABLE_COLUMN_IDS; sticky: true"
+    ></tr>
+  </table>
+
+  <ng-template
+    #scoreGraphic
+    let-scoreToPar="scoreToPar"
+    let-score="score"
+    [typedTemplate]="SCORE_GRAPHIC_TYPES"
+  >
+    <div
+      class="score-graphic"
+      [ngClass]="{
+        'double-bogey-or-worse': score && scoreToPar >= 2,
+        'bogey-score': score && scoreToPar === 1,
+        'birdie-score': score && scoreToPar === -1,
+        'eagle-or-better': score && scoreToPar <= -2,
+      }"
+    >
+      {{ score }}
+    </div>
+  </ng-template>
+
+  <ng-template
+    #roundRow
+    let-holeIndex="holeIndex"
+    let-column="column"
+    [typedTemplate]="HOLE_ROW_TYPES"
+  >
+    @switch (column.columnDef) {
+      @case (HOLE_COL) {
+        <b>{{ holeIndex + 1 }}</b>
+        @if (bestPossibleRound.course.par.length) {
+          <br />
+          <div class="no-wrap">
+            Par {{ bestPossibleRound.course.par[holeIndex] }}
+          </div>
+        }
+      }
+      @case (STROKES_COL) {
+        <div class="hole-par-adjustment">
+          <div class="par-value-box">
+            @if (bestPossibleRound.course.par[holeIndex]) {
+              <ng-container
+                *ngTemplateOutlet="
+                  scoreGraphic;
+                  context: {
+                    scoreToPar:
+                      (bestPossibleRound.strokes[holeIndex] || 0) -
+                      bestPossibleRound.course.par[holeIndex],
+                    score: bestPossibleRound.strokes[holeIndex],
+                  }
+                "
+              ></ng-container>
+            } @else {
+              {{ bestPossibleRound.strokes[holeIndex] }}
+            }
+          </div>
+        </div>
+      }
+      @case (DATE_RECORDED_COL) {
+        {{
+          bestPossibleRound.bestScoresRecordedDateISO[holeIndex] || '' | date
+        }}
+      }
+    }
+  </ng-template>
+
+  <ng-template
+    #roundSummaryRow
+    let-outOrIn="outOrIn"
+    let-columnId="columnId"
+    [typedTemplate]="SUMMARY_ROW_TYPES"
+  >
+    @switch (columnId) {
+      @case (HOLE_SUMMARY_COL) {
+        @if (outOrIn === FRONT_NINE) {
+          Out
+        } @else {
+          In
+        }
+        @if (bestPossibleRound.course) {
+          <br />
+          <div class="no-wrap">
+            Par
+            {{ bestPossibleRound.course | par: bestPossibleRound : outOrIn }}
+          </div>
+        }
+      }
+      @case (STROKES_SUMMARY_COL) {
+        {{ bestPossibleRound | totalRoundScore: outOrIn }}
+        @if (bestPossibleRound.course) {
+          <br />
+          ({{
+            bestPossibleRound | scoreToPar: bestPossibleRound.course : outOrIn
+          }})
+        }
+      }
+      @case (EMPTY_COL) {}
+    }
+  </ng-template>
+</mat-dialog-content>
+<mat-dialog-actions class="no-padding actions-center">
+  <button mat-stroked-button (click)="dialogRef.close()" cdkFocusInitial>
+    <mat-icon>close</mat-icon>
+    Close
+  </button>
+</mat-dialog-actions>

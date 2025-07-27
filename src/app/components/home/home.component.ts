@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   Component,
   computed,
+  inject,
   OnInit,
   Signal,
   signal,
@@ -23,6 +24,7 @@ import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
 } from '@angular/material/datepicker';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,8 +37,15 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
-import { Course } from '../../models/course';
-import { Round, RoundVariety } from '../../models/round';
+import { Course, CourseVariety } from '../../models/course';
+import {
+  BestRound,
+  EMPTY_EIGHTEEN_NUMBERS,
+  EMPTY_NINE_NUMBERS,
+  FullRoundVarietyAtCourse,
+  Round,
+  RoundVariety,
+} from '../../models/round';
 import {
   LocalUserWithFilters,
   ResultsSorting,
@@ -49,6 +58,7 @@ import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { DataUtils } from '../../util/data-utils';
+import { BestRoundDialogComponent } from '../best-round-dialog/best-round-dialog.component';
 
 interface HoleResults {
   eaglesOrBetter: number;
@@ -67,6 +77,7 @@ interface HoleResults {
   totalStrokesOnPar4s: number;
   par5sPlayed: number;
   totalStrokesOnPar5s: number;
+  theoreticalBestRound: Map<string, BestRound>;
 }
 
 @Component({
@@ -91,6 +102,7 @@ interface HoleResults {
     MatCheckboxModule,
     CommonModule,
     MatDividerModule,
+    MatDialogModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './home.component.html',
@@ -99,6 +111,11 @@ interface HoleResults {
 export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('courseStatsFilterSelect') select!: MatSelect;
 
+  readonly dialog = inject(MatDialog);
+
+  public readonly Array = Array;
+  public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
+  public readonly CourseVariety = CourseVariety;
   public rounds: WritableSignal<Round[]> = signal([]);
   public filteredRounds: WritableSignal<Round[]> = signal([]);
   public courseMap: Signal<Map<string, Course | null>> = computed(() => {
@@ -129,28 +146,68 @@ export class HomeComponent implements OnInit, AfterViewInit {
       totalStrokesOnPar4s: 0,
       par5sPlayed: 0,
       totalStrokesOnPar5s: 0,
+      theoreticalBestRound: new Map(),
     };
     if (!this.filteredRounds()?.length) {
       return holeResults;
     }
     this.filteredRounds().forEach((round) => {
       const course = this.courseMap().get(round.courseId);
+      if (!course) {
+        return;
+      }
       for (let index = 0; index < round.strokes.length; index++) {
         this.processHoleResult(holeResults, round, course, index);
       }
     });
     return holeResults;
   });
+  public coursesWithHoleResults: Signal<string[]> = computed(() => {
+    return Array.from(this.holeResultTotals().theoreticalBestRound.keys()).sort(
+      (a, b) => a.localeCompare(b),
+    );
+  });
 
   private processHoleResult(
     holeResults: HoleResults,
     round: Round,
-    course: Course | null | undefined,
-    index: number
+    course: Course,
+    index: number,
   ): void {
     const strokes = round.strokes[index];
     if (!strokes) {
       return;
+    }
+    if (!holeResults.theoreticalBestRound.has(course.id)) {
+      switch (course.numberOfHoles) {
+        case CourseVariety.NINE: {
+          holeResults.theoreticalBestRound.set(course.id, {
+            roundVariety: RoundVariety.FULL_NINE,
+            strokes: [...EMPTY_NINE_NUMBERS],
+            course: course,
+            bestScoresRecordedDateISO: Array<string>(9),
+          });
+          break;
+        }
+        case CourseVariety.EIGHTEEN:
+        default: {
+          holeResults.theoreticalBestRound.set(course.id, {
+            roundVariety: RoundVariety.EIGHTEEN,
+            strokes: [...EMPTY_EIGHTEEN_NUMBERS],
+            course: course,
+            bestScoresRecordedDateISO: Array<string>(18),
+          });
+          break;
+        }
+      }
+    }
+    const theoreticalBestRound = holeResults.theoreticalBestRound.get(
+      course.id,
+    );
+    if ((theoreticalBestRound?.strokes?.[index] || Infinity) > strokes) {
+      theoreticalBestRound!.strokes[index] = strokes;
+      theoreticalBestRound!.bestScoresRecordedDateISO[index] =
+        round.dateStringISO;
     }
     holeResults.holesPlayed++;
     const parOnHole = course?.par[index] ?? 0;
@@ -222,6 +279,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.ROUND_DATE_COL,
     this.COURSE_NAME_COL,
     this.ROUND_SCORE_COL,
+  ];
+
+  public readonly BEST_ROUND_COURSE_NAME_COL = `${this.COURSE_NAME_COL}-best`;
+  public readonly THEORETICAL_BEST_ROUND_COLUMNS = [
+    this.BEST_ROUND_COURSE_NAME_COL,
+    this.ROUND_DATE_COL,
   ];
 
   constructor(
@@ -457,5 +520,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   public get currentUser(): LocalUserWithFilters | null {
     return this.appStateService.currentUser();
+  }
+
+  public viewBestRoundOnCourse(courseId: string): void {
+    const bestRound: BestRound =
+      this.holeResultTotals().theoreticalBestRound.get(courseId)!;
+    this.dialog.open(BestRoundDialogComponent, {
+      data: bestRound,
+    });
   }
 }

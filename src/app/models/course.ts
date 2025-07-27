@@ -4,7 +4,7 @@ import { EighteenNumbers, NineNumbers, StorageObject } from './storage-object';
 export interface Course extends StorageObject {
   name: string;
   /** This field can be calculated on load, and is not required for importing. */
-  numberOfHoles: CourseVariety;
+  numberOfHoles?: CourseVariety; // required when creating a new course
   par: NineNumbers | EighteenNumbers;
 }
 

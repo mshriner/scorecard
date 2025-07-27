@@ -21,6 +21,10 @@
   flex: 0 0 30%;
 }
 
+.mat-column-courseName-best {
+  flex: 0 0 70%;
+}
+
 .stat-cards {
   mat-card {
     mat-card-content {
@@ -36,4 +40,9 @@ mat-table {
   mat-header-row {
     top: 48px !important; // height of the tab header
   }
+}
+
+.divider-padding {
+  margin-top: 14px;
+  margin-bottom: 14px;
 }

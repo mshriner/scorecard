@@ -205,8 +205,8 @@ export class AppComponent implements OnInit {
     });
   }
 
-  public goToAbout(): void {
-    this.router.navigateByUrl(APP_ROUTES.ABOUT).then(() => {
+  public async goToAbout(): Promise<void> {
+    return this.router.navigateByUrl(APP_ROUTES.ABOUT).then(() => {
       this.sidenav.close();
     });
   }
@@ -219,7 +219,10 @@ export class AppComponent implements OnInit {
         if (newUpdate) {
           this.snackBarService.openTemporarySnackBar(`Loading update...`);
           setTimeout(() => {
-            window.location.reload();
+            this.goToAbout().then(() => {
+              sessionStorage.setItem('goToChangeLog', 'y');
+              window.location.reload();
+            });
           }, 1250);
         } else {
           this.snackBarService.openTemporarySnackBar(`No new updates found.`);
