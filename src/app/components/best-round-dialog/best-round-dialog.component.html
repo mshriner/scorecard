@@ -41,7 +41,7 @@
               <b> Total </b>
               @if (bestPossibleRound.course) {
                 <br />
-                <div>
+                <div class="no-wrap">
                   Par {{ bestPossibleRound.course | par: bestPossibleRound }}
                 </div>
               }
@@ -148,7 +148,9 @@
         <b>{{ holeIndex + 1 }}</b>
         @if (bestPossibleRound.course.par.length) {
           <br />
-          Par {{ bestPossibleRound.course.par[holeIndex] }}
+          <div class="no-wrap">
+            Par {{ bestPossibleRound.course.par[holeIndex] }}
+          </div>
         }
       }
       @case (STROKES_COL) {
@@ -195,7 +197,7 @@
         }
         @if (bestPossibleRound.course) {
           <br />
-          <div>
+          <div class="no-wrap">
             Par
             {{ bestPossibleRound.course | par: bestPossibleRound : outOrIn }}
           </div>
