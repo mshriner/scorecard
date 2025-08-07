@@ -443,6 +443,57 @@
           </div>
           <mat-divider class="divider-padding"></mat-divider>
           <div
+            class="full-width-center center-text space-evenly padding-inline-4 padding-bottom-12"
+          >
+            <sub>
+              Inferred Stats: <br />
+              (Edge Cases May Be Missed)
+            </sub>
+          </div>
+          <div class="full-width-center space-evenly padding-inline-4">
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title></mat-card-title>
+              <mat-card-content class="padding-inline-8">
+                <sub> Greens in </sub>
+                <br />
+                <sup> Regulation </sup>
+                <h3>
+                  @if (holeResultTotals().holesPlayedWithPutts) {
+                    {{
+                      (100 * holeResultTotals().inferredGreensInRegulation) /
+                        holeResultTotals().holesPlayedWithPutts
+                        | number: '1.0-0'
+                    }}%
+                  } @else {
+                    --
+                  }
+                </h3>
+              </mat-card-content>
+            </mat-card>
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title></mat-card-title>
+              <mat-card-content class="padding-inline-8">
+                <sub> Scrambling </sub>
+                <br />
+                <sup> Success </sup>
+                <h3>
+                  @if (holeResultTotals().inferredHolesScramblingNeeded) {
+                    {{
+                      (100 *
+                        holeResultTotals()
+                          .inferredHolesScramblingSuccessfully) /
+                        holeResultTotals().inferredHolesScramblingNeeded
+                        | number: '1.0-0'
+                    }}%
+                  } @else {
+                    --
+                  }
+                </h3>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <mat-divider class="divider-padding"></mat-divider>
+          <div
             class="full-width-center space-evenly padding-inline-4 padding-bottom-12"
           >
             <sub> Theoretical Best Round(s): </sub>

@@ -78,6 +78,9 @@ interface HoleResults {
   par5sPlayed: number;
   totalStrokesOnPar5s: number;
   theoreticalBestRound: Map<string, BestRound>;
+  inferredGreensInRegulation: number;
+  inferredHolesScramblingSuccessfully: number;
+  inferredHolesScramblingNeeded: number;
 }
 
 @Component({
@@ -147,6 +150,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
       par5sPlayed: 0,
       totalStrokesOnPar5s: 0,
       theoreticalBestRound: new Map(),
+      inferredGreensInRegulation: 0,
+      inferredHolesScramblingSuccessfully: 0,
+      inferredHolesScramblingNeeded: 0,
     };
     if (!this.filteredRounds()?.length) {
       return holeResults;
@@ -178,6 +184,49 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (!strokes) {
       return;
     }
+
+    this.updateTheoreticalBestRound(
+      holeResults,
+      course,
+      index,
+      strokes,
+      round.dateStringISO,
+    );
+
+    holeResults.holesPlayed++;
+    const parOnHole = course?.par[index] ?? 0;
+    const holeResultToPar = strokes - parOnHole;
+
+    this.updateHoleResultTotals(holeResults, holeResultToPar);
+
+    this.updateParStats(holeResults, parOnHole, strokes);
+
+    if (round.putts[index] || round.putts[index] === 0) {
+      holeResults.holesPlayedWithPutts++;
+      const putts = round.putts[index];
+      holeResults.putts += putts;
+      if (strokes - putts <= parOnHole - 2) {
+        holeResults.inferredGreensInRegulation++;
+      } else {
+        holeResults.inferredHolesScramblingNeeded++;
+        if (strokes <= parOnHole) {
+          holeResults.inferredHolesScramblingSuccessfully++;
+        }
+      }
+      if (round.roundVariety === RoundVariety.EIGHTEEN) {
+        holeResults.holesPlayedWithPuttsInFullRounds++;
+        holeResults.puttsInFullRounds += putts;
+      }
+    }
+  }
+
+  private updateTheoreticalBestRound(
+    holeResults: HoleResults,
+    course: Course,
+    index: number,
+    strokes: number,
+    dateStringISO: string,
+  ): void {
     if (!holeResults.theoreticalBestRound.has(course.id)) {
       switch (course.numberOfHoles) {
         case CourseVariety.NINE: {
@@ -206,12 +255,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
     if ((theoreticalBestRound?.strokes?.[index] || Infinity) > strokes) {
       theoreticalBestRound!.strokes[index] = strokes;
-      theoreticalBestRound!.bestScoresRecordedDateISO[index] =
-        round.dateStringISO;
+      theoreticalBestRound!.bestScoresRecordedDateISO[index] = dateStringISO;
     }
-    holeResults.holesPlayed++;
-    const parOnHole = course?.par[index] ?? 0;
-    const holeResultToPar = strokes - parOnHole;
+  }
+
+  private updateHoleResultTotals(
+    holeResults: HoleResults,
+    holeResultToPar: number,
+  ): void {
     if (holeResultToPar <= -2) {
       holeResults.eaglesOrBetter++;
     } else if (holeResultToPar === -1) {
@@ -223,7 +274,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
     } else if (holeResultToPar >= 2) {
       holeResults.doubleBogeysOrWorse++;
     }
+  }
 
+  private updateParStats(
+    holeResults: HoleResults,
+    parOnHole: number,
+    strokes: number,
+  ): void {
     switch (parOnHole) {
       case 3: {
         holeResults.par3sPlayed++;
@@ -239,15 +296,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
         holeResults.par5sPlayed++;
         holeResults.totalStrokesOnPar5s += strokes;
         break;
-      }
-    }
-
-    if (round.putts[index] || round.putts[index] === 0) {
-      holeResults.holesPlayedWithPutts++;
-      holeResults.putts += round.putts[index] ?? 0;
-      if (round.roundVariety === RoundVariety.EIGHTEEN) {
-        holeResults.holesPlayedWithPuttsInFullRounds++;
-        holeResults.puttsInFullRounds += round.putts[index] ?? 0;
       }
     }
   }
