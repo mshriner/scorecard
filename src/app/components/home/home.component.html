@@ -442,11 +442,6 @@
             </mat-card>
           </div>
           <mat-divider class="divider-padding"></mat-divider>
-          <div
-            class="full-width-center center-text space-evenly padding-inline-4 padding-bottom-12"
-          >
-            <sub> Inferred Stats (Approximate): </sub>
-          </div>
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
@@ -461,6 +456,9 @@
                         holeResultTotals().holesPlayedWithPutts
                         | number: '1.0-0'
                     }}%
+                    <br />
+                    ({{ holeResultTotals().inferredGreensInRegulation }} /
+                    {{ holeResultTotals().holesPlayedWithPutts }})
                   } @else {
                     --
                   }
@@ -482,6 +480,11 @@
                         holeResultTotals().inferredHolesScramblingNeeded
                         | number: '1.0-0'
                     }}%
+                    <br />
+                    ({{
+                      holeResultTotals().inferredHolesScramblingSuccessfully
+                    }}
+                    / {{ holeResultTotals().inferredHolesScramblingNeeded }})
                   } @else {
                     --
                   }
