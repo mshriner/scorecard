@@ -124,6 +124,14 @@ export class SharingService {
           .replace(/\s+/g, '-');
         return `round-on-${roundDate}-at-${exportedCourseName}`;
       }
+      case 'user': {
+        const exportedUserName = (
+          dataToShare.data as UserWithRoundsAndCourses
+        )?.user?.name
+          ?.trim()
+          ?.replace(/\s+/g, '-');
+        return `user-${exportedUserName}`;
+      }
       default:
         return 'unknown';
     }
@@ -132,46 +140,51 @@ export class SharingService {
   convertDomainToDTO(
     dataToShare: DataToShare,
   ): CourseDTO | RoundWithCourseDTO | UserProfileDTO | null {
-    const metadataDTO: ExportedItem = {
-      objectType: dataToShare.objectType,
-    };
-
-    if (dataToShare.objectType === 'course') {
-      return { ...dataToShare.data, ...metadataDTO } as CourseDTO;
+    switch (dataToShare.objectType) {
+      case 'course': {
+        const metadataDTO: ExportedItem = {
+          objectType: dataToShare.objectType,
+        };
+        return { ...dataToShare.data, ...metadataDTO } as CourseDTO;
+      }
+      case 'round': {
+        const roundAndCourseData = dataToShare.data as RoundWithCourse;
+        const metadataDTO: ExportedItem = {
+          objectType: dataToShare.objectType,
+        };
+        return {
+          ...roundAndCourseData.round,
+          courseDTO: roundAndCourseData.course,
+          ...metadataDTO,
+        } as RoundWithCourseDTO;
+      }
+      case 'user': {
+        const userProfile = dataToShare.data as UserWithRoundsAndCourses;
+        const metadataDTO: ExportedItem = {
+          objectType: dataToShare.objectType,
+        };
+        return {
+          userDTO: {
+            name: userProfile.user.name,
+            id: userProfile.user.id,
+            appFontScaling: userProfile.user.appFontScaling,
+          },
+          roundDTOs:
+            userProfile.rounds?.map((round) => ({
+              objectType: 'round',
+              ...round,
+            })) || [],
+          courseDTOs:
+            userProfile.courses?.map((course) => ({
+              objectType: 'course',
+              ...course,
+            })) || [],
+          ...metadataDTO,
+        } as UserProfileDTO;
+      }
+      default:
+        return null;
     }
-
-    if (dataToShare.objectType === 'round') {
-      const roundAndCourseData = dataToShare.data as RoundWithCourse;
-      return {
-        ...roundAndCourseData.round,
-        courseDTO: roundAndCourseData.course,
-        ...metadataDTO,
-      } as RoundWithCourseDTO;
-    }
-
-    if (dataToShare.objectType === 'user') {
-      const userProfile = dataToShare.data as UserWithRoundsAndCourses;
-      return {
-        userDTO: {
-          name: userProfile.user.name,
-          id: userProfile.user.id,
-          appFontScaling: userProfile.user.appFontScaling,
-        },
-        roundDTOs:
-          userProfile.rounds?.map((round) => ({
-            objectType: 'round',
-            ...round,
-          })) || [],
-        courseDTOs:
-          userProfile.courses?.map((course) => ({
-            objectType: 'course',
-            ...course,
-          })) || [],
-        ...metadataDTO,
-      } as UserProfileDTO;
-    }
-
-    return null;
   }
 
   public convertDTOToDomain(
