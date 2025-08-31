@@ -27,8 +27,8 @@ import {
   EMPTY_EIGHTEEN_NUMBERS,
   Round,
   ROUND_NOTES_MAX_LENGTH,
-  RoundDTO,
   RoundVariety,
+  RoundWithCourseDTO,
 } from '../../models/round';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
@@ -368,8 +368,8 @@ export class EditRoundComponent implements OnInit {
         input.value = '';
         if (
           parsed?.objectType !== 'round' ||
-          !parsed?.data?.round ||
-          !parsed?.data?.course
+          !(parsed?.data as RoundWithCourse)?.round ||
+          !(parsed?.data as RoundWithCourse)?.course
         ) {
           this.snackBarService.openTemporarySnackBar(
             'Failed to import the round.',
@@ -379,7 +379,7 @@ export class EditRoundComponent implements OnInit {
 
         const importedRound = parsed.data as RoundWithCourse;
         if (
-          this.doesAnotherUserHaveThisCourseOnThisDevice(
+          this.doesAnotherUserHaveThisCourseIdOnThisDevice(
             importedRound.round.courseId,
           )
         ) {
@@ -397,6 +397,11 @@ export class EditRoundComponent implements OnInit {
           this.currentCourse = importedRound.course;
           this.needToSaveImportedCourse = true;
         }
+
+        if (this.doesThisRoundIdExistOnThisDevice(importedRound.round.id)) {
+          importedRound.round.id = DataUtils.generateUUID('round');
+        }
+
         this.editingRound = importedRound.round;
         this.roundIdToEdit = importedRound.round.id;
         this.coursesToChooseFrom = [this.currentCourse!];
@@ -407,7 +412,7 @@ export class EditRoundComponent implements OnInit {
         this.snackBarService.openTemporarySnackBar(
           `Round at "${
             this.needToSaveImportedCourse
-              ? (JSON.parse(uploaded) as RoundDTO)?.courseDTO?.name
+              ? (JSON.parse(uploaded) as RoundWithCourseDTO)?.courseDTO?.name
               : this.courseService.getCourse(importedRound.course.id)?.name
           }" was imported successfully.`,
         );
@@ -420,10 +425,16 @@ export class EditRoundComponent implements OnInit {
     );
   }
 
-  private doesAnotherUserHaveThisCourseOnThisDevice(courseId: string) {
+  private doesAnotherUserHaveThisCourseIdOnThisDevice(
+    courseId: string,
+  ): boolean {
     return (
       !this.appStateService.currentUser()?.courseIds?.includes(courseId) &&
-      this.courseService.getCourse(courseId)
+      !!this.courseService.getCourse(courseId)
     );
+  }
+
+  private doesThisRoundIdExistOnThisDevice(roundId: string): boolean {
+    return !!this.roundService.getRoundById(roundId);
   }
 }

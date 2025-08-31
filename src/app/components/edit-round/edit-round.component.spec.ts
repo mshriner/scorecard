@@ -107,8 +107,6 @@ describe('EditRoundComponent', () => {
 
     const fileContent = JSON.stringify({
       objectType: 'round',
-      fromProfileId: 'user-id',
-      fromProfileName: 'user',
       ...mockRound,
       courseDTO: mockCourse,
     });

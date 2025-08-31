@@ -3,11 +3,14 @@ import { ExportedItem } from './data-transfer';
 import { RoundDTO } from './round';
 import { StorageObject } from './storage-object';
 
-export interface User extends StorageObject {
+interface UserBaseData extends StorageObject {
   name: string;
+  appFontScaling: number;
+}
+
+export interface User extends UserBaseData {
   roundIds: string[];
   courseIds: string[];
-  appFontScaling: number;
 }
 
 export interface LocalUserWithFilters extends User {
@@ -29,7 +32,8 @@ export type ResultsSorting =
 
 export type WhenToShowPWADialogAgain = 'later' | 'never';
 
-export interface UserDTO extends User, ExportedItem {
+export interface UserProfileDTO extends ExportedItem {
+  userDTO: UserBaseData;
   courseDTOs: CourseDTO[];
   roundDTOs: RoundDTO[];
 }
