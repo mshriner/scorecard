@@ -212,6 +212,12 @@ export class AppComponent implements OnInit {
   }
 
   public checkForUpdates(): void {
+    if (!this.serviceWorker.isEnabled) {
+      this.snackBarService.openTemporarySnackBar(
+        `Unable to check for updates at this time.`,
+      );
+      return;
+    }
     this.showSpinner.set(true);
     this.serviceWorker
       .checkForUpdate()
