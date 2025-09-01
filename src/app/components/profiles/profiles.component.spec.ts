@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { UserWithRoundsAndCourses } from '../../models/data-transfer';
 import { ProfilesComponent } from './profiles.component';
 
 describe('ProfilesComponent', () => {
@@ -56,6 +57,45 @@ describe('ProfilesComponent', () => {
       null,
     );
     const input = { files: [{ text: () => Promise.resolve('{}') }] } as any;
+    const result = await component.onFileSelected(input);
+    expect(result).toBeFalse();
+  });
+
+  it('should return false if file input is null or has no files', async () => {
+    const input = { files: [] } as any;
+    const result = await component.onFileSelected(input);
+    expect(result).toBeFalse();
+  });
+
+  it('should return false if file object does not have text() method', async () => {
+    const input = { files: [{}] } as any;
+    const result = await component.onFileSelected(input);
+    expect(result).toBeFalse();
+  });
+
+  it('should return false if file is empty or not valid JSON', async () => {
+    const input = { files: [{ text: () => Promise.resolve('') }] } as any;
+    spyOn(component['sharingService'], 'convertDTOToDomain').and.returnValue(
+      null,
+    );
+    const result = await component.onFileSelected(input);
+    expect(result).toBeFalse();
+  });
+
+  it('should return false if imported objectType is not user', async () => {
+    const notUserProfile = {
+      objectType: 'course',
+      userDTO: {},
+      roundDTOs: [],
+      courseDTOs: [],
+    };
+    spyOn(component['sharingService'], 'convertDTOToDomain').and.returnValue({
+      objectType: 'course',
+      data: {} as UserWithRoundsAndCourses,
+    });
+    const input = {
+      files: [{ text: () => Promise.resolve(JSON.stringify(notUserProfile)) }],
+    } as any;
     const result = await component.onFileSelected(input);
     expect(result).toBeFalse();
   });

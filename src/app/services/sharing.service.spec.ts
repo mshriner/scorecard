@@ -473,4 +473,96 @@ describe('SharingService', () => {
     const result = service.convertDTOToDomain(dto);
     expect(result).toBeNull();
   });
+
+  it('should ignore extraneous properties in domain object', () => {
+    const domain: UserWithRoundsAndCourses = {
+      user: {
+        id: 'u1',
+        name: 'Test',
+        roundIds: [],
+        courseIds: [],
+        appFontScaling: 1,
+        extra: 'ignore',
+      },
+      rounds: [],
+      courses: [],
+    } as any;
+    const dto = service.convertDomainToDTO({
+      objectType: 'user',
+      data: domain,
+    });
+    expect(dto).toBeTruthy();
+    expect((dto as any).extra).toBeUndefined();
+  });
+
+  it('should handle domain object with empty rounds/courses arrays', () => {
+    const domain: UserWithRoundsAndCourses = {
+      user: {
+        id: 'u1',
+        name: 'Test',
+        roundIds: [],
+        courseIds: [],
+        appFontScaling: 1,
+      },
+      rounds: [],
+      courses: [],
+    };
+    const dto = service.convertDomainToDTO({
+      objectType: 'user',
+      data: domain,
+    });
+    expect(dto).toBeTruthy();
+    const userDto = dto as UserProfileDTO;
+    expect(userDto.roundDTOs.length).toBe(0);
+    expect(userDto.courseDTOs.length).toBe(0);
+  });
+
+  it('should return null if DTO is missing objectType', () => {
+    const dto: any = { userDTO: {}, roundDTOs: [], courseDTOs: [] };
+    const result = service.convertDTOToDomain(dto);
+    expect(result).toBeNull();
+  });
+
+  it('should return null if DTO is missing required fields', () => {
+    const dto: any = { objectType: 'user', roundDTOs: [], courseDTOs: [] };
+    const result = service.convertDTOToDomain(dto);
+    expect(result).toBeNull();
+  });
+
+  it('should ignore extraneous properties in DTO', () => {
+    const dto: any = {
+      objectType: 'user',
+      userDTO: { id: 'u1', name: 'Test', appFontScaling: 1, extra: 'ignore' },
+      roundDTOs: [],
+      courseDTOs: [],
+      extra: 'ignore',
+    };
+    const result = service.convertDTOToDomain(dto);
+    expect(result).toBeTruthy();
+    expect((result!.data as any).extra).toBeUndefined();
+  });
+
+  it('should return null if DTO has invalid nested objects', () => {
+    const dto: any = {
+      objectType: 'user',
+      userDTO: { id: 'u1', name: 'Test', appFontScaling: 1 },
+      roundDTOs: [{ id: null }],
+      courseDTOs: [],
+    };
+    const result = service.convertDTOToDomain(dto);
+    expect(result).toBeNull();
+  });
+
+  it('should handle DTO with empty rounds/courses arrays', () => {
+    const dto: any = {
+      objectType: 'user',
+      userDTO: { id: 'u1', name: 'Test', appFontScaling: 1 },
+      roundDTOs: [],
+      courseDTOs: [],
+    };
+    const result = service.convertDTOToDomain(dto);
+    expect(result).toBeTruthy();
+    expect((result!.data as UserWithRoundsAndCourses).rounds.length).toBe(0);
+    expect((result!.data as UserWithRoundsAndCourses).courses.length).toBe(0);
+  });
 });

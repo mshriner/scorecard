@@ -34,7 +34,10 @@ import {
   CLEAR_ALL_APP_DATA,
   DELETE_PROFILE,
 } from '../../models/constants';
-import { UserWithRoundsAndCourses } from '../../models/data-transfer';
+import {
+  DataToShare,
+  UserWithRoundsAndCourses,
+} from '../../models/data-transfer';
 import { LocalUserWithFilters, ROUND_DATE_SORT_COL } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
@@ -176,9 +179,12 @@ export class ProfilesComponent {
     }
     return file.text().then(
       (uploaded) => {
-        const parsed = this.sharingService.convertDTOToDomain(
-          JSON.parse(uploaded),
-        );
+        let parsed: DataToShare | null = null;
+        try {
+          parsed = this.sharingService.convertDTOToDomain(JSON.parse(uploaded));
+        } catch (e) {
+          console.error(e);
+        }
         input.value = '';
         if (
           parsed?.objectType !== 'user' ||

@@ -20,6 +20,7 @@ import {
   CourseVariety,
   EIGHTEEN_NUMBERS_ZEROED,
 } from '../../models/course';
+import { DataToShare } from '../../models/data-transfer';
 import { RoundVariety } from '../../models/round';
 import { CourseVarietySlicePipe } from '../../pipes/course-variety-slice.pipe';
 import { PipesModule } from '../../pipes/pipes.module';
@@ -275,9 +276,12 @@ export class EditCourseComponent implements OnInit {
     }
     return file.text().then(
       (uploaded) => {
-        const parsed = this.sharingService.convertDTOToDomain(
-          JSON.parse(uploaded),
-        );
+        let parsed: DataToShare | null = null;
+        try {
+          parsed = this.sharingService.convertDTOToDomain(JSON.parse(uploaded));
+        } catch (e) {
+          console.error(e);
+        }
         input.value = '';
         if (parsed?.objectType === 'course') {
           const importedCourse = parsed.data as Course;

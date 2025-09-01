@@ -97,7 +97,6 @@ export class SharingService {
           return of(false);
         }),
       );
-      // The data was shared successfully.
     } catch (e) {
       // The data could not be shared.
       this.snackBarService.openTemporarySnackBar(`${e}`);

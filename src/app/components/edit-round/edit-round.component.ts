@@ -40,7 +40,7 @@ import {
   MatDatepickerModule,
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { RoundWithCourse } from '../../models/data-transfer';
+import { DataToShare, RoundWithCourse } from '../../models/data-transfer';
 import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
 import { SharingService } from '../../services/sharing.service';
@@ -362,9 +362,12 @@ export class EditRoundComponent implements OnInit {
     }
     return file.text().then(
       (uploaded) => {
-        const parsed = this.sharingService.convertDTOToDomain(
-          JSON.parse(uploaded),
-        );
+        let parsed: DataToShare | null = null;
+        try {
+          parsed = this.sharingService.convertDTOToDomain(JSON.parse(uploaded));
+        } catch (e) {
+          console.error(e);
+        }
         input.value = '';
         if (
           parsed?.objectType !== 'round' ||
