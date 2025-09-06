@@ -33,7 +33,7 @@ export class LocalStorageService {
   // Get a value from local storage
   public getItem(key: string): any {
     const retrieved = localStorage.getItem(key);
-    if (retrieved === null || !retrieved?.length) {
+    if (!retrieved?.length) {
       return null;
     }
     return JSON.parse(retrieved || '');
