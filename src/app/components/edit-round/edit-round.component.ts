@@ -47,6 +47,7 @@ import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-edit-round',
@@ -57,6 +58,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     MatTableModule,
     MatIconModule,
     MatInputModule,
+    MatMenuModule,
     PipesModule,
     MatSelectModule,
     MatDatepickerModule,
@@ -258,6 +260,11 @@ export class EditRoundComponent implements OnInit {
     } else {
       this.editingRound.strokes[index]--;
     }
+    this.updateUnsavedData();
+  }
+
+  public setStrokes(index: number, strokesValue: number | null): void {
+    this.editingRound.strokes[index] = strokesValue;
     this.updateUnsavedData();
   }
 

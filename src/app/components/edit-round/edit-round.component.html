@@ -239,7 +239,9 @@
     }
     @case (STROKES_COL) {
       <div class="hole-par-adjustment">
-        @if (!imported) {
+        @if (
+          !imported && appStateService.currentUser()?.legacyStrokesInterface
+        ) {
           <button
             mat-icon-button
             class="plusminus"
@@ -248,7 +250,7 @@
             <mat-icon>remove</mat-icon>
           </button>
         }
-        <div class="par-value-box">
+        <div class="par-value-box" [matMenuTriggerFor]="strokesMenu">
           @if (currentCourse?.par?.[holeIndex]) {
             <ng-container
               *ngTemplateOutlet="
@@ -265,7 +267,35 @@
             {{ editingRound.strokes[holeIndex] }}
           }
         </div>
-        @if (!imported) {
+        <mat-menu #strokesMenu xPosition="after" yPosition="below">
+          <!-- {{holeIndex}} -->
+          @for (
+            strokes of [null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+            track $index
+          ) {
+            <button mat-menu-item (click)="setStrokes(holeIndex, strokes)">
+              <div class="par-value-box">
+                @if (currentCourse?.par?.[holeIndex]) {
+                  <ng-container
+                    *ngTemplateOutlet="
+                      scoreGraphic;
+                      context: {
+                        scoreToPar:
+                          (strokes || 0) - currentCourse!.par[holeIndex],
+                        score: strokes,
+                      }
+                    "
+                  ></ng-container>
+                } @else {
+                  {{ strokes }}
+                }
+              </div>
+            </button>
+          }
+        </mat-menu>
+        @if (
+          !imported && appStateService.currentUser()?.legacyStrokesInterface
+        ) {
           <button
             mat-icon-button
             class="plusminus"
