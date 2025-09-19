@@ -49,7 +49,7 @@ export class ScoreToParPipe implements PipeTransform {
 export class WordForScoreToParPipe implements PipeTransform {
   transform(score: number, par: number): string {
     if (!score) {
-      return '(Remove)';
+      return '(Empty)';
     }
     if (score === 1) {
       return 'Hole in\nOne!';
