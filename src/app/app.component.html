@@ -108,6 +108,30 @@
       <span class="title">
         {{ appStateService.pageTitle() }}
       </span>
+      @if (isOnEditRoundScreen && currentUser) {
+        <span class="toolbar-padding"></span>
+        <button mat-icon-button [matMenuTriggerFor]="strokesInputMethodMenu">
+          <mat-icon>settings</mat-icon>
+        </button>
+        <mat-menu
+          #strokesInputMethodMenu
+          xPosition="before"
+          yPosition="below"
+          stay-open
+        >
+          <button
+            mat-menu-item
+            (click)="
+              $event.stopPropagation();
+              currentUser.newStrokesUI = !currentUser.newStrokesUI
+            "
+          >
+            <mat-slide-toggle [checked]="!!currentUser.newStrokesUI">
+              New Input UI
+            </mat-slide-toggle>
+          </button>
+        </mat-menu>
+      }
     </mat-toolbar>
     <div class="under-toolbar"></div>
     <div class="main-content">

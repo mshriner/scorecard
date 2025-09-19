@@ -3,6 +3,7 @@ import {
   Component,
   HostListener,
   OnInit,
+  signal,
   Signal,
   viewChild,
 } from '@angular/core';
@@ -40,6 +41,7 @@ import {
   MatDatepickerModule,
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { RoundWithCourse } from '../../models/data-transfer';
 import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
@@ -47,7 +49,6 @@ import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
-import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-edit-round',
@@ -132,6 +133,7 @@ export class EditRoundComponent implements OnInit {
   ];
   public readonly NINE_HOLE_ROUND_VARIETIES = [RoundVariety.FULL_NINE];
   public readonly ROUND_VARIETY_ENUM = RoundVariety;
+  public readonly showHigherStrokeOptions = signal(false);
 
   courseSelectInput: Signal<MatSelect | undefined> = viewChild('courseSelect');
 
@@ -269,7 +271,7 @@ export class EditRoundComponent implements OnInit {
   }
 
   public puttsPlusOne(index: number) {
-    this.editingRound.putts[index] ??= 0;
+    this.editingRound.putts[index] ??= -1;
     this.editingRound.putts[index]++;
     this.updateUnsavedData();
   }
@@ -280,6 +282,11 @@ export class EditRoundComponent implements OnInit {
     } else {
       this.editingRound.putts[index]--;
     }
+    this.updateUnsavedData();
+  }
+
+  public setPutts(index: number, puttsValue: number | null): void {
+    this.editingRound.putts[index] = puttsValue;
     this.updateUnsavedData();
   }
 

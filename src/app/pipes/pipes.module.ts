@@ -11,7 +11,7 @@ import { FormatTextSizePipe } from './format-text-size.pipe';
 import { ParPipe } from './par.pipe';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 import { RoundVarietyPipe } from './round-variety.pipe';
-import { ScoreToParPipe } from './score-to-par.pipe';
+import { ScoreToParPipe, WordForScoreToParPipe } from './score-to-par.pipe';
 import { TotalPuttsPipe } from './total-putts.pipe';
 import { TotalRoundScorePipe } from './total-round-score.pipe';
 
@@ -23,6 +23,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     CourseVarietySlicePipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
+    WordForScoreToParPipe,
     TotalPuttsPipe,
     TotalRoundScorePipe,
     AverageScorePipe,
@@ -37,6 +38,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     CourseVarietySlicePipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
+    WordForScoreToParPipe,
     TotalPuttsPipe,
     TotalRoundScorePipe,
     AverageScorePipe,
@@ -51,6 +53,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     CourseVarietySlicePipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
+    WordForScoreToParPipe,
     TotalPuttsPipe,
     TotalRoundScorePipe,
     AverageScorePipe,
