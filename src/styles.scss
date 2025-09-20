@@ -5,6 +5,14 @@ $score-graphic-size: 24px;
 $background-color: var(--mat-sys-background);
 $text-color: var(--mat-sys-on-surface);
 
+:root {
+  @include mat.toolbar-overrides(
+    (
+      container-background-color: var(--mat-sys-primary-container),
+    )
+  );
+}
+
 html,
 body {
   color-scheme: light dark;
