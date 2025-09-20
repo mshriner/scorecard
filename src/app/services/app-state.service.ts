@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { LocalUserWithFilters } from '../models/user';
+import { AppTheme, LocalUserWithFilters } from '../models/user';
 import { UserService } from './user.service';
 
 @Injectable({
@@ -20,6 +20,38 @@ export class AppStateService implements OnDestroy {
     const fontScaling = this.currentUser()?.appFontScaling || 0;
     document.documentElement.style.fontSize = `${100 + 15 * fontScaling}%`;
     return fontScaling > 2;
+  });
+  public readonly appTheming = computed(() => {
+    const theme = this.currentUser()?.theme ?? AppTheme.SYSTEM;
+    switch (theme) {
+      case AppTheme.DARK: {
+        document.body.classList.remove(
+          'system-preference-theme',
+          'override-to-light-theme',
+        );
+        document.body.classList.add('override-to-dark-theme');
+        break;
+      }
+      case AppTheme.LIGHT: {
+        document.body.classList.remove(
+          'system-preference-theme',
+          'override-to-dark-theme',
+        );
+        document.body.classList.add('override-to-light-theme');
+        break;
+      }
+      case AppTheme.SYSTEM:
+      default: {
+        document.body.classList.remove(
+          'override-to-dark-theme',
+          'override-to-dark-theme',
+        );
+        document.body.classList.add('system-preference-theme');
+        break;
+      }
+    }
+
+    return theme;
   });
   public readonly unsavedDataOnPage = signal<boolean>(false);
   public readonly currentUser = signal<LocalUserWithFilters | null>(null);

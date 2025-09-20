@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { STORAGE_KEYS } from '../models/constants';
+import { LOCAL_STORAGE_KEYS } from '../models/constants';
 import { LocalUserWithFilters } from '../models/user';
 import { LocalStorageService } from './local-storage.service';
 
@@ -10,7 +10,9 @@ export class UserService {
   constructor(private readonly localStorageService: LocalStorageService) {}
 
   public getAllUserIds(): string[] {
-    const retrieved = this.localStorageService.getItem(STORAGE_KEYS.ALL_USERS);
+    const retrieved = this.localStorageService.getItem(
+      LOCAL_STORAGE_KEYS.ALL_USERS,
+    );
     if (!Array.isArray(retrieved)) {
       return [];
     }
@@ -25,7 +27,7 @@ export class UserService {
 
   private setAllUserIds(newValue: string[]): boolean {
     return this.localStorageService.setItem(
-      STORAGE_KEYS.ALL_USERS,
+      LOCAL_STORAGE_KEYS.ALL_USERS,
       newValue?.filter((value) => value?.length),
     );
   }
@@ -44,7 +46,7 @@ export class UserService {
 
   public getCurrentUser(): LocalUserWithFilters | null {
     const currentUserId = this.localStorageService.getItem(
-      STORAGE_KEYS.CURRENT_USER_ID,
+      LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
     );
     if (!currentUserId) {
       return null;
@@ -55,7 +57,7 @@ export class UserService {
   public setCurrentUser(newUser: LocalUserWithFilters | null): boolean {
     if (
       !this.localStorageService.setItem(
-        STORAGE_KEYS.CURRENT_USER_ID,
+        LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
         newUser?.id ?? null,
       )
     ) {

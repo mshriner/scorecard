@@ -7,13 +7,13 @@ import {
 } from './average-score.pipe';
 import { CourseVarietySlicePipe } from './course-variety-slice.pipe';
 import { CourseVarietyPipe } from './course-variety.pipe';
-import { FormatTextSizePipe } from './format-text-size.pipe';
 import { ParPipe } from './par.pipe';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 import { RoundVarietyPipe } from './round-variety.pipe';
 import { ScoreToParPipe, WordForScoreToParPipe } from './score-to-par.pipe';
 import { TotalPuttsPipe } from './total-putts.pipe';
 import { TotalRoundScorePipe } from './total-round-score.pipe';
+import { FormatAppThemePipe, FormatTextSizePipe } from './settings-format.pipe';
 
 @NgModule({
   imports: [
@@ -30,6 +30,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
     FormatTextSizePipe,
+    FormatAppThemePipe,
   ],
   exports: [
     ParPipe,
@@ -45,6 +46,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
     FormatTextSizePipe,
+    FormatAppThemePipe,
   ],
   providers: [
     ParPipe,
@@ -60,6 +62,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
     FormatTextSizePipe,
+    FormatAppThemePipe,
     DecimalPipe,
     DatePipe,
   ],
