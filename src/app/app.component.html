@@ -53,7 +53,24 @@
     </div>
     <div class="bottom-options">
       @if (currentUser) {
-        <div class="block" style="margin-bottom: 4px; text-align: center">
+        <div class="block" style="margin-bottom: 4px">
+          <mat-chip [matMenuTriggerFor]="themeMenu">
+            @let currentTheme = currentUser.theme ?? AppTheme.SYSTEM;
+            <mat-icon matChipAvatar>brightness_4</mat-icon>
+            Set App Theme ({{ currentTheme | formatAppTheme: 'short' }})
+          </mat-chip>
+          <mat-menu #themeMenu yPosition="above" xPosition="after">
+            @for (theme of APP_THEMES; track $index) {
+              <button mat-menu-item (click)="setTheme(theme)">
+                <mat-icon [class.hidden]="theme !== currentTheme"
+                  >check</mat-icon
+                >
+                {{ theme | formatAppTheme }}
+              </button>
+            }
+          </mat-menu>
+        </div>
+        <div class="block" style="margin-top: 4px; margin-bottom: 4px">
           <mat-chip [matMenuTriggerFor]="textSizeMenu">
             <mat-icon matChipAvatar>format_size</mat-icon>
             Set Text Size ({{
@@ -63,6 +80,9 @@
           <mat-menu #textSizeMenu yPosition="above" xPosition="after">
             @for (size of [0, 1, 2, 3]; track $index) {
               <button mat-menu-item (click)="setTextSize(size)">
+                <mat-icon [class.hidden]="size !== currentUser.appFontScaling"
+                  >check</mat-icon
+                >
                 {{ size | formatTextSize }}
               </button>
             }

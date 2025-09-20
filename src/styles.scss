@@ -15,7 +15,15 @@ $text-color: var(--mat-sys-on-surface);
 
 html,
 body {
-  color-scheme: light dark;
+  &.system-preference-theme {
+    color-scheme: light dark;
+  }
+  &.override-to-dark-theme {
+    color-scheme: dark;
+  }
+  &.override-to-light-theme {
+    color-scheme: light;
+  }
   height: 100%;
   overscroll-behavior: none;
   --mat-toolbar-mobile-height: 56px;

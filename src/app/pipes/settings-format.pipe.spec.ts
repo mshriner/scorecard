@@ -1,4 +1,4 @@
-import { FormatTextSizePipe } from './format-text-size.pipe';
+import { FormatTextSizePipe } from './settings-format.pipe';
 
 describe('FormatTextSizePipe', () => {
   it('create an instance', () => {
