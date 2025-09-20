@@ -1,5 +1,6 @@
 import { Location } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   DestroyRef,
   OnInit,
@@ -61,7 +62,7 @@ import { SnackBarService } from './services/snack-bar.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   public readonly showSpinner = signal(false);
   private previousUrl: string | null = null;
   public readonly APP_THEMES = Object.values(AppTheme).filter(
