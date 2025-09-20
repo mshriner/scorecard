@@ -253,8 +253,12 @@
         <div
           class="par-value-box"
           [class.highlighted]="menuOpen() === 'strokes-' + holeIndex + 1"
-          [matMenuTriggerFor]="newStrokesUI ? strokesMenu : null"
-          (click)="newStrokesUI && menuOpen.set('strokes-' + holeIndex + 1)"
+          [matMenuTriggerFor]="newStrokesUI && !imported ? strokesMenu : null"
+          (click)="
+            newStrokesUI &&
+              !imported &&
+              menuOpen.set('strokes-' + holeIndex + 1)
+          "
         >
           @if (currentCourse?.par?.[holeIndex]) {
             <ng-container
@@ -357,8 +361,10 @@
         <div
           class="par-value-box"
           [class.highlighted]="menuOpen() === 'putts-' + holeIndex + 1"
-          [matMenuTriggerFor]="newStrokesUI ? puttsMenu : null"
-          (click)="newStrokesUI && menuOpen.set('putts-' + holeIndex + 1)"
+          [matMenuTriggerFor]="newStrokesUI && !imported ? puttsMenu : null"
+          (click)="
+            newStrokesUI && !imported && menuOpen.set('putts-' + holeIndex + 1)
+          "
         >
           {{ editingRound.putts[holeIndex] ?? '-' }}
         </div>
