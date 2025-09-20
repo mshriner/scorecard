@@ -3,6 +3,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { AppStateService } from '../../services/app-state.service';
+import { SESSION_STORAGE_KEYS } from '../../models/constants';
 
 @Component({
   selector: 'app-about-this-app',
@@ -16,13 +17,13 @@ export class AboutThisAppComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (sessionStorage.getItem('goToChangeLog')) {
+    if (sessionStorage.getItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG)) {
       setTimeout(() => {
         document.getElementById('changelog')?.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
         });
-        sessionStorage.removeItem('goToChangeLog');
+        sessionStorage.removeItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG);
       }, 100);
     }
   }

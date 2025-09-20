@@ -2,9 +2,15 @@ import { AreYouSureDialogConfig } from './dialog';
 
 export const APP_NAME = 'Scorecard';
 
-export const STORAGE_KEYS = {
+export const LOCAL_STORAGE_KEYS = {
   CURRENT_USER_ID: 'CURRENT_USER',
   ALL_USERS: 'ALL_USERS',
+};
+
+export const SESSION_STORAGE_KEYS = {
+  DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION: 'doNotShowInstallPrompt',
+  OPEN_SIDENAV_ON_RELOAD: 'openSideNavOnReload',
+  GO_TO_CHANGELOG: 'goToChangeLog',
 };
 
 export const APP_ROUTES = {

@@ -3,6 +3,12 @@ import { ExportedItem } from './data-transfer';
 import { RoundDTO } from './round';
 import { StorageObject } from './storage-object';
 
+export enum AppTheme {
+  SYSTEM,
+  LIGHT,
+  DARK,
+}
+
 interface UserBaseData extends StorageObject {
   name: string;
   appFontScaling: number;
@@ -23,6 +29,7 @@ export interface LocalUserWithFilters extends User {
   homeTabIndex?: number;
   pwaPrompted?: boolean;
   newStrokesUI?: boolean;
+  theme?: AppTheme;
 }
 
 export const ROUND_DATE_SORT_COL = 'roundDate';

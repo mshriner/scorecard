@@ -1,5 +1,6 @@
 import { Location } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   DestroyRef,
   OnInit,
@@ -25,8 +26,16 @@ import { SwUpdate } from '@angular/service-worker';
 import { filter, pairwise } from 'rxjs';
 import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
 import { PwaInstallDialogComponent } from './components/pwa-install-dialog/pwa-install-dialog.component';
-import { APP_ROUTES, UNSAVED_DATA } from './models/constants';
-import { LocalUserWithFilters, WhenToShowPWADialogAgain } from './models/user';
+import {
+  APP_ROUTES,
+  SESSION_STORAGE_KEYS,
+  UNSAVED_DATA,
+} from './models/constants';
+import {
+  AppTheme,
+  LocalUserWithFilters,
+  WhenToShowPWADialogAgain,
+} from './models/user';
 import { PipesModule } from './pipes/pipes.module';
 import { AppStateService } from './services/app-state.service';
 import { SnackBarService } from './services/snack-bar.service';
@@ -53,15 +62,16 @@ import { SnackBarService } from './services/snack-bar.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   public readonly showSpinner = signal(false);
   private previousUrl: string | null = null;
+  public readonly APP_THEMES = Object.values(AppTheme).filter(
+    (val) => typeof val !== 'string',
+  );
+  public readonly AppTheme = AppTheme;
 
   @ViewChild('sidenav')
   sidenav!: any;
-
-  private readonly DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION =
-    'doNotShowInstallPrompt';
 
   constructor(
     public appStateService: AppStateService,
@@ -88,9 +98,11 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.appStateService.useSmallerButtons();
+    this.appStateService.appTheming();
     const doNotShowInstallPrompt =
-      sessionStorage.getItem(this.DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION) ||
-      this.currentUser?.pwaPrompted;
+      sessionStorage.getItem(
+        SESSION_STORAGE_KEYS.DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION,
+      ) || this.currentUser?.pwaPrompted;
     const isPwa =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true;
@@ -103,8 +115,8 @@ export class AppComponent implements OnInit {
           .subscribe((result: WhenToShowPWADialogAgain) => {
             if (result === 'later' || !this.currentUser) {
               sessionStorage.setItem(
-                this.DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION,
-                'true',
+                SESSION_STORAGE_KEYS.DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION,
+                'y',
               );
             } else if (result === 'never') {
               this.appStateService.currentUser.update((user) => {
@@ -119,6 +131,13 @@ export class AppComponent implements OnInit {
       }, 2000);
     } else {
       this.checkForUpdates(false);
+    }
+  }
+
+  ngAfterViewInit() {
+    if (sessionStorage.getItem(SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD)) {
+      sessionStorage.removeItem(SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD);
+      this.sidenav.open();
     }
   }
 
@@ -233,7 +252,7 @@ export class AppComponent implements OnInit {
             this.snackBarService.openTemporarySnackBar(`Loading update...`);
             setTimeout(() => {
               this.goToAbout().then(() => {
-                sessionStorage.setItem('goToChangeLog', 'y');
+                sessionStorage.setItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG, 'y');
                 window.location.reload();
               });
             }, 1250);
@@ -270,6 +289,25 @@ export class AppComponent implements OnInit {
     });
     setTimeout(() => {
       this.appStateService.useSmallerButtons();
+    });
+  }
+
+  public setTheme(theme: AppTheme): void {
+    this.appStateService.currentUser.update((user) => {
+      if (user) {
+        user.theme = theme;
+      }
+      return structuredClone(user);
+    });
+    setTimeout(() => {
+      if (this.currentUser?.theme === AppTheme.SYSTEM) {
+        sessionStorage.setItem(
+          SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD,
+          'y',
+        );
+        window.location.reload();
+      }
+      this.appStateService.appTheming();
     });
   }
 
