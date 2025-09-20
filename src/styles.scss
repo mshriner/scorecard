@@ -2,10 +2,8 @@
 @use '@angular/material' as mat;
 
 $score-graphic-size: 24px;
-$background-color: var(
-  --mat-toolbar-container-background-color,
-  var(--mat-app-surface)
-);
+$background-color: var(--mat-sys-background);
+$text-color: var(--mat-sys-on-surface);
 
 html,
 body {
@@ -34,7 +32,6 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
   background: $background-color;
-  color: var(--mat-app-text-color);
 }
 
 .full-width-center {
@@ -211,19 +208,19 @@ mat-dialog-actions {
       justify-content: center;
       &.double-bogey-or-worse {
         border-radius: 0;
-        border: 6px double white;
+        border: 6px double $text-color;
       }
       &.bogey-score {
         border-radius: 0;
-        border: 2px solid white;
+        border: 2px solid $text-color;
       }
       &.birdie-score {
         border-radius: 50%;
-        border: 2px solid white;
+        border: 2px solid $text-color;
       }
       &.eagle-or-better {
         border-radius: 50%;
-        border: 6px double white;
+        border: 6px double $text-color;
       }
     }
   }
