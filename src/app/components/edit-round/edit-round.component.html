@@ -219,7 +219,7 @@
       'eagle-or-better': score && scoreToPar <= -2,
     }"
   >
-    {{ score }}
+    {{ score ?? '-' }}
   </div>
 </ng-template>
 
@@ -245,6 +245,7 @@
             mat-icon-button
             class="plusminus"
             (click)="strokesMinusOne(holeIndex)"
+            [disabled]="!editingRound.strokes[holeIndex]"
           >
             <mat-icon>remove</mat-icon>
           </button>
@@ -268,7 +269,7 @@
               "
             ></ng-container>
           } @else {
-            {{ editingRound.strokes[holeIndex] }}
+            {{ editingRound.strokes[holeIndex] ?? '-' }}
           }
         </div>
         <mat-menu
@@ -347,6 +348,7 @@
             mat-icon-button
             class="plusminus"
             (click)="puttsMinusOne(holeIndex)"
+            [disabled]="editingRound.putts[holeIndex] === null"
           >
             <mat-icon>remove</mat-icon>
           </button>

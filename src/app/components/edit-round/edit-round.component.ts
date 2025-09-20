@@ -258,7 +258,10 @@ export class EditRoundComponent implements OnInit {
   }
 
   public strokesMinusOne(index: number) {
-    if (!this.editingRound.strokes[index]) {
+    if (
+      !this.editingRound.strokes[index] ||
+      this.editingRound.strokes[index] === 1
+    ) {
       this.editingRound.strokes[index] = null;
     } else {
       this.editingRound.strokes[index]--;

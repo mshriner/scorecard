@@ -189,6 +189,7 @@ mat-dialog-actions {
   align-items: center;
   justify-content: center;
   display: grid;
+  user-select: none;
   &.highlighted {
     color: lightcyan;
     background-color: lightcyan;
