@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet, RoutesRecognized } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -29,7 +30,6 @@ import { LocalUserWithFilters, WhenToShowPWADialogAgain } from './models/user';
 import { PipesModule } from './pipes/pipes.module';
 import { AppStateService } from './services/app-state.service';
 import { SnackBarService } from './services/snack-bar.service';
-
 @Component({
   selector: 'app-root',
   imports: [
@@ -45,7 +45,9 @@ import { SnackBarService } from './services/snack-bar.service';
     MatDialogModule,
     MatIconModule,
     MatButtonModule,
+    MatMenuModule,
     MatChipsModule,
+    MatSlideToggleModule,
     PipesModule,
   ],
   templateUrl: './app.component.html',

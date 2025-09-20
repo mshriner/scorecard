@@ -204,9 +204,26 @@ mat-dialog-actions {
   justify-content: center;
   display: grid;
   background-color: var(--mat-sys-surface-variant);
+  user-select: none;
+  cursor: pointer;
+
+  &.highlighted {
+    transition: 0 !important;
+    animation: highlighted-pulse 1s infinite alternate;
+  }
+  @keyframes highlighted-pulse {
+    from {
+      background-color: var(--mat-sys-surface-variant);
+    }
+    to {
+      background-color: orange;
+    }
+  }
+
   div {
     @include smooth-transition;
     &.score-graphic {
+      display: grid;
       border-width: 6px;
       border-radius: 25%;
       border-style: solid;

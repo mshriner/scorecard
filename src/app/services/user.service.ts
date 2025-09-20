@@ -7,7 +7,7 @@ import { LocalStorageService } from './local-storage.service';
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private localStorageService: LocalStorageService) {}
+  constructor(private readonly localStorageService: LocalStorageService) {}
 
   public getAllUserIds(): string[] {
     const retrieved = this.localStorageService.getItem(STORAGE_KEYS.ALL_USERS);

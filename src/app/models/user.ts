@@ -19,6 +19,7 @@ export interface LocalUserWithFilters extends User {
   sortBy?: ResultsSorting;
   homeTabIndex?: number;
   pwaPrompted?: boolean;
+  newStrokesUI?: boolean;
 }
 
 export const ROUND_DATE_SORT_COL = 'roundDate';
