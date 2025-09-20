@@ -202,6 +202,7 @@ mat-dialog-actions {
   align-items: center;
   justify-content: center;
   display: grid;
+  background-color: var(--mat-sys-surface-variant);
   div {
     @include smooth-transition;
     &.score-graphic {
