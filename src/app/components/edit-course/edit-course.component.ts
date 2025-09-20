@@ -288,6 +288,7 @@ export class EditCourseComponent implements OnInit {
           importedCourse.id = DataUtils.generateUUID('course');
           this.editingCourse = importedCourse;
           this.imported = true;
+          this.appStateService.setPageTitle(`Import Course`);
           this.updateUnsavedData();
           this.snackBarService.openTemporarySnackBar(
             `Course "${importedCourse.name}" was imported successfully.`,

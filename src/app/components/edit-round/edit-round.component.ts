@@ -410,6 +410,7 @@ export class EditRoundComponent implements OnInit {
         }
         this.needToSaveImportedCourse = false;
         this.imported = true;
+        this.appStateService.setPageTitle(`Import Round`);
         if (this.courseService.getCourse(importedRound.round.courseId)) {
           this.currentCourse = this.courseService.getCourse(
             importedRound.round.courseId,
