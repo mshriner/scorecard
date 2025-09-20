@@ -189,6 +189,10 @@ mat-dialog-actions {
   align-items: center;
   justify-content: center;
   display: grid;
+  &.highlighted {
+    color: lightcyan;
+    background-color: lightcyan;
+  }
   div.score-graphic {
     @include smooth-transition;
     display: grid;

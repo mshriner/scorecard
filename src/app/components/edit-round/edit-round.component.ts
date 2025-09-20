@@ -134,6 +134,7 @@ export class EditRoundComponent implements OnInit {
   public readonly NINE_HOLE_ROUND_VARIETIES = [RoundVariety.FULL_NINE];
   public readonly ROUND_VARIETY_ENUM = RoundVariety;
   public readonly showHigherStrokeOptions = signal(false);
+  public readonly menuOpen = signal('');
 
   courseSelectInput: Signal<MatSelect | undefined> = viewChild('courseSelect');
 

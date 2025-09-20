@@ -251,7 +251,9 @@
         }
         <div
           class="par-value-box"
+          [class.highlighted]="menuOpen() === 'strokes-' + holeIndex + 1"
           [matMenuTriggerFor]="newStrokesUI ? strokesMenu : null"
+          (click)="newStrokesUI && menuOpen.set('strokes-' + holeIndex + 1)"
         >
           @if (currentCourse?.par?.[holeIndex]) {
             <ng-container
@@ -273,7 +275,7 @@
           #strokesMenu
           xPosition="after"
           yPosition="below"
-          (closed)="showHigherStrokeOptions.set(false)"
+          (closed)="menuOpen.set(''); showHigherStrokeOptions.set(false)"
           stay-open
         >
           @for (
@@ -349,18 +351,20 @@
             <mat-icon>remove</mat-icon>
           </button>
         }
+
         <div
           class="par-value-box"
+          [class.highlighted]="menuOpen() === 'putts-' + holeIndex + 1"
           [matMenuTriggerFor]="newStrokesUI ? puttsMenu : null"
+          (click)="newStrokesUI && menuOpen.set('putts-' + holeIndex + 1)"
         >
           {{ editingRound.putts[holeIndex] ?? '-' }}
         </div>
-
         <mat-menu
           #puttsMenu
           xPosition="before"
           yPosition="below"
-          (closed)="showHigherStrokeOptions.set(false)"
+          (closed)="menuOpen.set(''); showHigherStrokeOptions.set(false)"
           stay-open
         >
           @for (
@@ -394,6 +398,7 @@
               </div>
             </button>
           }
+
           @if (!showHigherStrokeOptions()) {
             <button
               class="border-above"
