@@ -19,13 +19,6 @@ body {
   height: 100%;
   overscroll-behavior: none;
   --mat-toolbar-mobile-height: 56px;
-  @include mat.theme(
-    (
-      color: mat.$cyan-palette,
-      typography: Roboto,
-      density: 0,
-    )
-  );
   -webkit-text-size-adjust: none;
   font-size-adjust: none;
   width: 100vw;
@@ -34,6 +27,14 @@ body {
   h3 {
     margin: 0;
   }
+
+  @include mat.theme(
+    (
+      color: mat.$cyan-palette,
+      typography: Roboto,
+      density: 0,
+    )
+  );
 }
 
 body {
