@@ -2,13 +2,23 @@
 @use '@angular/material' as mat;
 
 $score-graphic-size: 24px;
+$background-color: var(--mat-sys-background);
+$text-color: var(--mat-sys-on-surface);
+
+:root {
+  @include mat.toolbar-overrides(
+    (
+      container-background-color: var(--mat-sys-primary-container),
+    )
+  );
+}
 
 html,
 body {
+  color-scheme: light dark;
   height: 100%;
   overscroll-behavior: none;
   --mat-toolbar-mobile-height: 56px;
-
   -webkit-text-size-adjust: none;
   font-size-adjust: none;
   width: 100vw;
@@ -17,16 +27,20 @@ body {
   h3 {
     margin: 0;
   }
+
+  @include mat.theme(
+    (
+      color: mat.$cyan-palette,
+      typography: Roboto,
+      density: 0,
+    )
+  );
 }
 
 body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background: var(
-    --mat-toolbar-container-background-color,
-    var(--mat-app-surface)
-  );
-  color: var(--mat-app-text-color);
+  background: $background-color;
 }
 
 .full-width-center {
@@ -63,7 +77,7 @@ body {
     position: sticky !important;
     user-select: none;
     top: 0;
-    background: var(--mat-sys-background);
+    background: $background-color;
     z-index: 2 !important;
   }
   div.mat-mdc-tab-body-wrapper {
@@ -189,38 +203,52 @@ mat-dialog-actions {
   align-items: center;
   justify-content: center;
   display: grid;
+  background-color: var(--mat-sys-surface-variant);
   user-select: none;
+  cursor: pointer;
+
   &.highlighted {
-    color: lightcyan;
-    background-color: lightcyan;
+    transition: 0 !important;
+    animation: highlighted-pulse 1s infinite alternate;
   }
-  div.score-graphic {
+  @keyframes highlighted-pulse {
+    from {
+      background-color: var(--mat-sys-surface-variant);
+    }
+    to {
+      background-color: orange;
+    }
+  }
+
+  div {
     @include smooth-transition;
-    display: grid;
-    border-width: 6px;
-    border-radius: 25%;
-    border-style: solid;
-    border-color: rgba($color: #000000, $alpha: 0);
-    width: $score-graphic-size;
-    height: $score-graphic-size;
-    line-height: normal;
-    align-content: center;
-    justify-content: center;
-    &.double-bogey-or-worse {
-      border-radius: 0;
-      border: 6px double white;
-    }
-    &.bogey-score {
-      border-radius: 0;
-      border: 2px solid white;
-    }
-    &.birdie-score {
-      border-radius: 50%;
-      border: 2px solid white;
-    }
-    &.eagle-or-better {
-      border-radius: 50%;
-      border: 6px double white;
+    &.score-graphic {
+      display: grid;
+      border-width: 6px;
+      border-radius: 25%;
+      border-style: solid;
+      border-color: rgba($color: #000000, $alpha: 0);
+      width: $score-graphic-size;
+      height: $score-graphic-size;
+      line-height: normal;
+      align-content: center;
+      justify-content: center;
+      &.double-bogey-or-worse {
+        border-radius: 0;
+        border: 6px double $text-color;
+      }
+      &.bogey-score {
+        border-radius: 0;
+        border: 2px solid $text-color;
+      }
+      &.birdie-score {
+        border-radius: 50%;
+        border: 2px solid $text-color;
+      }
+      &.eagle-or-better {
+        border-radius: 50%;
+        border: 6px double $text-color;
+      }
     }
   }
 }
