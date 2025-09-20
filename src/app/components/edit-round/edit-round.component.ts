@@ -3,6 +3,7 @@ import {
   Component,
   HostListener,
   OnInit,
+  signal,
   Signal,
   viewChild,
 } from '@angular/core';
@@ -40,6 +41,7 @@ import {
   MatDatepickerModule,
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { DataToShare, RoundWithCourse } from '../../models/data-transfer';
 import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
@@ -57,6 +59,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     MatTableModule,
     MatIconModule,
     MatInputModule,
+    MatMenuModule,
     PipesModule,
     MatSelectModule,
     MatDatepickerModule,
@@ -130,6 +133,8 @@ export class EditRoundComponent implements OnInit {
   ];
   public readonly NINE_HOLE_ROUND_VARIETIES = [RoundVariety.FULL_NINE];
   public readonly ROUND_VARIETY_ENUM = RoundVariety;
+  public readonly showHigherStrokeOptions = signal(false);
+  public readonly menuOpen = signal('');
 
   courseSelectInput: Signal<MatSelect | undefined> = viewChild('courseSelect');
 
@@ -253,7 +258,10 @@ export class EditRoundComponent implements OnInit {
   }
 
   public strokesMinusOne(index: number) {
-    if (!this.editingRound.strokes[index]) {
+    if (
+      !this.editingRound.strokes[index] ||
+      this.editingRound.strokes[index] === 1
+    ) {
       this.editingRound.strokes[index] = null;
     } else {
       this.editingRound.strokes[index]--;
@@ -261,8 +269,13 @@ export class EditRoundComponent implements OnInit {
     this.updateUnsavedData();
   }
 
+  public setStrokes(index: number, strokesValue: number | null): void {
+    this.editingRound.strokes[index] = strokesValue;
+    this.updateUnsavedData();
+  }
+
   public puttsPlusOne(index: number) {
-    this.editingRound.putts[index] ??= 0;
+    this.editingRound.putts[index] ??= -1;
     this.editingRound.putts[index]++;
     this.updateUnsavedData();
   }
@@ -273,6 +286,11 @@ export class EditRoundComponent implements OnInit {
     } else {
       this.editingRound.putts[index]--;
     }
+    this.updateUnsavedData();
+  }
+
+  public setPutts(index: number, puttsValue: number | null): void {
+    this.editingRound.putts[index] = puttsValue;
     this.updateUnsavedData();
   }
 

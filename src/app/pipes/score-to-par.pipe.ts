@@ -42,3 +42,43 @@ export class ScoreToParPipe implements PipeTransform {
     return `E`;
   }
 }
+
+@Pipe({
+  name: 'wordForScoreToPar',
+})
+export class WordForScoreToParPipe implements PipeTransform {
+  transform(score: number, par: number): string {
+    if (!score) {
+      return '(Empty)';
+    }
+    if (score === 1) {
+      return 'Hole in\nOne!';
+    }
+    const scoreToPar = score - par;
+    if (scoreToPar < -3) {
+      return `${scoreToPar}`;
+    }
+    if (scoreToPar === -3) {
+      return 'Albatross';
+    }
+    if (scoreToPar === -2) {
+      return 'Eagle';
+    }
+    if (scoreToPar === -1) {
+      return 'Birdie';
+    }
+    if (scoreToPar === 0) {
+      return 'Par';
+    }
+    if (scoreToPar === 1) {
+      return 'Bogey';
+    }
+    if (scoreToPar === 2) {
+      return 'Double\nBogey';
+    }
+    if (scoreToPar === 3) {
+      return 'Triple\nBogey';
+    }
+    return `+${scoreToPar}`;
+  }
+}

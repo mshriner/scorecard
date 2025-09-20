@@ -247,9 +247,9 @@ describe('EditRoundComponent', () => {
     component.strokesPlusOne(0);
     expect(component.editingRound.strokes[0]).toBe(1);
     component.strokesMinusOne(0);
-    expect(component.editingRound.strokes[0]).toBe(0);
-    component.strokesMinusOne(0);
     expect(component.editingRound.strokes[0]).toBeNull();
+    component.puttsPlusOne(1);
+    expect(component.editingRound.putts[1]).toBe(0);
     component.puttsPlusOne(1);
     expect(component.editingRound.putts[1]).toBe(1);
     component.puttsMinusOne(1);

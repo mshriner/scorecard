@@ -219,7 +219,7 @@
       'eagle-or-better': score && scoreToPar <= -2,
     }"
   >
-    {{ score }}
+    {{ score ?? '-' }}
   </div>
 </ng-template>
 
@@ -229,6 +229,7 @@
   let-column="column"
   [typedTemplate]="HOLE_ROW_TYPES"
 >
+  @let newStrokesUI = !!appStateService.currentUser()?.newStrokesUI;
   @switch (column.columnDef) {
     @case (HOLE_COL) {
       <b>{{ holeIndex + 1 }}</b>
@@ -239,16 +240,26 @@
     }
     @case (STROKES_COL) {
       <div class="hole-par-adjustment">
-        @if (!imported) {
+        @if (!imported && !newStrokesUI) {
           <button
             mat-icon-button
             class="plusminus"
             (click)="strokesMinusOne(holeIndex)"
+            [disabled]="!editingRound.strokes[holeIndex]"
           >
             <mat-icon>remove</mat-icon>
           </button>
         }
-        <div class="par-value-box">
+        <div
+          class="par-value-box"
+          [class.highlighted]="menuOpen() === 'strokes-' + holeIndex + 1"
+          [matMenuTriggerFor]="newStrokesUI && !imported ? strokesMenu : null"
+          (click)="
+            newStrokesUI &&
+              !imported &&
+              menuOpen.set('strokes-' + holeIndex + 1)
+          "
+        >
           @if (currentCourse?.par?.[holeIndex]) {
             <ng-container
               *ngTemplateOutlet="
@@ -262,10 +273,68 @@
               "
             ></ng-container>
           } @else {
-            {{ editingRound.strokes[holeIndex] }}
+            {{ editingRound.strokes[holeIndex] ?? '-' }}
           }
         </div>
-        @if (!imported) {
+        <mat-menu
+          #strokesMenu
+          xPosition="after"
+          yPosition="below"
+          (closed)="menuOpen.set(''); showHigherStrokeOptions.set(false)"
+          stay-open
+        >
+          @for (
+            strokes of showHigherStrokeOptions()
+              ? [null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+              : [null, 1, 2, 3, 4, 5, 6, 7];
+            track $index
+          ) {
+            <button
+              mat-menu-item
+              (click)="setStrokes(holeIndex, strokes)"
+              [class.border-above]="$index"
+            >
+              <div class="par-value-selector">
+                <div class="par-value-box">
+                  @if (currentCourse?.par?.[holeIndex]) {
+                    <ng-container
+                      *ngTemplateOutlet="
+                        scoreGraphic;
+                        context: {
+                          scoreToPar:
+                            (strokes || 0) - currentCourse!.par[holeIndex],
+                          score: strokes,
+                        }
+                      "
+                    ></ng-container>
+                  } @else {
+                    {{ strokes }}
+                  }
+                </div>
+                @if (currentCourse?.par?.[holeIndex]) {
+                  <div class="word-for-score-to-par">
+                    {{
+                      strokes || 0
+                        | wordForScoreToPar: currentCourse!.par[holeIndex]
+                    }}
+                  </div>
+                }
+              </div>
+            </button>
+          }
+          @if (!showHigherStrokeOptions()) {
+            <button
+              class="border-above"
+              mat-menu-item
+              (click)="
+                $event.stopPropagation(); showHigherStrokeOptions.set(true)
+              "
+            >
+              More...
+            </button>
+          }
+        </mat-menu>
+        @if (!imported && !newStrokesUI) {
           <button
             mat-icon-button
             class="plusminus"
@@ -278,19 +347,79 @@
     }
     @case (PUTTS_COL) {
       <div class="hole-par-adjustment">
-        @if (!imported) {
+        @if (!imported && !newStrokesUI) {
           <button
             mat-icon-button
             class="plusminus"
             (click)="puttsMinusOne(holeIndex)"
+            [disabled]="editingRound.putts[holeIndex] === null"
           >
             <mat-icon>remove</mat-icon>
           </button>
         }
-        <div class="par-value-box">
+
+        <div
+          class="par-value-box"
+          [class.highlighted]="menuOpen() === 'putts-' + holeIndex + 1"
+          [matMenuTriggerFor]="newStrokesUI && !imported ? puttsMenu : null"
+          (click)="
+            newStrokesUI && !imported && menuOpen.set('putts-' + holeIndex + 1)
+          "
+        >
           {{ editingRound.putts[holeIndex] ?? '-' }}
         </div>
-        @if (!imported) {
+        <mat-menu
+          #puttsMenu
+          xPosition="before"
+          yPosition="below"
+          (closed)="menuOpen.set(''); showHigherStrokeOptions.set(false)"
+          stay-open
+        >
+          @for (
+            putts of showHigherStrokeOptions()
+              ? [null, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+              : [null, 0, 1, 2, 3];
+            track $index
+          ) {
+            <button
+              mat-menu-item
+              (click)="setPutts(holeIndex, putts)"
+              [class.border-above]="$index"
+            >
+              <div class="par-value-selector">
+                <div class="par-value-box">
+                  {{ putts ?? '-' }}
+                </div>
+                <div class="word-for-score-to-par">
+                  @switch (putts) {
+                    @case (null) {
+                      (Empty)
+                    }
+                    @case (1) {
+                      Putt
+                    }
+                    @default {
+                      Putts
+                    }
+                  }
+                </div>
+              </div>
+            </button>
+          }
+
+          @if (!showHigherStrokeOptions()) {
+            <button
+              class="border-above"
+              mat-menu-item
+              (click)="
+                $event.stopPropagation(); showHigherStrokeOptions.set(true)
+              "
+            >
+              More...
+            </button>
+          }
+        </mat-menu>
+        @if (!imported && !newStrokesUI) {
           <button
             mat-icon-button
             class="plusminus"

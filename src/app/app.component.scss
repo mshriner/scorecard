@@ -46,7 +46,7 @@ div.flex-menu-option {
 }
 
 .block {
-  display: block
+  display: block;
 }
 
 .sidenav {
@@ -78,4 +78,8 @@ mat-divider {
 
 mat-icon.rotate {
   animation: spinner 2s linear infinite;
+}
+
+.toolbar-padding {
+  margin-inline: auto;
 }
