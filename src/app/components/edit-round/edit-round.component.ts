@@ -9,7 +9,10 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import {
+  MatRippleModule,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -66,6 +69,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     CommonModule,
     TypedTemplateDirective,
     MatDialogModule,
+    MatRippleModule,
     AutosizeModule,
   ],
   providers: [provideNativeDateAdapter()],
