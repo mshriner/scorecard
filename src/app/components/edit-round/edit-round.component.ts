@@ -371,9 +371,7 @@ export class EditRoundComponent implements OnInit {
         data: { round: this.editingRound, course: this.currentCourse },
         objectType: 'round',
       })
-      .subscribe((result) => {
-        console.log(result);
-      });
+      .subscribe();
   }
 
   public async onFileSelected(input: HTMLInputElement): Promise<boolean> {

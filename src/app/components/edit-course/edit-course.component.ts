@@ -251,9 +251,7 @@ export class EditCourseComponent implements OnInit {
     }
     this.sharingService
       .shareData({ data: this.editingCourse, objectType: 'course' })
-      .subscribe((result) => {
-        console.log(result);
-      });
+      .subscribe();
   }
 
   public saveCourse(): void {

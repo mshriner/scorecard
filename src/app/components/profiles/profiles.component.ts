@@ -166,9 +166,7 @@ export class ProfilesComponent {
         },
         objectType: 'user',
       })
-      .subscribe((result) => {
-        console.log(result);
-      });
+      .subscribe();
   }
 
   public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
@@ -201,8 +199,6 @@ export class ProfilesComponent {
         const importedUser = parsed.data as UserWithRoundsAndCourses;
         let needToChangeCourseIds = false;
         let needToChangeRoundIds = false;
-
-        console.log(importedUser);
 
         if (
           this.doesAnotherProfileHaveThisUserIdOnThisDevice(
