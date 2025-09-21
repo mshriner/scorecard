@@ -73,9 +73,7 @@ export class SharingService {
           }),
         ],
       };
-      console.log(
-        `Sharing ${shareFileName} with data ${JSON.stringify(exportedItem)}`,
-      );
+      console.log(`Sharing ${shareFileName}`);
       return from(navigator.share(toShare)).pipe(
         map(() => true),
         catchError((e) => {
