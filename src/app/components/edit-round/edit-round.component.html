@@ -282,6 +282,7 @@
           yPosition="below"
           (closed)="menuOpen.set(''); showHigherStrokeOptions.set(false)"
           stay-open
+          [overlapTrigger]="false"
         >
           @for (
             strokes of showHigherStrokeOptions()
@@ -374,6 +375,7 @@
           yPosition="below"
           (closed)="menuOpen.set(''); showHigherStrokeOptions.set(false)"
           stay-open
+          [overlapTrigger]="false"
         >
           @for (
             putts of showHigherStrokeOptions()
