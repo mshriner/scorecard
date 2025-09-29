@@ -31,6 +31,9 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
   private readonly roundVarietyPipe = inject(RoundVarietyPipe);
 
   ngAfterViewInit(): void {
+    if (!this.graphData.sortedDataPoints?.length) {
+      return;
+    }
     const graph = dot(this.graphData.sortedDataPoints, {
       x: 'date',
       y: 'yValue',
