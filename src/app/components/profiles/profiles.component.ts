@@ -100,7 +100,9 @@ export class ProfilesComponent {
 
   public selectProfile(selected: LocalUserWithFilters): void {
     this.appStateService.currentUser.set(selected);
-    this.router.navigateByUrl('/home');
+    this.router
+      .navigateByUrl(APP_ROUTES.HOME)
+      .then(() => requestAnimationFrame(() => window.location.reload()));
   }
 
   public addNewProfile(): void {
