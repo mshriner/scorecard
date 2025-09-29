@@ -1,0 +1,16 @@
+<mat-dialog-content>
+  <!-- Replace below with your graph component or visualization -->
+  <div class="graph-container">
+    @if (graphData.sortedDataPoints.length) {
+      <div id="graph-output"></div>
+    } @else {
+      <div class="center-text">No data available for greens in regulation.</div>
+    }
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions class="no-padding actions-center">
+  <button mat-stroked-button (click)="dialogRef.close()" cdkFocusInitial>
+    <mat-icon>close</mat-icon>
+    Close
+  </button>
+</mat-dialog-actions>

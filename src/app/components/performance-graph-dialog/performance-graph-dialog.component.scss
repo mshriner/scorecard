@@ -1,0 +1,13 @@
+.graph-container {
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.center-text {
+  text-align: center;
+}
+mat-dialog-content {
+  padding-inline: 0 !important;
+}
