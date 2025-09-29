@@ -260,3 +260,13 @@ mat-dialog-actions {
     }
   }
 }
+
+// Observable Plot style overrides
+
+.performance-plot-figure {
+  margin: 0 0 0 8px !important;
+}
+
+.performance-plot-swatches {
+  font-size: medium !important;
+}

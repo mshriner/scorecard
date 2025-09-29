@@ -39,6 +39,13 @@ import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course, CourseVariety } from '../../models/course';
 import {
+  createEmptyHoleResults,
+  HoleResults,
+  PerformanceGraphData,
+  PerformanceGraphDataPoint,
+  PerformanceGraphMetric,
+} from '../../models/graph';
+import {
   BestRound,
   EMPTY_EIGHTEEN_NUMBERS,
   EMPTY_NINE_NUMBERS,
@@ -59,29 +66,7 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 import { DataUtils } from '../../util/data-utils';
 import { BestRoundDialogComponent } from '../best-round-dialog/best-round-dialog.component';
-
-interface HoleResults {
-  eaglesOrBetter: number;
-  birdies: number;
-  pars: number;
-  bogeys: number;
-  doubleBogeysOrWorse: number;
-  holesPlayed: number;
-  holesPlayedWithPutts: number;
-  putts: number;
-  holesPlayedWithPuttsInFullRounds: number;
-  puttsInFullRounds: number;
-  par3sPlayed: number;
-  totalStrokesOnPar3s: number;
-  par4sPlayed: number;
-  totalStrokesOnPar4s: number;
-  par5sPlayed: number;
-  totalStrokesOnPar5s: number;
-  theoreticalBestRound: Map<string, BestRound>;
-  inferredGreensInRegulation: number;
-  inferredHolesScramblingSuccessfully: number;
-  inferredHolesScramblingNeeded: number;
-}
+import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/performance-graph-dialog.component';
 
 @Component({
   selector: 'app-home',
@@ -132,28 +117,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     return map;
   });
   public holeResultTotals: Signal<HoleResults> = computed(() => {
-    const holeResults: HoleResults = {
-      eaglesOrBetter: 0,
-      birdies: 0,
-      pars: 0,
-      bogeys: 0,
-      doubleBogeysOrWorse: 0,
-      holesPlayed: 0,
-      holesPlayedWithPutts: 0,
-      putts: 0,
-      holesPlayedWithPuttsInFullRounds: 0,
-      puttsInFullRounds: 0,
-      par3sPlayed: 0,
-      totalStrokesOnPar3s: 0,
-      par4sPlayed: 0,
-      totalStrokesOnPar4s: 0,
-      par5sPlayed: 0,
-      totalStrokesOnPar5s: 0,
-      theoreticalBestRound: new Map(),
-      inferredGreensInRegulation: 0,
-      inferredHolesScramblingSuccessfully: 0,
-      inferredHolesScramblingNeeded: 0,
-    };
+    const holeResults: HoleResults = createEmptyHoleResults();
     if (!this.filteredRounds()?.length) {
       return holeResults;
     }
@@ -576,5 +540,62 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.dialog.open(BestRoundDialogComponent, {
       data: bestRound,
     });
+  }
+
+  public openTrendGraphDialog(which: PerformanceGraphMetric): void {
+    const data: PerformanceGraphData = {
+      yAxisLabel: this.getTrendDialogName(which),
+      percent: true,
+      sortedDataPoints: this.filteredRounds()
+        .map((round) => {
+          const holeResults: HoleResults = createEmptyHoleResults();
+          const dataPoint: PerformanceGraphDataPoint = {
+            yValue: null,
+            date: new Date(round.dateStringISO),
+            roundVariety: round.roundVariety,
+          };
+          const course = this.courseMap().get(round.courseId);
+          if (!course) {
+            return dataPoint;
+          }
+          for (let index = 0; index < round.strokes.length; index++) {
+            this.processHoleResult(holeResults, round, course, index);
+          }
+          dataPoint.yValue = this.getTrendMeasureValue(holeResults, which);
+          return dataPoint;
+        })
+        .filter((round) => round.yValue !== null)
+        .sort((a, b) => a.date.getTime() - b.date.getTime()),
+    };
+    this.dialog.open(PerformanceGraphDialogComponent, {
+      data: data,
+    });
+  }
+
+  private getTrendDialogName(which: PerformanceGraphMetric): string {
+    switch (which) {
+      case 'greens-in-regulation':
+        return 'Greens in Regulation';
+      case 'scrambling':
+        return 'Scrambling Success';
+    }
+  }
+
+  public getTrendMeasureValue(
+    holeResults: HoleResults,
+    which: PerformanceGraphMetric,
+  ): number | null {
+    switch (which) {
+      case 'greens-in-regulation':
+        return holeResults.holesPlayedWithPutts
+          ? holeResults.inferredGreensInRegulation /
+              holeResults.holesPlayedWithPutts
+          : null;
+      case 'scrambling':
+        return holeResults.inferredHolesScramblingNeeded
+          ? holeResults.inferredHolesScramblingSuccessfully /
+              holeResults.inferredHolesScramblingNeeded
+          : null;
+    }
   }
 }

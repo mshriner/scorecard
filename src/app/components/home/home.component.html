@@ -443,7 +443,12 @@
           </div>
           <mat-divider class="divider-padding"></mat-divider>
           <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
+            <mat-card
+              appearance="outlined"
+              class="center-text"
+              (click)="openTrendGraphDialog('greens-in-regulation')"
+              mat-ripple
+            >
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
                 <sub> Greens in </sub>
@@ -452,9 +457,11 @@
                 <h3>
                   @if (holeResultTotals().holesPlayedWithPutts) {
                     {{
-                      (100 * holeResultTotals().inferredGreensInRegulation) /
-                        holeResultTotals().holesPlayedWithPutts
-                        | number: '1.0-0'
+                      100 *
+                        (getTrendMeasureValue(
+                          holeResultTotals(),
+                          'greens-in-regulation'
+                        ) ?? 0) | number: '1.0-0'
                     }}%
                     <br />
                     ({{ holeResultTotals().inferredGreensInRegulation }} /
@@ -465,7 +472,12 @@
                 </h3>
               </mat-card-content>
             </mat-card>
-            <mat-card appearance="outlined" class="center-text">
+            <mat-card
+              appearance="outlined"
+              class="center-text"
+              (click)="openTrendGraphDialog('scrambling')"
+              mat-ripple
+            >
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
                 <sub> Scrambling </sub>
@@ -474,11 +486,11 @@
                 <h3>
                   @if (holeResultTotals().inferredHolesScramblingNeeded) {
                     {{
-                      (100 *
-                        holeResultTotals()
-                          .inferredHolesScramblingSuccessfully) /
-                        holeResultTotals().inferredHolesScramblingNeeded
-                        | number: '1.0-0'
+                      100 *
+                        (getTrendMeasureValue(
+                          holeResultTotals(),
+                          'scrambling'
+                        ) ?? 0) | number: '1.0-0'
                     }}%
                     <br />
                     ({{
