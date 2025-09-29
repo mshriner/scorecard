@@ -544,9 +544,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   public openTrendGraphDialog(which: PerformanceGraphMetric): void {
     const data: PerformanceGraphData = {
-      title: this.getTrendDialogName(which),
+      yAxisLabel: this.getTrendDialogName(which),
       percent: true,
-      dataPoints: this.filteredRounds()
+      sortedDataPoints: this.filteredRounds()
         .map((round) => {
           const holeResults: HoleResults = createEmptyHoleResults();
           const dataPoint: PerformanceGraphDataPoint = {
@@ -564,9 +564,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
           dataPoint.yValue = this.getTrendMeasureValue(holeResults, which);
           return dataPoint;
         })
-        .filter((round) => round.yValue !== null),
+        .filter((round) => round.yValue !== null)
+        .sort(
+          (a, b) => Date.parse(a.dateStringISO) - Date.parse(b.dateStringISO),
+        ),
     };
-    console.log(data);
     this.dialog.open(PerformanceGraphDialogComponent, {
       data: data,
     });
@@ -575,9 +577,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private getTrendDialogName(which: PerformanceGraphMetric): string {
     switch (which) {
       case 'greens-in-regulation':
-        return 'GIR Trend';
+        return 'Greens in Regulation';
       case 'scrambling':
-        return 'Scrambling Trend';
+        return 'Scrambling Success';
     }
   }
 

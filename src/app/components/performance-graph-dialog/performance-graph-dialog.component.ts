@@ -6,10 +6,9 @@ import {
   MatDialogActions,
   MatDialogContent,
   MatDialogRef,
-  MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { formatMonth, line } from '@observablehq/plot';
+import { frame, gridX, gridY, line } from '@observablehq/plot';
 import { PerformanceGraphData } from '../../models/graph';
 
 @Component({
@@ -18,7 +17,6 @@ import { PerformanceGraphData } from '../../models/graph';
   imports: [
     CommonModule,
     MatButtonModule,
-    MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
     MatIconModule,
@@ -32,7 +30,7 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     const graph = line(
-      this.graphData.dataPoints.map((point) => [
+      this.graphData.sortedDataPoints.map((point) => [
         new Date(point.dateStringISO),
         point.yValue,
       ]),
@@ -40,14 +38,23 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
     ).plot({
       y: {
         domain: [0, 100],
-        grid: true,
         percent: this.graphData.percent,
-        label: `${this.graphData.title}${this.graphData.percent ? ' (%)' : ''}`,
+        label: `${this.graphData.yAxisLabel.trim()}${this.graphData.percent ? ' (%)' : ''}`,
+        tickSpacing: 50,
       },
-      x: { type: 'time', tickFormat: formatMonth() },
+      x: { type: 'time', interval: 'day' },
       style: {
-        fontSize: '32px',
+        fontSize: '36px',
       },
+      marginBottom: 80,
+      marginLeft: 75,
+      marginTop: 60,
+      marginRight: 50,
+      marks: [
+        frame({ strokeWidth: 5 }),
+        gridX({ strokeOpacity: 0.5, strokeWidth: 2 }),
+        gridY({ strokeOpacity: 0.5, strokeWidth: 2, interval: 20 }),
+      ],
     });
     const graphItem = document.getElementById('graph-output');
     graphItem?.append(graph);

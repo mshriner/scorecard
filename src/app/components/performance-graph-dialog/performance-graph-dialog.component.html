@@ -1,13 +1,11 @@
-<h2 mat-dialog-title>{{ graphData.title }}</h2>
 <mat-dialog-content>
   <!-- Replace below with your graph component or visualization -->
   <div class="graph-container">
-    <div id="graph-output"></div>
-    <!-- <ng-container *ngIf="graphData?.dataPoints?.length; else noData">
-    </ng-container>
-    <ng-template #noData>
+    @if (graphData.sortedDataPoints.length) {
+      <div id="graph-output"></div>
+    } @else {
       <div class="center-text">No data available for greens in regulation.</div>
-    </ng-template> -->
+    }
   </div>
 </mat-dialog-content>
 <mat-dialog-actions class="no-padding actions-center">

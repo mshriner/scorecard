@@ -1,11 +1,11 @@
 import { BestRound, RoundVariety } from './round';
 
 export interface PerformanceGraphData {
-  title: string;
+  yAxisLabel: string;
   yValueMinOverride?: number;
   yValueMaxOverride?: number;
   percent: boolean;
-  dataPoints: PerformanceGraphDataPoint[];
+  sortedDataPoints: PerformanceGraphDataPoint[];
 }
 
 export interface PerformanceGraphDataPoint {
