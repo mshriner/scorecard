@@ -551,7 +551,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           const holeResults: HoleResults = createEmptyHoleResults();
           const dataPoint: PerformanceGraphDataPoint = {
             yValue: null,
-            dateStringISO: round.dateStringISO,
+            date: new Date(round.dateStringISO),
             roundVariety: round.roundVariety,
           };
           const course = this.courseMap().get(round.courseId);
@@ -565,9 +565,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           return dataPoint;
         })
         .filter((round) => round.yValue !== null)
-        .sort(
-          (a, b) => Date.parse(a.dateStringISO) - Date.parse(b.dateStringISO),
-        ),
+        .sort((a, b) => a.date.getTime() - b.date.getTime()),
     };
     this.dialog.open(PerformanceGraphDialogComponent, {
       data: data,

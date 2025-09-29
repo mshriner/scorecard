@@ -10,7 +10,7 @@ export interface PerformanceGraphData {
 
 export interface PerformanceGraphDataPoint {
   yValue: number | null;
-  dateStringISO: string;
+  date: Date;
   roundVariety: RoundVariety;
 }
 
