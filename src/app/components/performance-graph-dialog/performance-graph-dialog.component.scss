@@ -5,9 +5,29 @@
   align-items: center;
   justify-content: center;
 }
+
 .center-text {
   text-align: center;
 }
+
 mat-dialog-content {
   padding-inline: 0 !important;
+}
+
+.grid-display {
+  display: grid;
+  justify-items: center;
+}
+
+.not-so-tall {
+  padding: 4px !important;
+  line-height: normal;
+}
+
+.mat-mdc-chip-set {
+  max-width: 250px;
+}
+
+.right-turn {
+  transform: rotate(90deg);
 }

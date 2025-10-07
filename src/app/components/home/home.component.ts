@@ -551,6 +551,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           const holeResults: HoleResults = createEmptyHoleResults();
           const dataPoint: PerformanceGraphDataPoint = {
             yValue: null,
+            roundId: round.id,
             date: new Date(round.dateStringISO),
             roundVariety: round.roundVariety,
           };

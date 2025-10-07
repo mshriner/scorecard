@@ -27,8 +27,12 @@
 
 .stat-cards {
   mat-card {
+    height: max-content;
     mat-card-content {
       padding-bottom: 6px;
+    }
+    mat-card-footer {
+      padding: 4px;
     }
   }
   .average-result {

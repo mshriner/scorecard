@@ -11,6 +11,7 @@ export interface PerformanceGraphData {
 export interface PerformanceGraphDataPoint {
   yValue: number | null;
   date: Date;
+  roundId: string;
   roundVariety: RoundVariety;
 }
 

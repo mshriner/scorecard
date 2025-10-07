@@ -30,6 +30,7 @@ export interface LocalUserWithFilters extends User {
   pwaPrompted?: boolean;
   newStrokesUI?: boolean;
   theme?: AppTheme;
+  evenSpaceGraph?: boolean;
 }
 
 export const ROUND_DATE_SORT_COL = 'roundDate';
