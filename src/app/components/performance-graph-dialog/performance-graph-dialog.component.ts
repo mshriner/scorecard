@@ -1,6 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -8,9 +16,20 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { dot, gridX, gridY, line } from '@observablehq/plot';
+import { MatMenuModule } from '@angular/material/menu';
+import { Router } from '@angular/router';
+import {
+  dot,
+  gridX,
+  gridY,
+  line,
+  Plot,
+  RenderFunction,
+} from '@observablehq/plot';
+import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { PerformanceGraphData } from '../../models/graph';
 import { RoundVarietyPipe } from '../../pipes/round-variety.pipe';
+import { AppStateService } from '../../services/app-state.service';
 
 @Component({
   selector: 'app-performance-graph-dialog',
@@ -20,6 +39,9 @@ import { RoundVarietyPipe } from '../../pipes/round-variety.pipe';
     MatButtonModule,
     MatDialogContent,
     MatDialogActions,
+    MatChipsModule,
+    MatMenuModule,
+    MatCardModule,
     MatIconModule,
   ],
   templateUrl: './performance-graph-dialog.component.html',
@@ -29,27 +51,98 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
   readonly dialogRef = inject(MatDialogRef<PerformanceGraphDialogComponent>);
   public readonly graphData = inject<PerformanceGraphData>(MAT_DIALOG_DATA);
   private readonly roundVarietyPipe = inject(RoundVarietyPipe);
+  private readonly router = inject(Router);
+  private readonly appStateService = inject(AppStateService);
+  private readonly idOfClickedRound = signal('');
+  public readonly evenlySpaceRounds = signal(true);
+  private graph?: (SVGSVGElement | HTMLElement) & Plot;
+
+  constructor() {
+    effect(() => {
+      if (this.idOfClickedRound()) {
+        this.router
+          .navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND, {
+            state: {
+              [NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT]: this.idOfClickedRound(),
+            },
+          })
+          .then(() => this.dialogRef.close());
+      }
+    });
+  }
+
+  /**
+   * Adapted from https://observablehq.com/@tophtucker/plot-click-handler-render-transform
+   */
+  private logPoint: RenderFunction = (
+    index,
+    scales,
+    values,
+    dimensions,
+    context,
+    next?,
+  ) => {
+    const el = next?.(index, scales, values, dimensions, context) ?? null;
+    if (el && values) {
+      const points = el.querySelectorAll('path');
+      for (let i = 0; i < points.length; i++) {
+        const roundId = this.graphData.sortedDataPoints[i]?.roundId;
+        points[i].addEventListener('click', () =>
+          this.idOfClickedRound.set(roundId),
+        );
+      }
+    }
+    return el;
+  };
 
   ngAfterViewInit(): void {
+    this.evenlySpaceRounds.set(
+      !!this.appStateService.currentUser()?.evenSpaceGraph,
+    );
     if (!this.graphData.sortedDataPoints?.length) {
       return;
     }
-    const graph = dot(this.graphData.sortedDataPoints, {
-      x: 'date',
+    this.logPoint = this.logPoint.bind(this);
+    this.formatDiscreteDate = this.formatDiscreteDate.bind(this);
+    this.renderGraph();
+  }
+
+  private renderGraph(): void {
+    const graphItem = document.getElementById('graph-output');
+    if (this.graph) {
+      graphItem?.removeChild(this.graph);
+    }
+    const domainSelector = this.evenlySpaceRounds() ? this.getIndex : 'date';
+    this.graph = dot(this.graphData.sortedDataPoints, {
+      x: domainSelector,
       y: 'yValue',
       symbol: 'roundVariety',
-      r: 12,
+      r: 15,
       fill: 'currentColor',
+      render: this.logPoint,
     }).plot({
       className: 'performance-plot',
       y: {
-        domain: [0, 100],
+        domain: this.graphData.percent ? [0, 100] : undefined,
         percent: this.graphData.percent,
         label: `${this.graphData.yAxisLabel.trim()}${this.graphData.percent ? ' (%)' : ''}`,
         tickSpacing: 50,
         tickSize: 20,
       },
-      x: { type: 'time', interval: 'day', tickSize: 20 },
+      x: {
+        domain: this.evenlySpaceRounds()
+          ? [0, this.graphData.sortedDataPoints.length]
+          : undefined,
+        type: this.evenlySpaceRounds() ? undefined : 'time',
+        interval: this.evenlySpaceRounds() ? undefined : 'day',
+        tickSize: 20,
+        nice: true,
+        tickSpacing: this.evenlySpaceRounds() ? 175 : undefined,
+        tickRotate: this.evenlySpaceRounds() ? 15 : undefined,
+        tickFormat: this.evenlySpaceRounds()
+          ? this.formatDiscreteDate
+          : undefined,
+      },
       style: {
         fontSize: '36px',
       },
@@ -65,14 +158,35 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
         gridX({ strokeOpacity: 0.5, strokeWidth: 2 }),
         gridY({ strokeOpacity: 0.5, strokeWidth: 2, interval: 20 }),
         line(this.graphData.sortedDataPoints, {
-          x: 'date',
+          x: domainSelector,
           y: 'yValue',
           strokeWidth: 5,
           strokeOpacity: 0.5,
         }),
       ],
     });
-    const graphItem = document.getElementById('graph-output');
-    graphItem?.append(graph);
+    graphItem?.append(this.graph);
+  }
+
+  private getIndex(_d: any, i: number): number {
+    return i;
+  }
+
+  private formatDiscreteDate(idx: number): string {
+    const date = this.graphData.sortedDataPoints[idx]?.date;
+    if (!date) return '';
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear() % 100;
+    return `${month}/${day}/${year.toString().padStart(2, '0')}`;
+  }
+
+  public setGraphXSpacing(newValue: boolean): void {
+    this.evenlySpaceRounds.set(newValue);
+    if (this.appStateService.currentUser()) {
+      this.appStateService.currentUser()!.evenSpaceGraph =
+        this.evenlySpaceRounds();
+    }
+    this.renderGraph();
   }
 }

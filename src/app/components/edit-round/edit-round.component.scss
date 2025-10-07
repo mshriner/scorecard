@@ -1,13 +1,11 @@
+@import '../../../styles.scss';
+
 td {
   padding-inline: 4px;
 }
 
 .border-above {
-  box-shadow: inset 0 1px 0 0
-    var(
-      --mat-table-row-item-outline-color,
-      var(--mat-sys-outline, rgba(0, 0, 0, 0.12))
-    );
+  @include shadow-above;
   padding-top: 4px;
   padding-bottom: 3px;
 }

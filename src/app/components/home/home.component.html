@@ -443,12 +443,7 @@
           </div>
           <mat-divider class="divider-padding"></mat-divider>
           <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card
-              appearance="outlined"
-              class="center-text"
-              (click)="openTrendGraphDialog('greens-in-regulation')"
-              mat-ripple
-            >
+            <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
                 <sub> Greens in </sub>
@@ -471,13 +466,17 @@
                   }
                 </h3>
               </mat-card-content>
+              <mat-card-footer class="show-trend">
+                <button
+                  mat-stroked-button
+                  (click)="openTrendGraphDialog('greens-in-regulation')"
+                >
+                  <mat-icon>timeline</mat-icon>
+                  Trend
+                </button>
+              </mat-card-footer>
             </mat-card>
-            <mat-card
-              appearance="outlined"
-              class="center-text"
-              (click)="openTrendGraphDialog('scrambling')"
-              mat-ripple
-            >
+            <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
                 <sub> Scrambling </sub>
@@ -502,6 +501,15 @@
                   }
                 </h3>
               </mat-card-content>
+              <mat-card-footer class="show-trend">
+                <button
+                  mat-stroked-button
+                  (click)="openTrendGraphDialog('scrambling')"
+                >
+                  <mat-icon>timeline</mat-icon>
+                  Trend
+                </button>
+              </mat-card-footer>
             </mat-card>
           </div>
           <mat-divider class="divider-padding"></mat-divider>
