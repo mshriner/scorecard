@@ -90,7 +90,7 @@
         </div>
       }
       <div class="block">
-        <div mat-ripple (click)="checkForUpdates()" class="flex-menu-option">
+        <div mat-ripple (click)="checkForUpdates(true)" class="flex-menu-option">
           @if (showSpinner()) {
             <mat-icon class="rotate">refresh</mat-icon>
           } @else {

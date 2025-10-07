@@ -1,5 +1,11 @@
 <mat-dialog-content>
-  <!-- Replace below with your graph component or visualization -->
+  <div class="full-width-center">
+    <mat-card appearance="outlined" class="grid-display center-text">
+      <mat-card-content class="not-so-tall">
+        <span> Click on a point to view a round. </span>
+      </mat-card-content>
+    </mat-card>
+  </div>
   <div class="graph-container">
     @if (graphData.sortedDataPoints.length) {
       <div id="graph-output"></div>
@@ -9,6 +15,20 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions class="no-padding actions-center">
+  <mat-chip [matMenuTriggerFor]="graphStyleMenu">
+    <mat-icon matChipAvatar class="right-turn">format_line_spacing</mat-icon>
+    Spacing
+  </mat-chip>
+  <mat-menu #graphStyleMenu yPosition="above">
+    <button mat-menu-item (click)="this.setGraphXSpacing(false)">
+      <mat-icon [class.hidden]="this.evenlySpaceRounds()">check</mat-icon>
+      Space rounds by date
+    </button>
+    <button mat-menu-item (click)="this.setGraphXSpacing(true)">
+      <mat-icon [class.hidden]="!this.evenlySpaceRounds()">check</mat-icon>
+      Space rounds evenly
+    </button>
+  </mat-menu>
   <button mat-stroked-button (click)="dialogRef.close()" cdkFocusInitial>
     <mat-icon>close</mat-icon>
     Close

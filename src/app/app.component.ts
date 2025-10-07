@@ -126,8 +126,11 @@ export class AppComponent implements OnInit, AfterViewInit {
                 return structuredClone(user);
               });
             }
+            this.checkForUpdates(false);
           });
       }, 2000);
+    } else {
+      this.checkForUpdates(false);
     }
   }
 
@@ -232,30 +235,49 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
   }
 
-  public checkForUpdates(): void {
-    this.showSpinner.set(true);
-    this.serviceWorker
-      .checkForUpdate()
-      .then((newUpdate) => {
-        if (newUpdate) {
-          this.snackBarService.openTemporarySnackBar(`Loading update...`);
-          setTimeout(() => {
-            this.goToAbout().then(() => {
-              sessionStorage.setItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG, 'y');
-              window.location.reload();
-            });
-          }, 1250);
-        } else {
-          this.snackBarService.openTemporarySnackBar(`No new updates found.`);
-          this.showSpinner.set(false);
+  public checkForUpdates(showFailureMessages: boolean): void {
+    try {
+      if (!this.serviceWorker.isEnabled) {
+        if (showFailureMessages) {
+          this.snackBarService.openTemporarySnackBar(
+            `Unable to check for updates at this time.`,
+          );
         }
-      })
-      .catch((err) => {
-        this.snackBarService.openTemporarySnackBar(
-          `Failed to refresh -- ${err}`,
-        );
-        this.showSpinner.set(false);
-      });
+        return;
+      }
+      this.showSpinner.set(true);
+      this.serviceWorker.checkForUpdate().then(
+        (newUpdate) => {
+          if (newUpdate) {
+            this.snackBarService.openTemporarySnackBar(`Loading update...`);
+            setTimeout(() => {
+              this.goToAbout().then(() => {
+                sessionStorage.setItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG, 'y');
+                window.location.reload();
+              });
+            }, 1250);
+          } else {
+            if (showFailureMessages) {
+              this.snackBarService.openTemporarySnackBar(
+                `No new updates found.`,
+              );
+            }
+            this.showSpinner.set(false);
+          }
+        },
+        (err) => {
+          if (showFailureMessages) {
+            this.snackBarService.openTemporarySnackBar(
+              `Failed to refresh -- ${err}`,
+            );
+          }
+          this.showSpinner.set(false);
+        },
+      );
+    } catch (e) {
+      console.error(e);
+      this.showSpinner.set(false);
+    }
   }
 
   public setTextSize(size: number): void {

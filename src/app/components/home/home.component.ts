@@ -36,6 +36,7 @@ import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
+import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course, CourseVariety } from '../../models/course';
 import {
@@ -91,6 +92,7 @@ import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/per
     CommonModule,
     MatDividerModule,
     MatDialogModule,
+    TypedTemplateDirective,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './home.component.html',
@@ -104,6 +106,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public readonly Array = Array;
   public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
   public readonly CourseVariety = CourseVariety;
+  public TREND_GRAPH_PARAMS!: {
+    which: PerformanceGraphMetric;
+  };
   public rounds: WritableSignal<Round[]> = signal([]);
   public filteredRounds: WritableSignal<Round[]> = signal([]);
   public courseMap: Signal<Map<string, Course | null>> = computed(() => {
@@ -551,6 +556,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           const holeResults: HoleResults = createEmptyHoleResults();
           const dataPoint: PerformanceGraphDataPoint = {
             yValue: null,
+            roundId: round.id,
             date: new Date(round.dateStringISO),
             roundVariety: round.roundVariety,
           };

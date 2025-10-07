@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
+@use './mixins' as mixins;
 
 $score-graphic-size: 24px;
 $background-color: var(--mat-sys-background);
@@ -54,6 +55,7 @@ body {
 .full-width-center {
   width: 100%;
   display: grid;
+  justify-items: center;
   justify-content: center;
 }
 
@@ -76,10 +78,6 @@ body {
   justify-content: center;
 }
 
-@mixin sticky-overflow {
-  overflow: inherit !important;
-}
-
 .preserve-sticky-header {
   mat-tab-header {
     position: sticky !important;
@@ -89,11 +87,11 @@ body {
     z-index: 2 !important;
   }
   div.mat-mdc-tab-body-wrapper {
-    @include sticky-overflow;
+    @include mixins.sticky-overflow;
     mat-tab-body:has(mat-table) {
-      @include sticky-overflow;
+      @include mixins.sticky-overflow;
       div {
-        @include sticky-overflow;
+        @include mixins.sticky-overflow;
       }
     }
   }
@@ -109,16 +107,12 @@ mat-expansion-panel-header {
   user-select: none;
 }
 
-@mixin text-centering {
-  text-align: center;
-}
-
 th.center-text,
 td.center-text,
 mat-card,
 div {
   &.center-text {
-    @include text-centering;
+    @include mixins.text-centering;
   }
 }
 
@@ -150,8 +144,12 @@ mat-dialog-actions {
     padding-inline: 0;
   }
   &.actions-center {
-    justify-content: center;
+    justify-content: space-evenly;
   }
+}
+
+.hidden {
+  visibility: hidden;
 }
 
 .padding-inline-8 {
@@ -199,10 +197,6 @@ mat-dialog-actions {
   }
 }
 
-@mixin smooth-transition {
-  transition: 0.2s;
-}
-
 .par-value-box {
   border-radius: 8px;
   border: 1px gray solid;
@@ -229,7 +223,7 @@ mat-dialog-actions {
   }
 
   div {
-    @include smooth-transition;
+    @include mixins.smooth-transition;
     &.score-graphic {
       display: grid;
       border-width: 6px;
