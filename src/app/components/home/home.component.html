@@ -466,15 +466,16 @@
                   }
                 </h3>
               </mat-card-content>
-              <mat-card-footer class="show-trend">
-                <button
-                  mat-stroked-button
-                  (click)="openTrendGraphDialog('greens-in-regulation')"
-                >
-                  <mat-icon>timeline</mat-icon>
-                  Trend
-                </button>
-              </mat-card-footer>
+              @if (holeResultTotals().holesPlayedWithPutts) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    trendGraphButton;
+                    context: {
+                      which: 'greens-in-regulation',
+                    }
+                  "
+                ></ng-container>
+              }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
@@ -501,15 +502,16 @@
                   }
                 </h3>
               </mat-card-content>
-              <mat-card-footer class="show-trend">
-                <button
-                  mat-stroked-button
-                  (click)="openTrendGraphDialog('scrambling')"
-                >
-                  <mat-icon>timeline</mat-icon>
-                  Trend
-                </button>
-              </mat-card-footer>
+              @if (holeResultTotals().inferredHolesScramblingNeeded) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    trendGraphButton;
+                    context: {
+                      which: 'scrambling',
+                    }
+                  "
+                ></ng-container>
+              }
             </mat-card>
           </div>
           <mat-divider class="divider-padding"></mat-divider>
@@ -576,6 +578,19 @@
   <br />
   <ng-container *ngTemplateOutlet="addActions"></ng-container>
 }
+
+<ng-template
+  #trendGraphButton
+  [typedTemplate]="TREND_GRAPH_PARAMS"
+  let-which="which"
+>
+  <mat-card-footer class="show-trend">
+    <button mat-stroked-button (click)="openTrendGraphDialog(which)">
+      <mat-icon>timeline</mat-icon>
+      Trend
+    </button>
+  </mat-card-footer>
+</ng-template>
 
 <ng-template #addActions>
   <div class="full-width-center space-evenly">
