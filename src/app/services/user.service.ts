@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { LOCAL_STORAGE_KEYS } from '../models/constants';
-import { LocalUserWithFilters } from '../models/user';
+import {
+  LocalFilters,
+  LocalUserWithFilters,
+  ROUND_DATE_SORT_COL,
+} from '../models/user';
 import { LocalStorageService } from './local-storage.service';
 
 @Injectable({
@@ -70,8 +74,23 @@ export class UserService {
   }
 
   public createUser(newUser: LocalUserWithFilters): LocalUserWithFilters[] {
-    if (this.setUser(newUser)) {
-      this.setAllUserIds([...this.getAllUserIds(), newUser.id]);
+    const defaultPropertiesForNewUser: LocalFilters = {
+      sortBy: ROUND_DATE_SORT_COL,
+      sortDescending: true,
+      homeTabIndex: 0,
+      newStrokesUI: true,
+    };
+
+    // Only set default properties if they are not already present in newUser
+    const userToSave = { ...newUser };
+    Object.entries(defaultPropertiesForNewUser).forEach(([key, value]) => {
+      if (userToSave[key] === undefined || userToSave[key] === null) {
+        userToSave[key] = value;
+      }
+    });
+
+    if (this.setUser(userToSave)) {
+      this.setAllUserIds([...this.getAllUserIds(), userToSave.id]);
     }
     return this.getAllUsers();
   }

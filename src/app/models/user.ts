@@ -19,7 +19,7 @@ export interface User extends UserBaseData {
   courseIds: string[];
 }
 
-export interface LocalUserWithFilters extends User {
+export interface LocalFilters {
   filtersOpen?: boolean;
   courseStatsFilterSelect?: string[];
   earliestDateISO?: string;
@@ -32,6 +32,8 @@ export interface LocalUserWithFilters extends User {
   theme?: AppTheme;
   evenSpaceGraph?: boolean;
 }
+
+export interface LocalUserWithFilters extends User, LocalFilters {}
 
 export const ROUND_DATE_SORT_COL = 'roundDate';
 export const ROUND_SCORE_SORT_COL = 'roundScore';

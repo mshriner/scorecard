@@ -38,7 +38,7 @@ import {
   DataToShare,
   UserWithRoundsAndCourses,
 } from '../../models/data-transfer';
-import { LocalUserWithFilters, ROUND_DATE_SORT_COL } from '../../models/user';
+import { LocalUserWithFilters, User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
@@ -112,15 +112,12 @@ export class ProfilesComponent {
       .subscribe((newProfileName) => {
         const sanitizedName = newProfileName?.trim();
         if (sanitizedName?.length) {
-          const newProfile: LocalUserWithFilters = {
+          const newProfile: User = {
             id: DataUtils.generateUUID('user'),
             name: sanitizedName,
             roundIds: [],
             courseIds: [],
             appFontScaling: 0,
-            sortBy: ROUND_DATE_SORT_COL,
-            sortDescending: true,
-            homeTab: 0,
           };
           this.profiles.set(this.userService.createUser(newProfile));
         }
