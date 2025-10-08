@@ -1,0 +1,28 @@
+@mixin smooth-transition {
+  transition: 0.2s;
+}
+
+@mixin shadow-above {
+  box-shadow: inset 0 1px 0 0
+    var(
+      --mat-table-row-item-outline-color,
+      var(--mat-sys-outline, rgba(0, 0, 0, 0.12))
+    );
+}
+
+@mixin text-centering {
+  text-align: center;
+}
+
+@mixin sticky-overflow {
+  overflow: inherit !important;
+}
+
+@mixin less-table-padding {
+  td.mat-mdc-cell,
+  mat-cell,
+  th.mat-mdc-header-cell,
+  mat-header-cell {
+    padding-inline: 8px !important;
+  }
+}

@@ -1,11 +1,11 @@
-@import '../../../styles.scss';
+@use '../../../mixins.scss' as mixins;
 
 td {
-  padding-inline: 4px;
+  padding-inline: 4px !important;
 }
 
 .border-above {
-  @include shadow-above;
+  @include mixins.shadow-above;
   padding-top: 4px;
   padding-bottom: 3px;
 }
