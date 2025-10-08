@@ -180,6 +180,10 @@ mat-dialog-actions {
   margin: 0 !important;
 }
 
+.no-wrap {
+  white-space: nowrap;
+}
+
 ::-webkit-scrollbar {
   display: none;
 }

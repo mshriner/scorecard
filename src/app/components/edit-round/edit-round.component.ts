@@ -9,7 +9,10 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import {
+  MatRippleModule,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -28,8 +31,8 @@ import {
   EMPTY_EIGHTEEN_NUMBERS,
   Round,
   ROUND_NOTES_MAX_LENGTH,
-  RoundDTO,
   RoundVariety,
+  RoundWithCourseDTO,
 } from '../../models/round';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
@@ -42,7 +45,7 @@ import {
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { RoundWithCourse } from '../../models/data-transfer';
+import { DataToShare, RoundWithCourse } from '../../models/data-transfer';
 import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
 import { SharingService } from '../../services/sharing.service';
@@ -66,6 +69,7 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
     CommonModule,
     TypedTemplateDirective,
     MatDialogModule,
+    MatRippleModule,
     AutosizeModule,
   ],
   providers: [provideNativeDateAdapter()],
@@ -367,9 +371,7 @@ export class EditRoundComponent implements OnInit {
         data: { round: this.editingRound, course: this.currentCourse },
         objectType: 'round',
       })
-      .subscribe((result) => {
-        console.log(result);
-      });
+      .subscribe();
   }
 
   public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
@@ -380,14 +382,17 @@ export class EditRoundComponent implements OnInit {
     }
     return file.text().then(
       (uploaded) => {
-        const parsed = this.sharingService.convertDTOToDomain(
-          JSON.parse(uploaded),
-        );
+        let parsed: DataToShare | null = null;
+        try {
+          parsed = this.sharingService.convertDTOToDomain(JSON.parse(uploaded));
+        } catch (e) {
+          console.error(e);
+        }
         input.value = '';
         if (
           parsed?.objectType !== 'round' ||
-          !parsed?.data?.round ||
-          !parsed?.data?.course
+          !(parsed?.data as RoundWithCourse)?.round ||
+          !(parsed?.data as RoundWithCourse)?.course
         ) {
           this.snackBarService.openTemporarySnackBar(
             'Failed to import the round.',
@@ -397,7 +402,7 @@ export class EditRoundComponent implements OnInit {
 
         const importedRound = parsed.data as RoundWithCourse;
         if (
-          this.doesAnotherUserHaveThisCourseOnThisDevice(
+          this.doesAnotherUserHaveThisCourseIdOnThisDevice(
             importedRound.round.courseId,
           )
         ) {
@@ -407,6 +412,7 @@ export class EditRoundComponent implements OnInit {
         }
         this.needToSaveImportedCourse = false;
         this.imported = true;
+        this.appStateService.setPageTitle(`Import Round`);
         if (this.courseService.getCourse(importedRound.round.courseId)) {
           this.currentCourse = this.courseService.getCourse(
             importedRound.round.courseId,
@@ -415,6 +421,11 @@ export class EditRoundComponent implements OnInit {
           this.currentCourse = importedRound.course;
           this.needToSaveImportedCourse = true;
         }
+
+        if (this.doesThisRoundIdExistOnThisDevice(importedRound.round.id)) {
+          importedRound.round.id = DataUtils.generateUUID('round');
+        }
+
         this.editingRound = importedRound.round;
         this.roundIdToEdit = importedRound.round.id;
         this.coursesToChooseFrom = [this.currentCourse!];
@@ -425,7 +436,7 @@ export class EditRoundComponent implements OnInit {
         this.snackBarService.openTemporarySnackBar(
           `Round at "${
             this.needToSaveImportedCourse
-              ? (JSON.parse(uploaded) as RoundDTO)?.courseDTO?.name
+              ? (JSON.parse(uploaded) as RoundWithCourseDTO)?.courseDTO?.name
               : this.courseService.getCourse(importedRound.course.id)?.name
           }" was imported successfully.`,
         );
@@ -438,10 +449,16 @@ export class EditRoundComponent implements OnInit {
     );
   }
 
-  private doesAnotherUserHaveThisCourseOnThisDevice(courseId: string) {
+  private doesAnotherUserHaveThisCourseIdOnThisDevice(
+    courseId: string,
+  ): boolean {
     return (
       !this.appStateService.currentUser()?.courseIds?.includes(courseId) &&
-      this.courseService.getCourse(courseId)
+      !!this.courseService.getCourse(courseId)
     );
+  }
+
+  private doesThisRoundIdExistOnThisDevice(roundId: string): boolean {
+    return !!this.roundService.getRoundById(roundId);
   }
 }

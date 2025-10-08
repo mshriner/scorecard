@@ -3,8 +3,6 @@ import { Round } from './round';
 import { User } from './user';
 
 export interface ExportedItem {
-  fromProfileName: string;
-  fromProfileId: string;
   objectType: ImportType;
 }
 
@@ -13,9 +11,15 @@ export interface RoundWithCourse {
   course: Course;
 }
 
+export interface UserWithRoundsAndCourses {
+  user: User;
+  rounds: Round[];
+  courses: Course[];
+}
+
 export interface DataToShare {
   objectType: ImportType;
-  data: Course | User | RoundWithCourse;
+  data: Course | UserWithRoundsAndCourses | RoundWithCourse;
 }
 
 export type ImportType = 'course' | 'round' | 'user';

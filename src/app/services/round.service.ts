@@ -44,27 +44,29 @@ export class RoundService {
     });
   }
 
-  public saveRounds(updatedRounds: Round[]): boolean {
-    this.appStateService.currentUser.update((updatedCurrentUser) => {
-      if (updatedCurrentUser) {
-        for (const round of updatedRounds) {
-          if (!updatedCurrentUser.roundIds?.includes(round.id)) {
-            updatedCurrentUser.roundIds.push(round.id);
-          }
-          if (
-            Array.isArray(updatedCurrentUser.courseStatsFilterSelect) &&
-            !updatedCurrentUser.courseStatsFilterSelect?.includes(
-              round.courseId,
-            )
-          ) {
-            // if the user did not have this course selected
-            // before creating or updating this course, keep all courses selected
-            updatedCurrentUser.courseStatsFilterSelect.push(round.courseId);
+  public saveRounds(updatedRounds: Round[], addToCurrentUser = true): boolean {
+    if (addToCurrentUser) {
+      this.appStateService.currentUser.update((updatedCurrentUser) => {
+        if (updatedCurrentUser) {
+          for (const round of updatedRounds) {
+            if (!updatedCurrentUser.roundIds?.includes(round.id)) {
+              updatedCurrentUser.roundIds.push(round.id);
+            }
+            if (
+              Array.isArray(updatedCurrentUser.courseStatsFilterSelect) &&
+              !updatedCurrentUser.courseStatsFilterSelect?.includes(
+                round.courseId,
+              )
+            ) {
+              // if the user did not have this course selected
+              // before creating or updating this course, keep all courses selected
+              updatedCurrentUser.courseStatsFilterSelect.push(round.courseId);
+            }
           }
         }
-      }
-      return structuredClone(updatedCurrentUser);
-    });
+        return structuredClone(updatedCurrentUser);
+      });
+    }
     return updatedRounds
       ?.map((round) => {
         // clear strokes and putts not used

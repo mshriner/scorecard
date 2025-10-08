@@ -16,6 +16,6 @@ export const routes: Routes = [
   { path: APP_ROUTES.COURSES, component: CourseListComponent },
   { path: APP_ROUTES.HOME, component: HomeComponent },
   { path: APP_ROUTES.ABOUT, component: AboutThisAppComponent },
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
-  { path: '**', redirectTo: '/home' },
+  { path: '', redirectTo: `/${APP_ROUTES.HOME}`, pathMatch: 'full' },
+  { path: '**', redirectTo: `/${APP_ROUTES.HOME}` },
 ];

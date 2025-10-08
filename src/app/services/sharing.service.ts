@@ -1,6 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { catchError, from, map, Observable, of } from 'rxjs';
+import { PreformattedDialogComponent } from '../components/preformatted-dialog/preformatted-dialog.component';
 import {
   Course,
   COURSE_EXAMPLE,
@@ -11,16 +13,17 @@ import {
   DataToShare,
   ExportedItem,
   RoundWithCourse,
+  UserWithRoundsAndCourses,
 } from '../models/data-transfer';
 import {
   Round,
   ROUND_EXAMPLE,
   ROUND_NOTES_MAX_LENGTH,
   RoundDTO,
+  RoundWithCourseDTO,
 } from '../models/round';
-import { UserDTO } from '../models/user';
+import { User, UserProfileDTO } from '../models/user';
 import { DataUtils } from '../util/data-utils';
-import { AppStateService } from './app-state.service';
 import { SnackBarService } from './snack-bar.service';
 
 @Injectable({
@@ -32,10 +35,9 @@ export class SharingService {
   private readonly DATE_PIPE = new DatePipe('en-US');
   private readonly IMPORTED_MESSAGE = ' (imported)';
 
-  constructor(
-    private readonly appStateService: AppStateService,
-    private readonly snackBarService: SnackBarService,
-  ) {}
+  private readonly dialog = inject(MatDialog);
+
+  constructor(private readonly snackBarService: SnackBarService) {}
 
   private canBrowserShareData(data: any): boolean {
     if (!navigator.share || !navigator.canShare) {
@@ -46,11 +48,7 @@ export class SharingService {
   }
 
   public shareData(dataToShare: DataToShare): Observable<boolean> {
-    if (
-      !this.CAN_SHARE_DATA ||
-      !this.CAN_SHARE_FILES ||
-      !this.appStateService?.currentUser()
-    ) {
+    if (!this.CAN_SHARE_DATA || !this.CAN_SHARE_FILES) {
       return of(false);
     }
 
@@ -75,9 +73,7 @@ export class SharingService {
           }),
         ],
       };
-      console.log(
-        `Sharing ${shareFileName} with data ${JSON.stringify(exportedItem)}`,
-      );
+      console.log(`Sharing ${shareFileName}`);
       return from(navigator.share(toShare)).pipe(
         map(() => true),
         catchError((e) => {
@@ -85,12 +81,20 @@ export class SharingService {
           if (e.name === 'AbortError') {
             this.snackBarService.openTemporarySnackBar('Sharing was cancelled');
           } else {
-            this.snackBarService.openTemporarySnackBar(`${e}`);
+            console.error(e);
+            this.dialog
+              .open(PreformattedDialogComponent, {
+                data: {
+                  title: 'Copy Data',
+                  content: JSON.stringify(exportedItem),
+                },
+              })
+              .afterClosed()
+              .subscribe();
           }
           return of(false);
         }),
       );
-      // The data was shared successfully.
     } catch (e) {
       // The data could not be shared.
       this.snackBarService.openTemporarySnackBar(`${e}`);
@@ -117,63 +121,92 @@ export class SharingService {
           .replace(/\s+/g, '-');
         return `round-on-${roundDate}-at-${exportedCourseName}`;
       }
+      case 'user': {
+        const exportedUserName = (
+          dataToShare.data as UserWithRoundsAndCourses
+        )?.user?.name
+          ?.trim()
+          ?.replace(/\s+/g, '-');
+        return `user-${exportedUserName}`;
+      }
       default:
         return 'unknown';
     }
   }
 
-  public convertDomainToDTO(
+  convertDomainToDTO(
     dataToShare: DataToShare,
-  ): CourseDTO | RoundDTO | null {
-    const currentUser = this.appStateService.currentUser();
-
-    const metadataDTO = {
-      objectType: dataToShare.objectType,
-      fromProfileId: currentUser?.id ?? '',
-      fromProfileName: currentUser?.name ?? '',
-    };
-
-    if (dataToShare.objectType === 'course') {
-      return { ...dataToShare.data, ...metadataDTO } as CourseDTO;
+  ): CourseDTO | RoundWithCourseDTO | UserProfileDTO | null {
+    switch (dataToShare.objectType) {
+      case 'course': {
+        const metadataDTO: ExportedItem = {
+          objectType: dataToShare.objectType,
+        };
+        return { ...dataToShare.data, ...metadataDTO } as CourseDTO;
+      }
+      case 'round': {
+        const roundAndCourseData = dataToShare.data as RoundWithCourse;
+        const metadataDTO: ExportedItem = {
+          objectType: dataToShare.objectType,
+        };
+        return {
+          ...roundAndCourseData.round,
+          courseDTO: roundAndCourseData.course,
+          ...metadataDTO,
+        } as RoundWithCourseDTO;
+      }
+      case 'user': {
+        const userProfile = dataToShare.data as UserWithRoundsAndCourses;
+        const metadataDTO: ExportedItem = {
+          objectType: dataToShare.objectType,
+        };
+        return {
+          userDTO: {
+            name: userProfile.user.name,
+            id: userProfile.user.id,
+            appFontScaling: userProfile.user.appFontScaling,
+          },
+          roundDTOs:
+            userProfile.rounds?.map((round) => ({
+              objectType: 'round',
+              ...round,
+            })) || [],
+          courseDTOs:
+            userProfile.courses?.map((course) => ({
+              objectType: 'course',
+              ...course,
+            })) || [],
+          ...metadataDTO,
+        } as UserProfileDTO;
+      }
+      default:
+        return null;
     }
-
-    if (dataToShare.objectType === 'round') {
-      return {
-        ...(dataToShare.data as RoundWithCourse).round,
-        courseDTO: dataToShare.data.course,
-        ...metadataDTO,
-      } as RoundDTO;
-    }
-
-    return null;
   }
 
   public convertDTOToDomain(
-    importedItem: CourseDTO | RoundDTO | UserDTO,
+    importedItem: CourseDTO | RoundWithCourseDTO | UserProfileDTO,
   ): DataToShare | null {
     try {
-      const { fromProfileName, fromProfileId, objectType, ...domain } =
-        importedItem;
+      const objectType = (importedItem as any).objectType;
 
-      // only take the properties we want to avoid importing garbage
-      if (!domain) {
-        console.error('Missing domain in imported item');
-        return null;
-      }
       if (!objectType) {
         console.error('Missing objectType in imported item');
         return null;
       }
+
       switch (objectType) {
         case 'course': {
-          const importedCourse = this.parseCourse(domain as CourseDTO);
+          const importedCourse = this.parseCourse(importedItem as CourseDTO);
           if (!importedCourse) {
             return null;
           }
           return { data: importedCourse, objectType };
         }
         case 'round': {
-          const importedRound = this.parseRound(domain as RoundDTO);
+          const importedRound = this.parseRoundWithCourse(
+            importedItem as RoundWithCourseDTO,
+          );
 
           if (!importedRound?.course || !importedRound?.round) {
             return null;
@@ -185,7 +218,38 @@ export class SharingService {
             objectType,
           };
         }
-        // future: parse more complex objects (such as user containing rounds and courses)
+        case 'user': {
+          const userProfileDTO = importedItem as UserProfileDTO;
+          if (!userProfileDTO.userDTO) {
+            console.error('Missing userDTO in imported user item');
+            return null;
+          }
+          const user = this.parseUser(userProfileDTO);
+          if (!user) {
+            console.error('Failed to parse user');
+            return null;
+          }
+          const parsedRounds =
+            userProfileDTO.roundDTOs?.map((round) =>
+              this.parseRound(round, false),
+            ) ?? [];
+          if (parsedRounds.some((parsedRound) => !parsedRound)) {
+            console.error('Failed to parse rounds within user');
+            return null;
+          }
+          const parsedCourses =
+            userProfileDTO.courseDTOs?.map((course) =>
+              this.parseCourse(course, false),
+            ) ?? [];
+          return {
+            data: {
+              user,
+              courses: parsedCourses as Course[],
+              rounds: parsedRounds as Round[],
+            },
+            objectType,
+          };
+        }
         default:
           return null;
       }
@@ -195,7 +259,27 @@ export class SharingService {
     }
   }
 
-  private parseRound(roundDTO: RoundDTO): RoundWithCourse | null {
+  private parseRoundWithCourse(
+    roundDTO: RoundWithCourseDTO,
+  ): RoundWithCourse | null {
+    const importedRound = this.parseRound(roundDTO);
+    if (!importedRound) {
+      return null;
+    }
+    const importedCourse = this.parseCourse(roundDTO.courseDTO);
+    if (!importedCourse) {
+      return null;
+    }
+    return {
+      round: importedRound,
+      course: importedCourse,
+    };
+  }
+
+  private parseRound(
+    roundDTO: RoundDTO,
+    addImportedMessage = true,
+  ): Round | null {
     const importedRound = {} as Round;
     let valid = true;
     if (!roundDTO.generalNotes?.length) {
@@ -211,39 +295,37 @@ export class SharingService {
     if (!valid) {
       return null;
     }
-    const importedCourse = this.parseCourse(roundDTO.courseDTO);
-    if (!importedCourse) {
-      return null;
-    }
     if (
       (importedRound?.generalNotes?.length || 0) <
       ROUND_NOTES_MAX_LENGTH - this.IMPORTED_MESSAGE.length
     ) {
       importedRound.generalNotes =
-        `${importedRound.generalNotes || ''}${this.IMPORTED_MESSAGE}`.trim();
+        `${importedRound.generalNotes || ''}${addImportedMessage ? this.IMPORTED_MESSAGE : ''}`.trim();
     }
-    return {
-      round: importedRound,
-      course: importedCourse,
-    };
+    return importedRound;
   }
 
-  private parseCourse(domain: CourseDTO): Course | null {
+  private parseCourse(
+    courseDTO: CourseDTO,
+    addImportedMessage = true,
+  ): Course | null {
     const importedCourse = {} as Course;
     let valid = true;
     if (
-      (domain?.par?.length !== 18 && domain?.par?.length !== 9) ||
-      domain?.par.some((p) => p < 1)
+      (courseDTO?.par?.length !== 18 && courseDTO?.par?.length !== 9) ||
+      courseDTO?.par.some((p) => p < 1)
     ) {
       return null;
     }
-    if (!domain?.numberOfHoles) {
-      domain.numberOfHoles =
-        domain?.par?.length === 9 ? CourseVariety.NINE : CourseVariety.EIGHTEEN;
+    if (!courseDTO?.numberOfHoles) {
+      courseDTO.numberOfHoles =
+        courseDTO?.par?.length === 9
+          ? CourseVariety.NINE
+          : CourseVariety.EIGHTEEN;
     }
     Object.keys(COURSE_EXAMPLE).forEach((key) => {
-      if (domain[key] !== undefined) {
-        importedCourse[key] = domain[key];
+      if (courseDTO[key] !== undefined) {
+        importedCourse[key] = courseDTO[key];
       } else {
         valid = false;
       }
@@ -251,8 +333,26 @@ export class SharingService {
     if (!valid) {
       return null;
     }
-    importedCourse.name = `${importedCourse.name}${this.IMPORTED_MESSAGE}`;
+    importedCourse.name = `${importedCourse.name}${addImportedMessage ? this.IMPORTED_MESSAGE : ''}`;
     return importedCourse;
+  }
+
+  private parseUser(userProfileDTO: UserProfileDTO): User | null {
+    if (!userProfileDTO?.userDTO?.name || !userProfileDTO?.userDTO?.id) {
+      return null;
+    }
+    const importedUser = {
+      name: userProfileDTO.userDTO.name,
+      id: userProfileDTO.userDTO.id,
+      appFontScaling: Number(userProfileDTO.userDTO?.appFontScaling) || 1,
+      roundIds: Array.isArray(userProfileDTO?.roundDTOs)
+        ? userProfileDTO.roundDTOs.map((round) => round.id)
+        : [],
+      courseIds: Array.isArray(userProfileDTO?.courseDTOs)
+        ? userProfileDTO.courseDTOs.map((course) => course.id)
+        : [],
+    } as User;
+    return importedUser;
   }
 
   private canBrowserShareFiles(): boolean {

@@ -48,8 +48,6 @@ describe('EditCourseComponent', () => {
     };
     const mockParsed: CourseDTO = {
       objectType: 'course',
-      fromProfileId: 'user-id',
-      fromProfileName: 'user',
       ...mockCourse,
     };
     sharingService.convertDTOToDomain.and.returnValue({

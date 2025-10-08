@@ -1,0 +1,15 @@
+.preformatted-content {
+  font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
+  font-size: 0.95em;
+  padding: 1em;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 1em;
+}
+
+.actions-center {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}

@@ -1,0 +1,9 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content>
+  <pre class="preformatted-content">{{ data.content }}</pre>
+</mat-dialog-content>
+<mat-dialog-actions class="actions-center">
+  <button mat-stroked-button (click)="closeClicked()" cdkFocusInitial>
+    Close
+  </button>
+</mat-dialog-actions>

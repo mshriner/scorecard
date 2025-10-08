@@ -24,7 +24,9 @@ export interface BestRound extends RoundLike {
   bestScoresRecordedDateISO: string[];
 }
 
-export interface RoundDTO extends Round, ExportedItem {
+export interface RoundDTO extends Round, ExportedItem {}
+
+export interface RoundWithCourseDTO extends RoundDTO {
   courseDTO: CourseDTO;
 }
 

@@ -34,11 +34,18 @@ import {
   CLEAR_ALL_APP_DATA,
   DELETE_PROFILE,
 } from '../../models/constants';
-import { LocalUserWithFilters, ROUND_DATE_SORT_COL } from '../../models/user';
+import {
+  DataToShare,
+  UserWithRoundsAndCourses,
+} from '../../models/data-transfer';
+import { LocalUserWithFilters, User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
+import { SharingService } from '../../services/sharing.service';
+import { SnackBarService } from '../../services/snack-bar.service';
 import { UserService } from '../../services/user.service';
+import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 
 @Component({
@@ -60,7 +67,12 @@ export class ProfilesComponent {
   readonly dialog = inject(MatDialog);
   readonly APP_NAME = APP_NAME;
   readonly CLEAR_ALL = CLEAR_ALL_APP_DATA;
-  public readonly PROFILE_TABLE_COLUMNS = ['edit', 'username', 'delete'];
+  public readonly PROFILE_TABLE_COLUMNS = [
+    'edit',
+    'export',
+    'username',
+    'delete',
+  ];
   public readonly localStorageUsed = computed(() => {
     if (!this.profiles()?.length) {
       return 0;
@@ -72,7 +84,9 @@ export class ProfilesComponent {
     public appStateService: AppStateService,
     private readonly userService: UserService,
     private readonly roundService: RoundService,
-    private readonly couseService: CourseService,
+    private readonly courseService: CourseService,
+    private readonly sharingService: SharingService,
+    private readonly snackBarService: SnackBarService,
     private readonly router: Router,
     private readonly changeDetection: ChangeDetectorRef,
   ) {
@@ -86,7 +100,9 @@ export class ProfilesComponent {
 
   public selectProfile(selected: LocalUserWithFilters): void {
     this.appStateService.currentUser.set(selected);
-    this.router.navigateByUrl('/home');
+    this.router
+      .navigateByUrl(APP_ROUTES.HOME)
+      .then(() => requestAnimationFrame(() => window.location.reload()));
   }
 
   public addNewProfile(): void {
@@ -96,15 +112,12 @@ export class ProfilesComponent {
       .subscribe((newProfileName) => {
         const sanitizedName = newProfileName?.trim();
         if (sanitizedName?.length) {
-          const newProfile: LocalUserWithFilters = {
-            id: `user-${crypto.randomUUID()}`,
+          const newProfile: User = {
+            id: DataUtils.generateUUID('user'),
             name: sanitizedName,
             roundIds: [],
             courseIds: [],
             appFontScaling: 0,
-            sortBy: ROUND_DATE_SORT_COL,
-            sortDescending: true,
-            homeTab: 0,
           };
           this.profiles.set(this.userService.createUser(newProfile));
         }
@@ -118,7 +131,10 @@ export class ProfilesComponent {
     $event.stopPropagation();
     this.dialog
       .open(EditProfileDialog, {
-        data: userToEdit.name,
+        data: {
+          profileName: userToEdit.name,
+          checkAgainstOriginalProfileName: true,
+        },
       })
       .afterClosed()
       .subscribe((newProfileName) => {
@@ -133,6 +149,180 @@ export class ProfilesComponent {
           this.profiles.set(this.userService.getAllUsers());
         }
       });
+  }
+
+  public shareUserProfile(
+    userToEdit: LocalUserWithFilters,
+    $event: MouseEvent,
+  ): void {
+    $event.stopPropagation();
+    this.sharingService
+      .shareData({
+        data: {
+          user: userToEdit,
+          rounds: this.roundService.getRoundsByIds(userToEdit.roundIds),
+          courses: this.courseService.getCoursesByIds(userToEdit.courseIds),
+        },
+        objectType: 'user',
+      })
+      .subscribe();
+  }
+
+  public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
+    const file = input.files?.[0];
+    if (!file?.text?.call) {
+      input.value = '';
+      return Promise.resolve(false);
+    }
+    return file.text().then(
+      (uploaded) => {
+        let parsed: DataToShare | null = null;
+        try {
+          parsed = this.sharingService.convertDTOToDomain(JSON.parse(uploaded));
+        } catch (e) {
+          console.error(e);
+        }
+        input.value = '';
+        if (
+          parsed?.objectType !== 'user' ||
+          !(parsed?.data as UserWithRoundsAndCourses)?.rounds ||
+          !(parsed?.data as UserWithRoundsAndCourses)?.courses ||
+          !(parsed?.data as UserWithRoundsAndCourses)?.user
+        ) {
+          this.snackBarService.openTemporarySnackBar(
+            'Failed to import the user profile.',
+          );
+          return Promise.resolve(false);
+        }
+
+        const importedUser = parsed.data as UserWithRoundsAndCourses;
+        let needToChangeCourseIds = false;
+        let needToChangeRoundIds = false;
+
+        if (
+          this.doesAnotherProfileHaveThisUserIdOnThisDevice(
+            importedUser.user.id,
+          )
+        ) {
+          const newUserId = DataUtils.generateUUID('user');
+          importedUser.user.id = newUserId;
+          needToChangeCourseIds = true;
+          needToChangeRoundIds = true;
+        }
+
+        importedUser.courses.forEach((course) => {
+          if (
+            needToChangeCourseIds ||
+            this.doesThisCourseIdExistOnThisDevice(course.id)
+          ) {
+            const oldCourseId = course.id;
+            const newCourseId = DataUtils.generateUUID('course');
+            importedUser.rounds.forEach((round) => {
+              if (round.courseId === oldCourseId) {
+                round.courseId = newCourseId;
+              }
+            });
+            importedUser.user.courseIds = importedUser.user.courseIds.map(
+              (courseId) => {
+                if (courseId === oldCourseId) {
+                  return newCourseId;
+                }
+                return courseId;
+              },
+            );
+            course.id = newCourseId;
+          }
+        });
+
+        importedUser.rounds.forEach((round) => {
+          if (
+            needToChangeRoundIds ||
+            this.doesThisRoundIdExistOnThisDevice(round.id)
+          ) {
+            const oldRoundId = round.id;
+            const newRoundId = DataUtils.generateUUID('round');
+            importedUser.user.roundIds = importedUser.user.roundIds.map(
+              (roundId) => {
+                if (roundId === oldRoundId) {
+                  return newRoundId;
+                }
+                return roundId;
+              },
+            );
+            round.id = newRoundId;
+          }
+        });
+        this.dialog
+          .open(EditProfileDialog, {
+            data: {
+              profileName: importedUser?.user?.name || 'Imported User',
+              checkAgainstOriginalProfileName: false,
+            },
+          })
+          .afterClosed()
+          .subscribe((newProfileName) => {
+            const sanitizedName = newProfileName?.trim();
+            if (sanitizedName?.length) {
+              importedUser.user.name = sanitizedName;
+              const userSaveResult = this.userService.createUser(
+                importedUser.user,
+              );
+              if (!userSaveResult) {
+                this.snackBarService.openTemporarySnackBar(
+                  `Failed to import "${importedUser.user.name}".`,
+                );
+                return;
+              }
+              for (const course of importedUser.courses) {
+                const saveResult = this.courseService.setCourse(course);
+                if (!saveResult) {
+                  this.snackBarService.openTemporarySnackBar(
+                    `Failed to import course "${course.name}".`,
+                  );
+                  this.userService.deleteUsers([importedUser.user.id]);
+                  return;
+                }
+              }
+              const roundsSaveResult = this.roundService.saveRounds(
+                importedUser.rounds,
+                false,
+              );
+              if (!roundsSaveResult) {
+                this.snackBarService.openTemporarySnackBar(
+                  `Failed to import rounds for new user "${importedUser.user.name}".`,
+                );
+                this.userService.deleteUsers([importedUser.user.id]);
+                return;
+              }
+              this.changeDetection.markForCheck();
+              this.profiles.set(this.userService.getAllUsers());
+              this.snackBarService.openTemporarySnackBar(
+                `User "${importedUser.user.name}" was imported successfully.`,
+              );
+            }
+          });
+
+        return Promise.resolve(true);
+      },
+      (reject) => {
+        input.value = '';
+        return Promise.reject(new Error(reject));
+      },
+    );
+  }
+
+  private doesAnotherProfileHaveThisUserIdOnThisDevice(
+    userId: string,
+  ): boolean {
+    return !this.userService.getAllUserIds().includes(userId);
+  }
+
+  private doesThisCourseIdExistOnThisDevice(courseId: string): boolean {
+    return !!this.courseService.getCourse(courseId);
+  }
+
+  private doesThisRoundIdExistOnThisDevice(roundId: string): boolean {
+    return !!this.roundService.getRoundById(roundId);
   }
 
   public deleteProfile(userIdToDelete: string, $event: MouseEvent): void {
@@ -153,7 +343,7 @@ export class ProfilesComponent {
           }
           const userToDelete = this.userService.getUser(userIdToDelete);
           this.roundService.deleteRounds(userToDelete?.roundIds);
-          this.couseService.deleteCourses(userToDelete?.courseIds);
+          this.courseService.deleteCourses(userToDelete?.courseIds);
           this.userService.deleteUsers([userIdToDelete]);
         }
       });
@@ -219,12 +409,15 @@ export class NewProfileDialog {
 })
 export class EditProfileDialog {
   readonly dialogRef = inject(MatDialogRef<EditProfileDialog>);
-  readonly data = inject<string | null>(MAT_DIALOG_DATA);
-  readonly profileName = model(this.data);
+  readonly data = inject<{
+    profileName: string;
+    checkAgainstOriginalProfileName: boolean;
+  }>(MAT_DIALOG_DATA);
+  readonly profileName = model(this.data.profileName);
   readonly originalProfileName;
 
   constructor() {
-    this.originalProfileName = JSON.parse(JSON.stringify(this.data));
+    this.originalProfileName = structuredClone(this.data.profileName);
   }
 
   public onNoClick(): void {

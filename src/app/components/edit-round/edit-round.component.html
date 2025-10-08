@@ -1,3 +1,6 @@
+@let _newStrokesUIEnabled = !!appStateService.currentUser()?.newStrokesUI;
+@let newUIMenuFeatures = _newStrokesUIEnabled && !imported;
+@let oldUIMenuFeatures = !_newStrokesUIEnabled && !imported;
 <form>
   @if (coursesToChooseFrom.length) {
     <div class="full-width-center">
@@ -229,7 +232,6 @@
   let-column="column"
   [typedTemplate]="HOLE_ROW_TYPES"
 >
-  @let newStrokesUI = !!appStateService.currentUser()?.newStrokesUI;
   @switch (column.columnDef) {
     @case (HOLE_COL) {
       <b>{{ holeIndex + 1 }}</b>
@@ -240,7 +242,7 @@
     }
     @case (STROKES_COL) {
       <div class="hole-par-adjustment">
-        @if (!imported && !newStrokesUI) {
+        @if (oldUIMenuFeatures) {
           <button
             mat-icon-button
             class="plusminus"
@@ -252,12 +254,12 @@
         }
         <div
           class="par-value-box"
+          mat-ripple
+          [matRippleDisabled]="!newUIMenuFeatures"
           [class.highlighted]="menuOpen() === 'strokes-' + holeIndex + 1"
-          [matMenuTriggerFor]="newStrokesUI && !imported ? strokesMenu : null"
+          [matMenuTriggerFor]="newUIMenuFeatures ? strokesMenu : null"
           (click)="
-            newStrokesUI &&
-              !imported &&
-              menuOpen.set('strokes-' + holeIndex + 1)
+            newUIMenuFeatures && menuOpen.set('strokes-' + holeIndex + 1)
           "
         >
           @if (currentCourse?.par?.[holeIndex]) {
@@ -282,6 +284,7 @@
           yPosition="below"
           (closed)="menuOpen.set(''); showHigherStrokeOptions.set(false)"
           stay-open
+          [overlapTrigger]="false"
         >
           @for (
             strokes of showHigherStrokeOptions()
@@ -334,7 +337,7 @@
             </button>
           }
         </mat-menu>
-        @if (!imported && !newStrokesUI) {
+        @if (oldUIMenuFeatures) {
           <button
             mat-icon-button
             class="plusminus"
@@ -347,7 +350,7 @@
     }
     @case (PUTTS_COL) {
       <div class="hole-par-adjustment">
-        @if (!imported && !newStrokesUI) {
+        @if (oldUIMenuFeatures) {
           <button
             mat-icon-button
             class="plusminus"
@@ -360,11 +363,11 @@
 
         <div
           class="par-value-box"
+          mat-ripple
+          [matRippleDisabled]="!newUIMenuFeatures"
           [class.highlighted]="menuOpen() === 'putts-' + holeIndex + 1"
-          [matMenuTriggerFor]="newStrokesUI && !imported ? puttsMenu : null"
-          (click)="
-            newStrokesUI && !imported && menuOpen.set('putts-' + holeIndex + 1)
-          "
+          [matMenuTriggerFor]="newUIMenuFeatures ? puttsMenu : null"
+          (click)="newUIMenuFeatures && menuOpen.set('putts-' + holeIndex + 1)"
         >
           {{ editingRound.putts[holeIndex] ?? '-' }}
         </div>
@@ -374,6 +377,7 @@
           yPosition="below"
           (closed)="menuOpen.set(''); showHigherStrokeOptions.set(false)"
           stay-open
+          [overlapTrigger]="false"
         >
           @for (
             putts of showHigherStrokeOptions()
@@ -419,7 +423,7 @@
             </button>
           }
         </mat-menu>
-        @if (!imported && !newStrokesUI) {
+        @if (oldUIMenuFeatures) {
           <button
             mat-icon-button
             class="plusminus"

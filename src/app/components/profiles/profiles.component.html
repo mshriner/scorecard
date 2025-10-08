@@ -34,6 +34,18 @@
       </mat-cell>
     </ng-container>
 
+    <ng-container matColumnDef="export">
+      <mat-cell *matCellDef="let user" class="thin">
+        <button
+          mat-icon-button
+          aria-label="Export profile"
+          (click)="shareUserProfile(user, $event)"
+        >
+          <mat-icon>ios_share</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
     <ng-container matColumnDef="username">
       <mat-cell *matCellDef="let user"> &nbsp; {{ user.name }} </mat-cell>
     </ng-container>
@@ -65,18 +77,34 @@
   <div class="full-width-center">Create a profile to get started.</div>
 }
 <br />
-<div class="full-width-center">
+<div class="full-width-center space-evenly">
   <button mat-stroked-button (click)="addNewProfile()">
     <mat-icon>add</mat-icon>
-    Add Profile
+    New
+    @if (!appStateService.useSmallerButtons()) {
+      Profile
+    }
   </button>
+  <button mat-stroked-button (click)="fileInput.click()">
+    <mat-icon>input</mat-icon>
+    Import
+    @if (!appStateService.useSmallerButtons()) {
+      Profile
+    }
+  </button>
+  <input
+    hidden
+    (change)="onFileSelected(fileInput)"
+    #fileInput
+    type="file"
+    id="file"
+    accept="application/json"
+  />
 </div>
-<div class="full-width-center">
-  <br />
-  <br />
-  <br />
-  Advanced Options
-</div>
+<br />
+<br />
+<br />
+<div class="full-width-center">Advanced Options</div>
 <mat-divider></mat-divider>
 <br />
 <div class="full-width-center">

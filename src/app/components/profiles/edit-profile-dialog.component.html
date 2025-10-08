@@ -15,7 +15,10 @@
   </button>
   <button
     mat-stroked-button
-    [disabled]="!profileName()?.length || profileName() === originalProfileName"
+    [disabled]="
+      data.checkAgainstOriginalProfileName &&
+      (!profileName().length || profileName() === originalProfileName)
+    "
     [mat-dialog-close]="profileName()"
   >
     <mat-icon>save_as</mat-icon>

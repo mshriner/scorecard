@@ -18,7 +18,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterOutlet, RoutesRecognized } from '@angular/router';
@@ -71,7 +71,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   public readonly AppTheme = AppTheme;
 
   @ViewChild('sidenav')
-  sidenav!: any;
+  sidenav?: MatSidenav;
 
   constructor(
     public appStateService: AppStateService,
@@ -81,8 +81,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     private readonly snackBarService: SnackBarService,
     private readonly serviceWorker: SwUpdate,
     private readonly destroyRef: DestroyRef,
-  ) {
-    if (!this.isOnProfilesScreen && !this.currentUser) {
+  ) {}
+
+  ngOnInit() {
+    if (
+      !this.hasNoRoute &&
+      !this.isOnProfilesScreen &&
+      !this.isOnAboutScreen &&
+      !this.currentUser
+    ) {
       this.logout();
     }
     this.router.events
@@ -94,9 +101,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       .subscribe((e) => {
         this.previousUrl = e[0].urlAfterRedirects; // previous url
       });
-  }
-
-  ngOnInit() {
     this.appStateService.useSmallerButtons();
     this.appStateService.appTheming();
     const doNotShowInstallPrompt =
@@ -137,7 +141,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     if (sessionStorage.getItem(SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD)) {
       sessionStorage.removeItem(SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD);
-      this.sidenav.open();
+      this.sidenav?.open();
     }
   }
 
@@ -165,28 +169,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private doGoBack(): void {
-    if (this.previousUrl) {
-      this.router.navigateByUrl(this.previousUrl);
-    } else if (this.isOnEditCourseScreen) {
-      this.router.navigateByUrl(APP_ROUTES.COURSES);
-    } else if (this.isOnEditRoundScreen) {
-      this.router.navigateByUrl(APP_ROUTES.HOME);
-    } else {
-      this.location.back();
-    }
-  }
-
-  public goToHome(): void {
-    this.router.navigateByUrl(APP_ROUTES.HOME).then(() => {
-      this.sidenav.close();
-    });
-  }
-
-  public viewCourses(): void {
-    this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
-      this.sidenav.close();
-    });
+  public get hasNoRoute(): boolean {
+    return this.router.url === `/`;
   }
 
   public get isOnHomeScreen(): boolean {
@@ -217,21 +201,51 @@ export class AppComponent implements OnInit, AfterViewInit {
     return this.router.url === `/${APP_ROUTES.ABOUT}`;
   }
 
+  private doGoBack(): void {
+    if (this.previousUrl) {
+      this.router.navigateByUrl(this.previousUrl);
+    } else if (this.isOnEditCourseScreen) {
+      this.router.navigateByUrl(APP_ROUTES.COURSES);
+    } else if (this.isOnEditRoundScreen) {
+      this.router.navigateByUrl(APP_ROUTES.HOME);
+    } else {
+      this.location.back();
+    }
+  }
+
+  public goToHome(): void {
+    this.router.navigateByUrl(APP_ROUTES.HOME).then(() => {
+      this.sidenav?.close();
+    });
+  }
+
+  public goToProfiles(): void {
+    this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
+      this.sidenav?.close();
+    });
+  }
+
+  public viewCourses(): void {
+    this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
+      this.sidenav?.close();
+    });
+  }
+
   public addNewCourse(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE).then(() => {
-      this.sidenav.close();
+      this.sidenav?.close();
     });
   }
 
   public addNewRound(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND).then(() => {
-      this.sidenav.close();
+      this.sidenav?.close();
     });
   }
 
   public async goToAbout(): Promise<void> {
     return this.router.navigateByUrl(APP_ROUTES.ABOUT).then(() => {
-      this.sidenav.close();
+      this.sidenav?.close();
     });
   }
 
@@ -252,7 +266,10 @@ export class AppComponent implements OnInit, AfterViewInit {
             this.snackBarService.openTemporarySnackBar(`Loading update...`);
             setTimeout(() => {
               this.goToAbout().then(() => {
-                sessionStorage.setItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG, 'y');
+                sessionStorage.setItem(
+                  SESSION_STORAGE_KEYS.GO_TO_CHANGELOG,
+                  'y',
+                );
                 window.location.reload();
               });
             }, 1250);

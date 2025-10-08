@@ -9,14 +9,17 @@ export enum AppTheme {
   DARK,
 }
 
-export interface User extends StorageObject {
+interface UserBaseData extends StorageObject {
   name: string;
-  roundIds: string[];
-  courseIds: string[];
   appFontScaling: number;
 }
 
-export interface LocalUserWithFilters extends User {
+export interface User extends UserBaseData {
+  roundIds: string[];
+  courseIds: string[];
+}
+
+export interface LocalFilters {
   filtersOpen?: boolean;
   courseStatsFilterSelect?: string[];
   earliestDateISO?: string;
@@ -30,6 +33,8 @@ export interface LocalUserWithFilters extends User {
   evenSpaceGraph?: boolean;
 }
 
+export interface LocalUserWithFilters extends User, LocalFilters {}
+
 export const ROUND_DATE_SORT_COL = 'roundDate';
 export const ROUND_SCORE_SORT_COL = 'roundScore';
 export type ResultsSorting =
@@ -38,7 +43,8 @@ export type ResultsSorting =
 
 export type WhenToShowPWADialogAgain = 'later' | 'never';
 
-export interface UserDTO extends User, ExportedItem {
+export interface UserProfileDTO extends ExportedItem {
+  userDTO: UserBaseData;
   courseDTOs: CourseDTO[];
   roundDTOs: RoundDTO[];
 }

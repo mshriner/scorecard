@@ -90,7 +90,11 @@
         </div>
       }
       <div class="block">
-        <div mat-ripple (click)="checkForUpdates(true)" class="flex-menu-option">
+        <div
+          mat-ripple
+          (click)="checkForUpdates(true)"
+          class="flex-menu-option"
+        >
           @if (showSpinner()) {
             <mat-icon class="rotate">refresh</mat-icon>
           } @else {
@@ -151,6 +155,12 @@
             </mat-slide-toggle>
           </button>
         </mat-menu>
+      } @else if (!currentUser && isOnAboutScreen) {
+        <span class="toolbar-padding"></span>
+        <button mat-stroked-button (click)="goToProfiles()" cdkFocusInitial>
+          <mat-icon>switch_account</mat-icon>
+          Go to Profiles
+        </button>
       }
     </mat-toolbar>
     <div class="under-toolbar"></div>
