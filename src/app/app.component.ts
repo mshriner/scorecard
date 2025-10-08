@@ -84,14 +84,16 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    if (
-      !this.hasNoRoute &&
-      !this.isOnProfilesScreen &&
-      !this.isOnAboutScreen &&
-      !this.currentUser
-    ) {
-      this.logout();
-    }
+    requestAnimationFrame(() => {
+      if (
+        !this.hasNoRoute &&
+        !this.isOnProfilesScreen &&
+        !this.isOnAboutScreen &&
+        !this.currentUser
+      ) {
+        this.logout();
+      }
+    });
     this.router.events
       .pipe(
         takeUntilDestroyed(this.destroyRef),
