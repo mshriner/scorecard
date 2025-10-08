@@ -4,6 +4,7 @@ import {
   LocalFilters,
   LocalUserWithFilters,
   ROUND_DATE_SORT_COL,
+  User,
 } from '../models/user';
 import { LocalStorageService } from './local-storage.service';
 
@@ -73,7 +74,7 @@ export class UserService {
     return this.setUser(newUser);
   }
 
-  public createUser(newUser: LocalUserWithFilters): LocalUserWithFilters[] {
+  public createUser(newUser: User): LocalUserWithFilters[] {
     const defaultPropertiesForNewUser: LocalFilters = {
       sortBy: ROUND_DATE_SORT_COL,
       sortDescending: true,
@@ -82,7 +83,7 @@ export class UserService {
     };
 
     // Only set default properties if they are not already present in newUser
-    const userToSave = { ...newUser };
+    const userToSave: LocalUserWithFilters = { ...newUser };
     Object.entries(defaultPropertiesForNewUser).forEach(([key, value]) => {
       if (userToSave[key] === undefined || userToSave[key] === null) {
         userToSave[key] = value;
