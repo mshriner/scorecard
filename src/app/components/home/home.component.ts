@@ -99,9 +99,14 @@ import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/per
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, AfterViewInit {
-  @ViewChild('courseStatsFilterSelect') select!: MatSelect;
-
+  appStateService = inject(AppStateService);
+  private readonly roundService = inject(RoundService);
+  courseService = inject(CourseService);
+  private readonly roundScorePipe = inject(TotalRoundScorePipe);
+  private readonly router = inject(Router);
   readonly dialog = inject(MatDialog);
+
+  @ViewChild('courseStatsFilterSelect') select!: MatSelect;
 
   public readonly Array = Array;
   public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
@@ -303,14 +308,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.BEST_ROUND_COURSE_NAME_COL,
     this.ROUND_DATE_COL,
   ];
-
-  constructor(
-    public appStateService: AppStateService,
-    private readonly roundService: RoundService,
-    public courseService: CourseService,
-    private readonly roundScorePipe: TotalRoundScorePipe,
-    private readonly router: Router,
-  ) {}
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(

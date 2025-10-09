@@ -1,6 +1,7 @@
 import {
   computed,
   effect,
+  inject,
   Injectable,
   OnDestroy,
   signal,
@@ -15,6 +16,9 @@ import { UserService } from './user.service';
   providedIn: 'root',
 })
 export class AppStateService implements OnDestroy {
+  private readonly userService = inject(UserService);
+  private readonly router = inject(Router);
+
   public readonly pageTitle: WritableSignal<string> = signal('');
   public readonly useSmallerButtons = computed(() => {
     const fontScaling = this.currentUser()?.appFontScaling || 0;
@@ -58,10 +62,7 @@ export class AppStateService implements OnDestroy {
 
   private readonly routeSubscription: Subscription;
 
-  constructor(
-    private readonly userService: UserService,
-    private readonly router: Router,
-  ) {
+  constructor() {
     this.routeSubscription = this.router.events.subscribe(() => {
       this.unsavedDataOnPage.set(false);
     });

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +12,9 @@ import { AppStateService } from '../../services/app-state.service';
   imports: [MatCardModule, MatDividerModule, MatIconModule],
 })
 export class AboutThisAppComponent implements AfterViewInit {
-  constructor(private readonly appStateService: AppStateService) {
+  private readonly appStateService = inject(AppStateService);
+
+  constructor() {
     this.appStateService.setPageTitle(`About This App`);
   }
 

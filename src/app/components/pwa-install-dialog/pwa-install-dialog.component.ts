@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogActions,
@@ -23,14 +23,14 @@ import { AppStateService } from '../../services/app-state.service';
   ],
 })
 export class PwaInstallDialogComponent {
+  dialogRef = inject<MatDialogRef<PwaInstallDialogComponent>>(MatDialogRef);
+  private readonly appStateService = inject(AppStateService);
+
   public readonly isIOS: boolean;
   public readonly isAndroid: boolean;
   public readonly isNeverShowAgainAnOption: boolean;
 
-  constructor(
-    public dialogRef: MatDialogRef<PwaInstallDialogComponent>,
-    private readonly appStateService: AppStateService,
-  ) {
+  constructor() {
     const userAgent = window.navigator.userAgent.toLowerCase();
     this.isIOS = /iphone|ipad|ipod/.test(userAgent);
     this.isAndroid = /android/.test(userAgent);

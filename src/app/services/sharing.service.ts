@@ -36,8 +36,7 @@ export class SharingService {
   private readonly IMPORTED_MESSAGE = ' (imported)';
 
   private readonly dialog = inject(MatDialog);
-
-  constructor(private readonly snackBarService: SnackBarService) {}
+  private readonly snackBarService = inject(SnackBarService);
 
   private canBrowserShareData(data: any): boolean {
     if (!navigator.share || !navigator.canShare) {

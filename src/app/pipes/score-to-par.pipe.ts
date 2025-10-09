@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { Course } from '../models/course';
 import { RoundLike, RoundVariety } from '../models/round';
 import { EighteenNumbers, NineNumbers } from '../models/storage-object';
@@ -10,10 +10,8 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
   pure: false,
 })
 export class ScoreToParPipe implements PipeTransform {
-  constructor(
-    private readonly courseService: CourseService,
-    private readonly roundVarietyScores: RoundVarietyScoresPipe,
-  ) {}
+  private readonly courseService = inject(CourseService);
+  private readonly roundVarietyScores = inject(RoundVarietyScoresPipe);
 
   transform(
     round: RoundLike,

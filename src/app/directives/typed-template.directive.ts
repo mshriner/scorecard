@@ -1,4 +1,4 @@
-import { Directive, Input, TemplateRef } from '@angular/core';
+import { Directive, Input } from '@angular/core';
 
 // https://stackoverflow.com/a/68318283
 @Directive({ selector: 'ng-template[typedTemplate]', standalone: true })
@@ -7,13 +7,10 @@ export class TypedTemplateDirective<TypeToken> {
   @Input('typedTemplate')
   typeToken?: TypeToken;
 
-  // the directive gets the template from Angular
-  constructor(private _contentTemplate: TemplateRef<TypeToken>) {}
-
   // this magic is how we tell Angular the context type for this directive, which then propagates down to the type of the template
   static ngTemplateContextGuard<TypeToken>(
-    dir: TypedTemplateDirective<TypeToken>,
-    ctx: unknown
+    _dir: TypedTemplateDirective<TypeToken>,
+    ctx: unknown,
   ): ctx is TypeToken {
     return true;
   }
