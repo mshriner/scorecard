@@ -100,9 +100,17 @@ export class ProfilesComponent {
 
   public selectProfile(selected: LocalUserWithFilters): void {
     this.appStateService.currentUser.set(selected);
-    this.router
-      .navigateByUrl(APP_ROUTES.HOME)
-      .then(() => requestAnimationFrame(() => window.location.reload()));
+    this.router.navigateByUrl(APP_ROUTES.HOME).then(() =>
+      requestAnimationFrame(() => {
+        if (window.navigator.onLine) {
+          window.location.reload();
+        } else {
+          this.snackBarService.openTemporarySnackBar(
+            `You are offline. If your theme is incorrect, please restart the app.`,
+          );
+        }
+      }),
+    );
   }
 
   public addNewProfile(): void {

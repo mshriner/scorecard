@@ -2,8 +2,8 @@ import { AfterViewInit, Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { AppStateService } from '../../services/app-state.service';
 import { SESSION_STORAGE_KEYS } from '../../models/constants';
+import { AppStateService } from '../../services/app-state.service';
 
 @Component({
   selector: 'app-about-this-app',
@@ -24,7 +24,7 @@ export class AboutThisAppComponent implements AfterViewInit {
           block: 'start',
         });
         sessionStorage.removeItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG);
-      }, 100);
+      }, 250);
     }
   }
 }

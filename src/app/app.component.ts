@@ -85,7 +85,9 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     requestAnimationFrame(() => {
-      if (
+      if (sessionStorage.getItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG)) {
+        this.goToAbout();
+      } else if (
         !this.hasNoRoute &&
         !this.isOnProfilesScreen &&
         !this.isOnAboutScreen &&
@@ -267,13 +269,8 @@ export class AppComponent implements OnInit, AfterViewInit {
           if (newUpdate) {
             this.snackBarService.openTemporarySnackBar(`Loading update...`);
             setTimeout(() => {
-              this.goToAbout().then(() => {
-                sessionStorage.setItem(
-                  SESSION_STORAGE_KEYS.GO_TO_CHANGELOG,
-                  'y',
-                );
-                window.location.reload();
-              });
+              sessionStorage.setItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG, 'y');
+              window.location.reload();
             }, 1250);
           } else {
             if (showFailureMessages) {
