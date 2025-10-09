@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { Round, RoundVariety } from '../models/round';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
@@ -7,7 +7,7 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
   pure: false,
 })
 export class TotalPuttsPipe implements PipeTransform {
-  constructor(private readonly roundVarietyScores: RoundVarietyScoresPipe) {}
+  private readonly roundVarietyScores = inject(RoundVarietyScoresPipe);
 
   transform(round: Round, half?: RoundVariety): number {
     return (

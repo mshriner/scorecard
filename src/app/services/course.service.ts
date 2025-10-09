@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Course } from '../models/course';
 import { AppStateService } from './app-state.service';
 import { LocalStorageService } from './local-storage.service';
@@ -7,10 +7,8 @@ import { LocalStorageService } from './local-storage.service';
   providedIn: 'root',
 })
 export class CourseService {
-  constructor(
-    private readonly appStateService: AppStateService,
-    private readonly localStorageService: LocalStorageService,
-  ) {}
+  private readonly appStateService = inject(AppStateService);
+  private readonly localStorageService = inject(LocalStorageService);
 
   public getAllCoursesForCurrentUser(): Course[] {
     if (!this.appStateService.currentUser()) {

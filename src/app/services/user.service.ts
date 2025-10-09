@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { LOCAL_STORAGE_KEYS } from '../models/constants';
 import {
   LocalFilters,
@@ -12,7 +12,7 @@ import { LocalStorageService } from './local-storage.service';
   providedIn: 'root',
 })
 export class UserService {
-  constructor(private readonly localStorageService: LocalStorageService) {}
+  private readonly localStorageService = inject(LocalStorageService);
 
   public getAllUserIds(): string[] {
     const retrieved = this.localStorageService.getItem(

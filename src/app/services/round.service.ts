@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Round, RoundVariety } from '../models/round';
 import { RoundVarietyScoresPipe } from '../pipes/round-variety-scores.pipe';
 import { AppStateService } from './app-state.service';
@@ -8,12 +8,10 @@ import { LocalStorageService } from './local-storage.service';
   providedIn: 'root',
 })
 export class RoundService {
-  private readonly roundVarietyScoresPipe = new RoundVarietyScoresPipe();
+  private readonly localStorageService = inject(LocalStorageService);
+  private readonly appStateService = inject(AppStateService);
 
-  constructor(
-    private readonly localStorageService: LocalStorageService,
-    private readonly appStateService: AppStateService,
-  ) {}
+  private readonly roundVarietyScoresPipe = new RoundVarietyScoresPipe();
 
   public getRoundById(roundId: string): Round | null {
     const retrieved = this.localStorageService.getItem(roundId);

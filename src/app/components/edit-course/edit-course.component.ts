@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -51,6 +51,15 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
   styleUrl: './edit-course.component.scss',
 })
 export class EditCourseComponent implements OnInit {
+  appStateService = inject(AppStateService);
+  private readonly courseService = inject(CourseService);
+  private readonly dialog = inject(MatDialog);
+  private readonly roundService = inject(RoundService);
+  private readonly router = inject(Router);
+  private readonly sharingService = inject(SharingService);
+  private readonly snackBarService = inject(SnackBarService);
+  private readonly courseVarietySlicePipe = inject(CourseVarietySlicePipe);
+
   private readonly originalCourse: Course;
   private readonly redirectToHome: boolean = false;
   public editingCourse: Course;
@@ -89,16 +98,9 @@ export class EditCourseComponent implements OnInit {
     event.preventDefault();
   }
 
-  constructor(
-    public appStateService: AppStateService,
-    private readonly courseService: CourseService,
-    private readonly dialog: MatDialog,
-    private readonly roundService: RoundService,
-    private readonly router: Router,
-    private readonly sharingService: SharingService,
-    private readonly snackBarService: SnackBarService,
-    private readonly courseVarietySlicePipe: CourseVarietySlicePipe,
-  ) {
+  constructor() {
+    const router = this.router;
+
     this.showSummaryRow = this.showSummaryRow.bind(this);
     this.courseIdToEdit =
       router.getCurrentNavigation()?.extras?.state?.[

@@ -63,6 +63,15 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
   styleUrl: './profiles.component.scss',
 })
 export class ProfilesComponent {
+  appStateService = inject(AppStateService);
+  private readonly userService = inject(UserService);
+  private readonly roundService = inject(RoundService);
+  private readonly courseService = inject(CourseService);
+  private readonly sharingService = inject(SharingService);
+  private readonly snackBarService = inject(SnackBarService);
+  private readonly router = inject(Router);
+  private readonly changeDetection = inject(ChangeDetectorRef);
+
   readonly profiles: WritableSignal<LocalUserWithFilters[]> = signal([]);
   readonly dialog = inject(MatDialog);
   readonly APP_NAME = APP_NAME;
@@ -80,16 +89,7 @@ export class ProfilesComponent {
     return new Blob(Object.values(localStorage)).size;
   });
 
-  constructor(
-    public appStateService: AppStateService,
-    private readonly userService: UserService,
-    private readonly roundService: RoundService,
-    private readonly courseService: CourseService,
-    private readonly sharingService: SharingService,
-    private readonly snackBarService: SnackBarService,
-    private readonly router: Router,
-    private readonly changeDetection: ChangeDetectorRef,
-  ) {
+  constructor() {
     this.appStateService.setPageTitle('Profiles');
     effect(() => {
       // this is only really needed if the user changes text size while logged in on this screen

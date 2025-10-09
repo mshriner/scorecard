@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import { Course, NINE_NUMBERS_ZEROED } from '../models/course';
 import { Round, RoundVariety } from '../models/round';
 import { NineNumbers } from '../models/storage-object';
@@ -13,7 +13,7 @@ interface NineHoleScoreWithCourse {
 
 @Pipe({ name: 'averageScore' })
 export class AverageScorePipe implements PipeTransform {
-  constructor(private readonly decimal: DecimalPipe) {}
+  private readonly decimal = inject(DecimalPipe);
 
   transform(rounds: Round[], eighteenHolesOnly: 9 | 18): string {
     const roundHalvesThatCount = getNineHoleRoundsToCount(
@@ -37,10 +37,8 @@ export class AverageScorePipe implements PipeTransform {
 
 @Pipe({ name: 'averageScoreToPar' })
 export class AverageScoreToParPipe implements PipeTransform {
-  constructor(
-    private readonly roundVarietyScores: RoundVarietyScoresPipe,
-    private readonly decimal: DecimalPipe,
-  ) {}
+  private readonly roundVarietyScores = inject(RoundVarietyScoresPipe);
+  private readonly decimal = inject(DecimalPipe);
 
   transform(
     rounds: Round[],

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AppStateService } from '../../services/app-state.service';
 import { LocalStorageService } from '../../services/local-storage.service';
 
@@ -9,10 +9,10 @@ import { LocalStorageService } from '../../services/local-storage.service';
   styleUrl: './clear-data.component.scss',
 })
 export class ClearDataComponent {
-  constructor(
-    private appStateService: AppStateService,
-    private localStorageService: LocalStorageService,
-  ) {
+  private readonly appStateService = inject(AppStateService);
+  private readonly localStorageService = inject(LocalStorageService);
+
+  constructor() {
     this.appStateService.currentUser.set(null);
     this.localStorageService.clear();
     this.appStateService.setPageTitle('App Data Cleared! Reloading...');

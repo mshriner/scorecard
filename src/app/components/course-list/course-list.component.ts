@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +33,12 @@ import { UserService } from '../../services/user.service';
   styleUrl: './course-list.component.scss',
 })
 export class CourseListComponent implements OnInit {
+  appStateService = inject(AppStateService);
+  courseService = inject(CourseService);
+  userService = inject(UserService);
+  private readonly router = inject(Router);
+  private readonly snackBarService = inject(SnackBarService);
+
   public courses: WritableSignal<Course[]> = signal([]);
 
   public readonly COURSE_NAME_COL = 'courseName';
@@ -36,13 +48,7 @@ export class CourseListComponent implements OnInit {
     this.COURSE_PAR_COL,
   ];
 
-  constructor(
-    public appStateService: AppStateService,
-    public courseService: CourseService,
-    public userService: UserService,
-    private readonly router: Router,
-    private readonly snackBarService: SnackBarService,
-  ) {
+  constructor() {
     this.snackBarService.openTemporarySnackBar(
       this.router.getCurrentNavigation()?.extras?.state?.[
         NAVIGATION_STATE_KEYS.MESSAGE

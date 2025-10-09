@@ -2,6 +2,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import {
   Component,
   HostListener,
+  inject,
   OnInit,
   signal,
   Signal,
@@ -77,6 +78,15 @@ import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-d
   styleUrl: './edit-round.component.scss',
 })
 export class EditRoundComponent implements OnInit {
+  appStateService = inject(AppStateService);
+  private readonly courseService = inject(CourseService);
+  private readonly roundService = inject(RoundService);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly sharingService = inject(SharingService);
+  private readonly snackBarService = inject(SnackBarService);
+  private readonly roundVarietyScoresPipe = inject(RoundVarietyScoresPipe);
+
   private readonly originalRound: Round;
   private readonly redirectToHome: boolean = false;
   public editingRound: Round;
@@ -150,17 +160,10 @@ export class EditRoundComponent implements OnInit {
     event.preventDefault();
   }
 
-  constructor(
-    public appStateService: AppStateService,
-    private readonly courseService: CourseService,
-    private readonly roundService: RoundService,
-    private readonly router: Router,
-    private readonly dialog: MatDialog,
-    private readonly sharingService: SharingService,
-    private readonly snackBarService: SnackBarService,
-    private readonly roundVarietyScoresPipe: RoundVarietyScoresPipe,
-    datePipe: DatePipe,
-  ) {
+  constructor() {
+    const router = this.router;
+    const datePipe = inject(DatePipe);
+
     this.showSummaryRow = this.showSummaryRow.bind(this);
     this.coursesToChooseFrom = this.courseService.getAllCoursesForCurrentUser();
     this.roundIdToEdit =

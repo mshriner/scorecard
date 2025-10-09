@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   Component,
   DestroyRef,
+  inject,
   OnInit,
   signal,
   ViewChild,
@@ -63,6 +64,14 @@ import { SnackBarService } from './services/snack-bar.service';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit, AfterViewInit {
+  appStateService = inject(AppStateService);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly location = inject(Location);
+  private readonly snackBarService = inject(SnackBarService);
+  private readonly serviceWorker = inject(SwUpdate);
+  private readonly destroyRef = inject(DestroyRef);
+
   public readonly showSpinner = signal(false);
   private previousUrl: string | null = null;
   public readonly APP_THEMES = Object.values(AppTheme).filter(
@@ -72,16 +81,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   @ViewChild('sidenav')
   sidenav?: MatSidenav;
-
-  constructor(
-    public appStateService: AppStateService,
-    private readonly router: Router,
-    private readonly dialog: MatDialog,
-    private readonly location: Location,
-    private readonly snackBarService: SnackBarService,
-    private readonly serviceWorker: SwUpdate,
-    private readonly destroyRef: DestroyRef,
-  ) {}
 
   ngOnInit() {
     requestAnimationFrame(() => {
