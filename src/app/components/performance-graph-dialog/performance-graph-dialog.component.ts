@@ -23,6 +23,7 @@ import {
   gridX,
   gridY,
   line,
+  linearRegressionY,
   Plot,
   RenderFunction,
 } from '@observablehq/plot';
@@ -104,6 +105,7 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
     }
     this.logPoint = this.logPoint.bind(this);
     this.formatDiscreteDate = this.formatDiscreteDate.bind(this);
+    this.formatScoreToPar = this.formatScoreToPar.bind(this);
     this.renderGraph();
   }
 
@@ -128,10 +130,14 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
         label: `${this.graphData.yAxisLabel.trim()}${this.graphData.percent ? ' (%)' : ''}`,
         tickSpacing: 50,
         tickSize: 20,
+        nice: !this.graphData.percent,
+        tickFormat: this.graphData.scoreToPar
+          ? this.formatScoreToPar
+          : undefined,
       },
       x: {
         domain: this.evenlySpaceRounds()
-          ? [0, this.graphData.sortedDataPoints.length]
+          ? [0, this.graphData.sortedDataPoints.length] // intentional off-by-one to give space for tick label
           : undefined,
         type: this.evenlySpaceRounds() ? undefined : 'time',
         interval: this.evenlySpaceRounds() ? undefined : 'day',
@@ -156,12 +162,29 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
       },
       marks: [
         gridX({ strokeOpacity: 0.5, strokeWidth: 2 }),
-        gridY({ strokeOpacity: 0.5, strokeWidth: 2, interval: 20 }),
+        gridY({
+          strokeOpacity: 0.5,
+          strokeWidth: 2,
+          interval: this.graphData.percent ? 20 : undefined,
+        }),
+        this.graphData.sortedDataPoints.length > 1
+          ? linearRegressionY(this.graphData.sortedDataPoints, {
+              x: domainSelector,
+              y: 'yValue',
+              stroke: 'blue',
+              strokeWidth: 15,
+              strokeOpacity: 0.75,
+              strokeDasharray: '30 30',
+              fill: 'orange',
+              fillOpacity: 0.5,
+              interval: this.evenlySpaceRounds() ? undefined : 'day',
+            })
+          : undefined,
         line(this.graphData.sortedDataPoints, {
           x: domainSelector,
           y: 'yValue',
           strokeWidth: 5,
-          strokeOpacity: 0.5,
+          strokeOpacity: 0.75,
         }),
       ],
     });
@@ -170,6 +193,16 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
 
   private getIndex(_d: any, i: number): number {
     return i;
+  }
+
+  private formatScoreToPar(toPar: number): string {
+    if (toPar > 0) {
+      return `+${toPar}`;
+    }
+    if (toPar === 0) {
+      return '±0';
+    }
+    return `${toPar}`;
   }
 
   private formatDiscreteDate(idx: number): string {

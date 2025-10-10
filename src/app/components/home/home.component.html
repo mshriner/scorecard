@@ -257,6 +257,16 @@
                   }})
                 </h3>
               </mat-card-content>
+              @if (holeResultTotals().holesPlayedWithPutts) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    trendGraphButton;
+                    context: {
+                      which: 'score-to-par-all',
+                    }
+                  "
+                ></ng-container>
+              }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
@@ -286,6 +296,16 @@
                   }})
                 </h3>
               </mat-card-content>
+              @if (holeResultTotals().holesPlayedWithPutts) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    trendGraphButton;
+                    context: {
+                      which: 'score-to-par-18',
+                    }
+                  "
+                ></ng-container>
+              }
             </mat-card>
           </div>
           <br />
@@ -454,10 +474,10 @@
                   @if (holeResultTotals().holesPlayedWithPutts) {
                     {{
                       100 *
-                        (getTrendMeasureValue(
-                          holeResultTotals(),
+                        (GRAPH_VARIETIES[
                           'greens-in-regulation'
-                        ) ?? 0) | number: '1.0-0'
+                        ].yValueExtractor(holeResultTotals()) ?? 0)
+                        | number: '1.0-0'
                     }}%
                     <br />
                     ({{ holeResultTotals().inferredGreensInRegulation }} /
@@ -488,9 +508,8 @@
                   @if (holeResultTotals().inferredHolesScramblingNeeded) {
                     {{
                       100 *
-                        (getTrendMeasureValue(
-                          holeResultTotals(),
-                          'scrambling'
+                        (GRAPH_VARIETIES['scrambling'].yValueExtractor(
+                          holeResultTotals()
                         ) ?? 0) | number: '1.0-0'
                     }}%
                     <br />

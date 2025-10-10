@@ -37,6 +37,12 @@ export enum RoundVariety {
   FULL_NINE = 'FULL_NINE',
 }
 
+export interface RoundCompletion {
+  firstNineComplete: boolean;
+  secondNineComplete: boolean;
+  eighteenHolesComplete: boolean;
+}
+
 export const DisplayRoundVariety: Record<RoundVariety, string> = {
   EIGHTEEN: 'Full round (18 holes)',
   FRONT_NINE: 'Front nine (9 holes)',
