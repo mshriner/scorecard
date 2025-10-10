@@ -1,12 +1,13 @@
 import { BestRound, RoundVariety } from './round';
 
 export interface PerformanceGraphData {
+  sortedDataPoints: PerformanceGraphDataPoint[];
   yAxisLabel: string;
   yValueMinOverride?: number;
   yValueMaxOverride?: number;
-  percent: boolean;
-  scoreToPar: boolean;
-  sortedDataPoints: PerformanceGraphDataPoint[];
+  percent?: boolean;
+  scoreToPar?: boolean;
+  per9Holes?: boolean;
 }
 
 export interface PerformanceGraphDataPoint {
@@ -57,9 +58,9 @@ export type GraphYValueExtractor = (results: HoleResults) => number | null;
 
 export interface GraphDetails {
   yAxisLabel: string;
-  percent: boolean;
-  scoreToPar: boolean;
   yValueExtractor: GraphYValueExtractor;
+  percent?: boolean;
+  scoreToPar?: boolean;
 }
 
 export function createEmptyHoleResults(): HoleResults {
@@ -108,7 +109,6 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
   'greens-in-regulation': {
     yAxisLabel: 'Greens in Regulation',
     percent: true,
-    scoreToPar: false,
     yValueExtractor: (holeResults) => {
       if (!holeResults.holesPlayedWithPutts) {
         return null;
@@ -122,7 +122,6 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
   scrambling: {
     yAxisLabel: 'Scrambling Success',
     percent: true,
-    scoreToPar: false,
     yValueExtractor: (holeResults) => {
       if (!holeResults.inferredHolesScramblingNeeded) {
         return null;
@@ -134,9 +133,7 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
     },
   },
   'strokes-all': {
-    yAxisLabel: 'Strokes (All Rounds)',
-    percent: false,
-    scoreToPar: false,
+    yAxisLabel: 'Strokes (Per 9 Holes)',
     yValueExtractor: (holeResults) => {
       if (!holeResults.completedNinesInAllRounds) {
         return null;
@@ -149,8 +146,6 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
   },
   'strokes-18': {
     yAxisLabel: 'Strokes (18-Hole Rounds)',
-    percent: false,
-    scoreToPar: false,
     yValueExtractor: (holeResults) => {
       if (!holeResults.completed18HoleRounds) {
         return null;
@@ -162,8 +157,7 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
     },
   },
   'score-to-par-all': {
-    yAxisLabel: 'Score to Par (All Rounds)',
-    percent: false,
+    yAxisLabel: 'Score to Par (Per 9 Holes)',
     scoreToPar: true,
     yValueExtractor: (holeResults) => {
       if (!holeResults.completedNinesInAllRounds) {
@@ -177,7 +171,6 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
   },
   'score-to-par-18': {
     yAxisLabel: 'Score to Par (18-Hole Rounds)',
-    percent: false,
     scoreToPar: true,
     yValueExtractor: (holeResults) => {
       if (!holeResults.completed18HoleRounds) {
