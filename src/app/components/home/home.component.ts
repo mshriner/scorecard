@@ -15,7 +15,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
-  MatOption,
   MatRippleModule,
   provideNativeDateAdapter,
 } from '@angular/material/core';
@@ -125,12 +124,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public filteredRounds: WritableSignal<Round[]> = signal([]);
   public courseMap: Signal<Map<string, Course | null>> = computed(() => {
     const map: Map<string, Course | null> = new Map();
-    this.rounds().forEach((round) => {
+    for (const round of this.rounds()) {
       if (!map.has(round.courseId)) {
         const course = this.courseService.getCourse(round.courseId);
         map.set(round.courseId, course);
       }
-    });
+    }
     return map;
   });
   public holeResultTotals: Signal<HoleResults> = computed(() => {
@@ -138,37 +137,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (!this.filteredRounds()?.length) {
       return holeResults;
     }
-    this.filteredRounds().forEach((round) => {
+    for (const round of this.filteredRounds()) {
       this.processHoles(round, holeResults);
-    });
-    // TODO remove debug
-    try {
-      console.warn(
-        'avg strokes, all',
-        holeResults.totalStrokesInAllCompletedRounds /
-          holeResults.completedNinesInAllRounds,
-        `${holeResults.totalStrokesInAllCompletedRounds} / ${holeResults.completedNinesInAllRounds}`,
-      );
-      console.warn(
-        'avg strokes, 18',
-        holeResults.totalStrokesInCompleted18HoleRounds /
-          holeResults.completed18HoleRounds,
-        `${holeResults.totalStrokesInCompleted18HoleRounds} / ${holeResults.completed18HoleRounds}`,
-      );
-      console.warn(
-        'avg score to par, all',
-        holeResults.totalScoreToParInAllCompletedRounds /
-          holeResults.completedNinesInAllRounds,
-        `${holeResults.totalScoreToParInAllCompletedRounds} / ${holeResults.completedNinesInAllRounds}`,
-      );
-      console.warn(
-        'avg score to par, 18',
-        holeResults.totalScoreToParInCompleted18HoleRounds /
-          holeResults.completed18HoleRounds,
-        `${holeResults.totalScoreToParInCompleted18HoleRounds} / ${holeResults.completed18HoleRounds}`,
-      );
-    } catch (ignore) {
-      //
     }
     return holeResults;
   });
@@ -291,7 +261,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             roundVariety: RoundVariety.FULL_NINE,
             strokes: [...EMPTY_NINE_NUMBERS],
             course: course,
-            bestScoresRecordedDateISO: Array<string>(9),
+            bestScoresRecordedDateISO: new Array<string>(9),
           });
           break;
         }
@@ -301,7 +271,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             roundVariety: RoundVariety.EIGHTEEN,
             strokes: [...EMPTY_EIGHTEEN_NUMBERS],
             course: course,
-            bestScoresRecordedDateISO: Array<string>(18),
+            bestScoresRecordedDateISO: new Array<string>(18),
           });
           break;
         }
@@ -457,9 +427,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   public toggleAllSelection(): void {
     if (this.allSelected) {
-      this.select?.options?.forEach((item: MatOption) => item.select());
+      for (const item of this.select?.options ?? []) {
+        item.select();
+      }
     } else {
-      this.select?.options?.forEach((item: MatOption) => item.deselect());
+      for (const item of this.select?.options ?? []) {
+        item.deselect();
+      }
     }
     this.reevaluateAllSelectedStatus();
   }
@@ -467,13 +441,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public reevaluateAllSelectedStatus(save = false): void {
     let newStatus = true;
     let anyItemSelected = false;
-    this.select?.options?.forEach((item: MatOption) => {
-      if (!item.selected) {
-        newStatus = false;
-      } else {
+    for (const item of this.select?.options ?? []) {
+      if (item.selected) {
         anyItemSelected = true;
+      } else {
+        newStatus = false;
       }
-    });
+    }
+
     if (save && !anyItemSelected) {
       this.courseStatsFilter.setValue(this.courseIdOptions());
       this.allSelected = true;
@@ -622,7 +597,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
         delete user!.latestDateISO;
         return structuredClone(user);
       });
-      this.select?.options?.forEach((item: MatOption) => item.deselect());
+      for (const item of this.select?.options ?? []) {
+        item.deselect();
+      }
       this.reevaluateAllSelectedStatus(true);
     }
   }

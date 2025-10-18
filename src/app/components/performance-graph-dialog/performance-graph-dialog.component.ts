@@ -112,7 +112,7 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
   private renderGraph(): void {
     const graphItem = document.getElementById('graph-output');
     if (this.graph) {
-      graphItem?.removeChild(this.graph);
+      this.graph.remove();
     }
     const domainSelector = this.evenlySpaceRounds() ? this.getIndex : 'date';
     this.graph = dot(this.graphData.sortedDataPoints, {
