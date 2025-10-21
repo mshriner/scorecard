@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Confirm Course</h2>
+<mat-dialog-content>
+  <p>
+    Your imported round was played at "{{ options.importedCourse.name }}" (par
+    {{ options.importedCourse | par }}). Save this as a new course or choose an
+    existing course with matching par?
+  </p>
+
+  <mat-table [dataSource]="options.matchingCourses" class="full-width-table">
+    <ng-container matColumnDef="courseName">
+      <mat-header-cell *matHeaderCellDef>Existing Course</mat-header-cell>
+      <mat-cell *matCellDef="let course" (click)="rowClicked(course.id)">
+        {{ course.name }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="coursePar">
+      <mat-header-cell *matHeaderCellDef>Par</mat-header-cell>
+      <mat-cell *matCellDef="let course" (click)="rowClicked(course.id)">
+        {{ course | par }}
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+    <mat-row mat-ripple *matRowDef="let row; columns: columns"></mat-row>
+  </mat-table>
+</mat-dialog-content>
+<mat-dialog-actions class="no-padding actions-center">
+  <button mat-stroked-button (click)="cancel()" cdkFocusInitial>
+    <mat-icon>close</mat-icon>
+    Use imported course
+  </button>
+</mat-dialog-actions>

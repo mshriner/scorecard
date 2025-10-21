@@ -53,6 +53,7 @@ import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
+import { SelectCourseDialogComponent } from '../select-course-dialog/select-course-dialog.component';
 
 @Component({
   selector: 'app-edit-round',
@@ -184,7 +185,7 @@ export class EditRoundComponent implements OnInit {
         this.editingRound = {} as Round;
         this.redirectToHome = true;
       } else {
-        this.editingRound = JSON.parse(JSON.stringify(retrieved));
+        this.editingRound = structuredClone(retrieved);
         this.appStateService.setPageTitle(
           `Editing ${datePipe.transform(retrieved?.dateStringISO)}`,
         );
@@ -203,7 +204,7 @@ export class EditRoundComponent implements OnInit {
       };
       this.appStateService.setPageTitle(`Create Round`);
     }
-    this.originalRound = JSON.parse(JSON.stringify(this.editingRound));
+    this.originalRound = structuredClone(this.editingRound);
   }
 
   ngOnInit(): void {
@@ -381,75 +382,140 @@ export class EditRoundComponent implements OnInit {
     const file = input.files?.[0];
     if (!file?.text?.call) {
       input.value = '';
-      return Promise.resolve(false);
+      return false;
     }
     return file.text().then(
-      (uploaded) => {
-        let parsed: DataToShare | null = null;
-        try {
-          parsed = this.sharingService.convertDTOToDomain(JSON.parse(uploaded));
-        } catch (e) {
-          console.error(e);
-        }
+      (uploaded) => this.parseImportedFile(input, uploaded),
+      (_error) => {
         input.value = '';
-        if (
-          parsed?.objectType !== 'round' ||
-          !(parsed?.data as RoundWithCourse)?.round ||
-          !(parsed?.data as RoundWithCourse)?.course
-        ) {
-          this.snackBarService.openTemporarySnackBar(
-            'Failed to import the round.',
-          );
-          return Promise.resolve(false);
-        }
-
-        const importedRound = parsed.data as RoundWithCourse;
-        if (
-          this.doesAnotherUserHaveThisCourseIdOnThisDevice(
-            importedRound.round.courseId,
-          )
-        ) {
-          const newCourseId = DataUtils.generateUUID('course');
-          importedRound.course.id = newCourseId;
-          importedRound.round.courseId = newCourseId;
-        }
-        this.needToSaveImportedCourse = false;
-        this.imported = true;
-        this.appStateService.setPageTitle(`Import Round`);
-        if (this.courseService.getCourse(importedRound.round.courseId)) {
-          this.currentCourse = this.courseService.getCourse(
-            importedRound.round.courseId,
-          );
-        } else {
-          this.currentCourse = importedRound.course;
-          this.needToSaveImportedCourse = true;
-        }
-
-        if (this.doesThisRoundIdExistOnThisDevice(importedRound.round.id)) {
-          importedRound.round.id = DataUtils.generateUUID('round');
-        }
-
-        this.editingRound = importedRound.round;
-        this.roundIdToEdit = importedRound.round.id;
-        this.coursesToChooseFrom = [this.currentCourse!];
-        this.updateUnsavedData();
-        setTimeout(() => {
-          this.courseSelectInput()?.writeValue(this.currentCourse?.id);
-        });
-        this.snackBarService.openTemporarySnackBar(
-          `Round at "${
-            this.needToSaveImportedCourse
-              ? (JSON.parse(uploaded) as RoundWithCourseDTO)?.courseDTO?.name
-              : this.courseService.getCourse(importedRound.course.id)?.name
-          }" was imported successfully.`,
-        );
-        return Promise.resolve(true);
-      },
-      (reject) => {
-        input.value = '';
-        return Promise.reject(new Error(reject));
+        throw new Error(_error);
       },
     );
+  }
+
+  private setRoundAndCourse(
+    courseName: string,
+    importedRound: RoundWithCourse,
+  ): void {
+    this.editingRound = importedRound.round;
+    this.roundIdToEdit = importedRound.round.id;
+    this.coursesToChooseFrom = [this.currentCourse!];
+    this.updateUnsavedData();
+    setTimeout(() => {
+      this.courseSelectInput()?.writeValue(this.currentCourse?.id);
+    });
+    this.snackBarService.openTemporarySnackBar(
+      `Round at "${courseName}" was imported successfully.`,
+    );
+  }
+
+  private async parseImportedFile(
+    input: HTMLInputElement,
+    uploaded: string,
+  ): Promise<boolean> {
+    let parsed: DataToShare | null = null;
+    try {
+      parsed = this.sharingService.convertDTOToDomain(JSON.parse(uploaded));
+    } catch (e) {
+      console.error(e);
+    }
+    input.value = '';
+    if (
+      parsed?.objectType !== 'round' ||
+      !(parsed?.data as RoundWithCourse)?.round ||
+      !(parsed?.data as RoundWithCourse)?.course
+    ) {
+      this.snackBarService.openTemporarySnackBar('Failed to import the round.');
+      return false;
+    }
+
+    const importedRound = parsed.data as RoundWithCourse;
+    let dialogOpened = false;
+
+    if (this.doesThisRoundIdExistOnThisDevice(importedRound.round.id)) {
+      importedRound.round.id = DataUtils.generateUUID('round');
+    }
+
+    if (
+      this.doesAnotherUserHaveThisCourseIdOnThisDevice(
+        importedRound.round.courseId,
+      )
+    ) {
+      const newCourseId = DataUtils.generateUUID('course');
+      importedRound.course.id = newCourseId;
+      importedRound.round.courseId = newCourseId;
+    }
+    this.needToSaveImportedCourse = false;
+    this.imported = true;
+    this.appStateService.setPageTitle(`Import Round`);
+    const existingCourse = this.courseService.getCourse(
+      importedRound.round.courseId,
+    );
+    if (existingCourse) {
+      this.currentCourse = existingCourse;
+    } else {
+      this.currentCourse = importedRound.course;
+      this.needToSaveImportedCourse = true;
+
+      // Filter available courses to those that exactly match the imported
+      // course's per-hole par (length must match and each hole par equal)
+      const availableCourses = this.courseService.getAllCoursesForCurrentUser();
+
+      const matchingCourses = availableCourses.filter((course) => {
+        if (!course?.par || !importedRound.course?.par) {
+          return false;
+        }
+        if (course.par.length !== importedRound.course.par.length) {
+          return false;
+        }
+        return course.par.every((p, i) => p === importedRound.course.par[i]);
+      });
+
+      if (matchingCourses.length > 0) {
+        // Let the user pick from matching courses
+        dialogOpened = true;
+        const courseDTO = (JSON.parse(uploaded) as RoundWithCourseDTO)
+          ?.courseDTO;
+        const originalCourseName = courseDTO?.name;
+        setTimeout(() => {
+          this.dialog
+            .open(SelectCourseDialogComponent, {
+              data: {
+                importedCourse: courseDTO,
+                matchingCourses: matchingCourses,
+              },
+            })
+            .afterClosed()
+            .subscribe((selectedCourseId: string) => {
+              const pickedCourse =
+                this.courseService.getCourse(selectedCourseId);
+              if (selectedCourseId && pickedCourse) {
+                this.currentCourse = pickedCourse;
+                this.coursesToChooseFrom = [this.currentCourse];
+                importedRound.round.courseId = pickedCourse.id;
+                this.needToSaveImportedCourse = false;
+                this.updateUnsavedData();
+                setTimeout(() => {
+                  this.courseSelectInput()?.writeValue(pickedCourse.id);
+                });
+                this.setRoundAndCourse(pickedCourse?.name, importedRound);
+              } else {
+                this.setRoundAndCourse(originalCourseName, importedRound);
+              }
+            });
+        });
+      }
+    }
+
+    if (!dialogOpened) {
+      this.setRoundAndCourse(
+        this.needToSaveImportedCourse
+          ? (JSON.parse(uploaded) as RoundWithCourseDTO)?.courseDTO?.name
+          : existingCourse?.name || '',
+        importedRound,
+      );
+    }
+    return true;
   }
 
   private doesAnotherUserHaveThisCourseIdOnThisDevice(
