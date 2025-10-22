@@ -2,8 +2,8 @@
 <mat-dialog-content>
   <p>
     Your imported round was played at "{{ options.importedCourse.name }}" (par
-    {{ options.importedCourse | par }}). Save this as a new course or choose an
-    existing course with matching par?
+    {{ options.importedCourse | par }}). Save this as a new course, or choose an
+    existing course with matching holes?
   </p>
 
   <mat-table [dataSource]="options.matchingCourses" class="full-width-table">
