@@ -64,8 +64,11 @@ export class CourseService {
   }
 
   public deleteCourses(courseIdsToDelete?: string[]): void {
-    courseIdsToDelete?.forEach((courseId) =>
-      this.localStorageService.removeItem(courseId),
-    );
+    if (!courseIdsToDelete) {
+      return;
+    }
+    for (const courseId of courseIdsToDelete) {
+      this.localStorageService.removeItem(courseId);
+    }
   }
 }
