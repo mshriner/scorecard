@@ -13,8 +13,12 @@
       <div class="center-text">No data available for greens in regulation.</div>
     }
   </div>
+</mat-dialog-content>
+<mat-dialog-actions class="no-padding actions-center">
   @if (graphData.sortedDataPoints.length > 1) {
-    <div class="full-width-center space-evenly padding-inline-4">
+    <div
+      class="full-width-center space-evenly padding-inline-4 padding-bottom-8"
+    >
       <mat-slide-toggle
         [checked]="this.showRegressionLine()"
         (change)="this.setRegressionLine($event.checked)"
@@ -23,8 +27,6 @@
       </mat-slide-toggle>
     </div>
   }
-</mat-dialog-content>
-<mat-dialog-actions class="no-padding actions-center">
   <mat-chip [matMenuTriggerFor]="graphStyleMenu">
     <mat-icon matChipAvatar class="right-turn">format_line_spacing</mat-icon>
     Spacing
