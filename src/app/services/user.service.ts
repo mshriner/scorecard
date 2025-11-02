@@ -84,11 +84,11 @@ export class UserService {
 
     // Only set default properties if they are not already present in newUser
     const userToSave: LocalUserWithFilters = { ...newUser };
-    Object.entries(defaultPropertiesForNewUser).forEach(([key, value]) => {
-      if (userToSave[key] === undefined || userToSave[key] === null) {
-        userToSave[key] = value;
+    for (const [key, value] of Object.entries(defaultPropertiesForNewUser)) {
+      if ((userToSave)[key] === undefined || (userToSave)[key] === null) {
+        (userToSave)[key] = value;
       }
-    });
+    }
 
     if (this.setUser(userToSave)) {
       this.setAllUserIds([...this.getAllUserIds(), userToSave.id]);
@@ -97,9 +97,11 @@ export class UserService {
   }
 
   public deleteUsers(userIdsToDelete?: string[]): void {
-    userIdsToDelete?.forEach((userId) =>
-      this.localStorageService.removeItem(userId),
-    );
+    if (userIdsToDelete) {
+      for (const userId of userIdsToDelete) {
+        this.localStorageService.removeItem(userId);
+      }
+    }
     this.setAllUserIds(
       this.getAllUserIds().filter(
         (userId) => !userIdsToDelete?.includes(userId),

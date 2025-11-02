@@ -102,8 +102,8 @@ export class ProfilesComponent {
     this.appStateService.currentUser.set(selected);
     this.router.navigateByUrl(APP_ROUTES.HOME).then(() =>
       requestAnimationFrame(() => {
-        if (window.navigator.onLine) {
-          window.location.reload();
+        if (globalThis?.navigator?.onLine) {
+          globalThis?.location?.reload?.();
         } else {
           this.snackBarService.openTemporarySnackBar(
             `You are offline. If your theme is incorrect, please restart the app.`,
@@ -180,7 +180,7 @@ export class ProfilesComponent {
     const file = input.files?.[0];
     if (!file?.text?.call) {
       input.value = '';
-      return Promise.resolve(false);
+      return false;
     }
     return file.text().then(
       (uploaded) => {
@@ -200,7 +200,7 @@ export class ProfilesComponent {
           this.snackBarService.openTemporarySnackBar(
             'Failed to import the user profile.',
           );
-          return Promise.resolve(false);
+          return false;
         }
 
         const importedUser = parsed.data as UserWithRoundsAndCourses;
@@ -218,18 +218,18 @@ export class ProfilesComponent {
           needToChangeRoundIds = true;
         }
 
-        importedUser.courses.forEach((course) => {
+        for (const course of importedUser.courses) {
           if (
             needToChangeCourseIds ||
             this.doesThisCourseIdExistOnThisDevice(course.id)
           ) {
             const oldCourseId = course.id;
             const newCourseId = DataUtils.generateUUID('course');
-            importedUser.rounds.forEach((round) => {
+            for (const round of importedUser.rounds) {
               if (round.courseId === oldCourseId) {
                 round.courseId = newCourseId;
               }
-            });
+            }
             importedUser.user.courseIds = importedUser.user.courseIds.map(
               (courseId) => {
                 if (courseId === oldCourseId) {
@@ -240,9 +240,9 @@ export class ProfilesComponent {
             );
             course.id = newCourseId;
           }
-        });
+        }
 
-        importedUser.rounds.forEach((round) => {
+        for (const round of importedUser.rounds) {
           if (
             needToChangeRoundIds ||
             this.doesThisRoundIdExistOnThisDevice(round.id)
@@ -259,7 +259,7 @@ export class ProfilesComponent {
             );
             round.id = newRoundId;
           }
-        });
+        }
         this.dialog
           .open(EditProfileDialog, {
             data: {
@@ -310,11 +310,11 @@ export class ProfilesComponent {
             }
           });
 
-        return Promise.resolve(true);
+        return true;
       },
-      (reject) => {
+      (error_) => {
         input.value = '';
-        return Promise.reject(new Error(reject));
+        throw new Error(error_);
       },
     );
   }

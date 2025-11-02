@@ -17,12 +17,15 @@ import {
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
 import {
   dot,
+  frame,
   gridX,
   gridY,
   line,
+  linearRegressionY,
   Plot,
   RenderFunction,
 } from '@observablehq/plot';
@@ -42,6 +45,7 @@ import { AppStateService } from '../../services/app-state.service';
     MatChipsModule,
     MatMenuModule,
     MatCardModule,
+    MatSlideToggleModule,
     MatIconModule,
   ],
   templateUrl: './performance-graph-dialog.component.html',
@@ -55,6 +59,7 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
   private readonly appStateService = inject(AppStateService);
   private readonly idOfClickedRound = signal('');
   public readonly evenlySpaceRounds = signal(true);
+  public readonly showRegressionLine = signal(true);
   private graph?: (SVGSVGElement | HTMLElement) & Plot;
 
   constructor() {
@@ -99,18 +104,22 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
     this.evenlySpaceRounds.set(
       !!this.appStateService.currentUser()?.evenSpaceGraph,
     );
+    this.showRegressionLine.set(
+      !!this.appStateService.currentUser()?.graphRegression,
+    );
     if (!this.graphData.sortedDataPoints?.length) {
       return;
     }
     this.logPoint = this.logPoint.bind(this);
     this.formatDiscreteDate = this.formatDiscreteDate.bind(this);
+    this.formatScoreToPar = this.formatScoreToPar.bind(this);
     this.renderGraph();
   }
 
   private renderGraph(): void {
     const graphItem = document.getElementById('graph-output');
     if (this.graph) {
-      graphItem?.removeChild(this.graph);
+      this.graph.remove();
     }
     const domainSelector = this.evenlySpaceRounds() ? this.getIndex : 'date';
     this.graph = dot(this.graphData.sortedDataPoints, {
@@ -128,15 +137,19 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
         label: `${this.graphData.yAxisLabel.trim()}${this.graphData.percent ? ' (%)' : ''}`,
         tickSpacing: 50,
         tickSize: 20,
+        nice: !this.graphData.percent,
+        tickFormat: this.graphData.scoreToPar
+          ? this.formatScoreToPar
+          : undefined,
       },
       x: {
         domain: this.evenlySpaceRounds()
-          ? [0, this.graphData.sortedDataPoints.length]
+          ? [0, this.graphData.sortedDataPoints.length - 1] // intentional off-by-one to give space for tick label
           : undefined,
         type: this.evenlySpaceRounds() ? undefined : 'time',
         interval: this.evenlySpaceRounds() ? undefined : 'day',
         tickSize: 20,
-        nice: true,
+        nice: !this.evenlySpaceRounds(),
         tickSpacing: this.evenlySpaceRounds() ? 175 : undefined,
         tickRotate: this.evenlySpaceRounds() ? 15 : undefined,
         tickFormat: this.evenlySpaceRounds()
@@ -155,13 +168,31 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
         legend: true,
       },
       marks: [
+        frame(),
         gridX({ strokeOpacity: 0.5, strokeWidth: 2 }),
-        gridY({ strokeOpacity: 0.5, strokeWidth: 2, interval: 20 }),
+        gridY({
+          strokeOpacity: 0.5,
+          strokeWidth: 2,
+          interval: this.graphData.percent ? 20 : undefined,
+        }),
+        this.graphData.sortedDataPoints.length > 1 && this.showRegressionLine()
+          ? linearRegressionY(this.graphData.sortedDataPoints, {
+              x: domainSelector,
+              y: 'yValue',
+              stroke: 'blue',
+              strokeWidth: 15,
+              strokeOpacity: 0.75,
+              strokeDasharray: '30 30',
+              fill: 'orange',
+              fillOpacity: 0.5,
+              interval: this.evenlySpaceRounds() ? undefined : 'day',
+            })
+          : undefined,
         line(this.graphData.sortedDataPoints, {
           x: domainSelector,
           y: 'yValue',
           strokeWidth: 5,
-          strokeOpacity: 0.5,
+          strokeOpacity: 0.75,
         }),
       ],
     });
@@ -170,6 +201,16 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
 
   private getIndex(_d: any, i: number): number {
     return i;
+  }
+
+  private formatScoreToPar(toPar: number): string {
+    if (toPar > 0) {
+      return `+${toPar}`;
+    }
+    if (toPar === 0) {
+      return '±0';
+    }
+    return `${toPar}`;
   }
 
   private formatDiscreteDate(idx: number): string {
@@ -186,6 +227,15 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
     if (this.appStateService.currentUser()) {
       this.appStateService.currentUser()!.evenSpaceGraph =
         this.evenlySpaceRounds();
+    }
+    this.renderGraph();
+  }
+
+  public setRegressionLine(newValue: boolean): void {
+    this.showRegressionLine.set(newValue);
+    if (this.appStateService.currentUser()) {
+      this.appStateService.currentUser()!.graphRegression =
+        this.showRegressionLine();
     }
     this.renderGraph();
   }

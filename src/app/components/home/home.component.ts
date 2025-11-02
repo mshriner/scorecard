@@ -15,7 +15,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
-  MatOption,
   MatRippleModule,
   provideNativeDateAdapter,
 } from '@angular/material/core';
@@ -38,9 +37,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
-import { Course, CourseVariety } from '../../models/course';
+import {
+  Course,
+  CourseVariety,
+  NINE_NUMBERS_ZEROED,
+} from '../../models/course';
 import {
   createEmptyHoleResults,
+  GRAPH_VARIETIES,
   HoleResults,
   PerformanceGraphData,
   PerformanceGraphDataPoint,
@@ -52,6 +56,7 @@ import {
   EMPTY_NINE_NUMBERS,
   FullRoundVarietyAtCourse,
   Round,
+  RoundCompletion,
   RoundVariety,
 } from '../../models/round';
 import {
@@ -111,6 +116,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public readonly Array = Array;
   public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
   public readonly CourseVariety = CourseVariety;
+  public readonly GRAPH_VARIETIES = GRAPH_VARIETIES;
   public TREND_GRAPH_PARAMS!: {
     which: PerformanceGraphMetric;
   };
@@ -118,12 +124,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public filteredRounds: WritableSignal<Round[]> = signal([]);
   public courseMap: Signal<Map<string, Course | null>> = computed(() => {
     const map: Map<string, Course | null> = new Map();
-    this.rounds().forEach((round) => {
+    for (const round of this.rounds()) {
       if (!map.has(round.courseId)) {
         const course = this.courseService.getCourse(round.courseId);
         map.set(round.courseId, course);
       }
-    });
+    }
     return map;
   });
   public holeResultTotals: Signal<HoleResults> = computed(() => {
@@ -131,15 +137,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (!this.filteredRounds()?.length) {
       return holeResults;
     }
-    this.filteredRounds().forEach((round) => {
-      const course = this.courseMap().get(round.courseId);
-      if (!course) {
-        return;
-      }
-      for (let index = 0; index < round.strokes.length; index++) {
-        this.processHoleResult(holeResults, round, course, index);
-      }
-    });
+    for (const round of this.filteredRounds()) {
+      this.processHoles(round, holeResults);
+    }
     return holeResults;
   });
   public coursesWithHoleResults: Signal<string[]> = computed(() => {
@@ -148,11 +148,59 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
   });
 
+  /**
+   * @returns whether there is a course associated with this round (should always be true)
+   */
+  private processHoles(round: Round, holeResults: HoleResults): boolean {
+    const course = this.courseMap().get(round.courseId);
+    if (!course) {
+      return false;
+    }
+    const roundSegmentsComplete = this.calculateRoundCompletion(round);
+    holeResults.completed18HoleRounds +=
+      +roundSegmentsComplete.eighteenHolesComplete;
+    holeResults.completedNinesInAllRounds +=
+      +roundSegmentsComplete.firstNineComplete +
+      +roundSegmentsComplete.secondNineComplete;
+    for (let index = 0; index < round.strokes.length; index++) {
+      this.processHoleResult(
+        holeResults,
+        round,
+        course,
+        index,
+        roundSegmentsComplete,
+      );
+    }
+    return true;
+  }
+
+  private calculateRoundCompletion(round: Round): RoundCompletion {
+    const strokes = round?.strokes ?? [];
+    const firstNine =
+      strokes.slice(0, 9).length === 9
+        ? strokes.slice(0, 9)
+        : NINE_NUMBERS_ZEROED;
+    const secondNine =
+      strokes.slice(9, 18).length === 9
+        ? strokes.slice(9, 18)
+        : NINE_NUMBERS_ZEROED;
+
+    const firstNineComplete = !firstNine.some((stroke) => !stroke);
+    const secondNineComplete = !secondNine.some((stroke) => !stroke);
+
+    return {
+      firstNineComplete,
+      secondNineComplete,
+      eighteenHolesComplete: firstNineComplete && secondNineComplete,
+    };
+  }
+
   private processHoleResult(
     holeResults: HoleResults,
     round: Round,
     course: Course,
     index: number,
+    roundSegmentsComplete: RoundCompletion,
   ): void {
     const strokes = round.strokes[index];
     if (!strokes) {
@@ -171,9 +219,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const parOnHole = course?.par[index] ?? 0;
     const holeResultToPar = strokes - parOnHole;
 
-    this.updateHoleResultTotals(holeResults, holeResultToPar);
-
-    this.updateParStats(holeResults, parOnHole, strokes);
+    this.updateParStats(
+      holeResults,
+      holeResultToPar,
+      parOnHole,
+      strokes,
+      index,
+      roundSegmentsComplete,
+    );
 
     if (round.putts[index] || round.putts[index] === 0) {
       holeResults.holesPlayedWithPutts++;
@@ -208,7 +261,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             roundVariety: RoundVariety.FULL_NINE,
             strokes: [...EMPTY_NINE_NUMBERS],
             course: course,
-            bestScoresRecordedDateISO: Array<string>(9),
+            bestScoresRecordedDateISO: new Array<string>(9),
           });
           break;
         }
@@ -218,7 +271,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
             roundVariety: RoundVariety.EIGHTEEN,
             strokes: [...EMPTY_EIGHTEEN_NUMBERS],
             course: course,
-            bestScoresRecordedDateISO: Array<string>(18),
+            bestScoresRecordedDateISO: new Array<string>(18),
           });
           break;
         }
@@ -233,27 +286,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private updateHoleResultTotals(
-    holeResults: HoleResults,
-    holeResultToPar: number,
-  ): void {
-    if (holeResultToPar <= -2) {
-      holeResults.eaglesOrBetter++;
-    } else if (holeResultToPar === -1) {
-      holeResults.birdies++;
-    } else if (holeResultToPar === 0) {
-      holeResults.pars++;
-    } else if (holeResultToPar === 1) {
-      holeResults.bogeys++;
-    } else if (holeResultToPar >= 2) {
-      holeResults.doubleBogeysOrWorse++;
-    }
-  }
-
   private updateParStats(
     holeResults: HoleResults,
+    holeResultToPar: number,
     parOnHole: number,
     strokes: number,
+    index: number,
+    roundSegmentsComplete: RoundCompletion,
   ): void {
     switch (parOnHole) {
       case 3: {
@@ -271,6 +310,32 @@ export class HomeComponent implements OnInit, AfterViewInit {
         holeResults.totalStrokesOnPar5s += strokes;
         break;
       }
+    }
+
+    const addHoleToAllCompletedRoundTotals =
+      roundSegmentsComplete.eighteenHolesComplete ||
+      (index < 9 && roundSegmentsComplete.firstNineComplete) ||
+      (index >= 9 && roundSegmentsComplete.secondNineComplete);
+
+    if (holeResultToPar <= -2) {
+      holeResults.eaglesOrBetter++;
+    } else if (holeResultToPar === -1) {
+      holeResults.birdies++;
+    } else if (holeResultToPar === 0) {
+      holeResults.pars++;
+    } else if (holeResultToPar === 1) {
+      holeResults.bogeys++;
+    } else if (holeResultToPar >= 2) {
+      holeResults.doubleBogeysOrWorse++;
+    }
+
+    if (addHoleToAllCompletedRoundTotals) {
+      holeResults.totalScoreToParInAllCompletedRounds += holeResultToPar;
+      holeResults.totalStrokesInAllCompletedRounds += strokes;
+    }
+    if (roundSegmentsComplete.eighteenHolesComplete) {
+      holeResults.totalScoreToParInCompleted18HoleRounds += holeResultToPar;
+      holeResults.totalStrokesInCompleted18HoleRounds += strokes;
     }
   }
 
@@ -362,9 +427,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   public toggleAllSelection(): void {
     if (this.allSelected) {
-      this.select?.options?.forEach((item: MatOption) => item.select());
+      for (const item of this.select?.options ?? []) {
+        item.select();
+      }
     } else {
-      this.select?.options?.forEach((item: MatOption) => item.deselect());
+      for (const item of this.select?.options ?? []) {
+        item.deselect();
+      }
     }
     this.reevaluateAllSelectedStatus();
   }
@@ -372,13 +441,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public reevaluateAllSelectedStatus(save = false): void {
     let newStatus = true;
     let anyItemSelected = false;
-    this.select?.options?.forEach((item: MatOption) => {
-      if (!item.selected) {
-        newStatus = false;
-      } else {
+    for (const item of this.select?.options ?? []) {
+      if (item.selected) {
         anyItemSelected = true;
+      } else {
+        newStatus = false;
       }
-    });
+    }
+
     if (save && !anyItemSelected) {
       this.courseStatsFilter.setValue(this.courseIdOptions());
       this.allSelected = true;
@@ -527,7 +597,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
         delete user!.latestDateISO;
         return structuredClone(user);
       });
-      this.select?.options?.forEach((item: MatOption) => item.deselect());
+      for (const item of this.select?.options ?? []) {
+        item.deselect();
+      }
       this.reevaluateAllSelectedStatus(true);
     }
   }
@@ -545,9 +617,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   public openTrendGraphDialog(which: PerformanceGraphMetric): void {
+    const graphDetails = GRAPH_VARIETIES[which];
     const data: PerformanceGraphData = {
-      yAxisLabel: this.getTrendDialogName(which),
-      percent: true,
+      yAxisLabel: graphDetails.yAxisLabel,
+      percent: graphDetails.percent,
+      scoreToPar: graphDetails.scoreToPar,
       sortedDataPoints: this.filteredRounds()
         .map((round) => {
           const holeResults: HoleResults = createEmptyHoleResults();
@@ -557,14 +631,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
             date: new Date(round.dateStringISO),
             roundVariety: round.roundVariety,
           };
-          const course = this.courseMap().get(round.courseId);
-          if (!course) {
-            return dataPoint;
+          const addYValue = this.processHoles(round, holeResults);
+          if (addYValue) {
+            dataPoint.yValue = graphDetails.yValueExtractor(holeResults);
           }
-          for (let index = 0; index < round.strokes.length; index++) {
-            this.processHoleResult(holeResults, round, course, index);
-          }
-          dataPoint.yValue = this.getTrendMeasureValue(holeResults, which);
           return dataPoint;
         })
         .filter((round) => round.yValue !== null)
@@ -573,32 +643,5 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.dialog.open(PerformanceGraphDialogComponent, {
       data: data,
     });
-  }
-
-  private getTrendDialogName(which: PerformanceGraphMetric): string {
-    switch (which) {
-      case 'greens-in-regulation':
-        return 'Greens in Regulation';
-      case 'scrambling':
-        return 'Scrambling Success';
-    }
-  }
-
-  public getTrendMeasureValue(
-    holeResults: HoleResults,
-    which: PerformanceGraphMetric,
-  ): number | null {
-    switch (which) {
-      case 'greens-in-regulation':
-        return holeResults.holesPlayedWithPutts
-          ? holeResults.inferredGreensInRegulation /
-              holeResults.holesPlayedWithPutts
-          : null;
-      case 'scrambling':
-        return holeResults.inferredHolesScramblingNeeded
-          ? holeResults.inferredHolesScramblingSuccessfully /
-              holeResults.inferredHolesScramblingNeeded
-          : null;
-    }
   }
 }
