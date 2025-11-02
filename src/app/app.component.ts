@@ -111,8 +111,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         SESSION_STORAGE_KEYS.DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION,
       ) || this.currentUser?.pwaPrompted;
     const isPwa =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as any).standalone === true;
+      globalThis.matchMedia('(display-mode: standalone)').matches ||
+      (globalThis.navigator as any).standalone === true;
     if (!isPwa && !doNotShowInstallPrompt) {
       setTimeout(() => {
         this.dialog
@@ -269,7 +269,7 @@ export class AppComponent implements OnInit, AfterViewInit {
             this.snackBarService.openTemporarySnackBar(`Loading update...`);
             setTimeout(() => {
               sessionStorage.setItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG, 'y');
-              window.location.reload();
+              globalThis.location.reload();
             }, 1250);
           } else {
             if (showFailureMessages) {
@@ -320,7 +320,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD,
           'y',
         );
-        window.location.reload();
+        globalThis.location.reload();
       }
       this.appStateService.appTheming();
     });

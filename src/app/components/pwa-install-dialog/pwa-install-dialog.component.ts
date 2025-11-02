@@ -31,7 +31,7 @@ export class PwaInstallDialogComponent {
   public readonly isNeverShowAgainAnOption: boolean;
 
   constructor() {
-    const userAgent = window.navigator.userAgent.toLowerCase();
+    const userAgent = globalThis.navigator.userAgent.toLowerCase();
     this.isIOS = /iphone|ipad|ipod/.test(userAgent);
     this.isAndroid = /android/.test(userAgent);
     this.isNeverShowAgainAnOption = !!this.appStateService.currentUser();

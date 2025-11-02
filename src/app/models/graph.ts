@@ -7,7 +7,6 @@ export interface PerformanceGraphData {
   yValueMaxOverride?: number;
   percent?: boolean;
   scoreToPar?: boolean;
-  per9Holes?: boolean;
 }
 
 export interface PerformanceGraphDataPoint {
