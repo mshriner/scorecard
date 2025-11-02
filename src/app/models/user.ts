@@ -31,6 +31,7 @@ export interface LocalFilters {
   newStrokesUI?: boolean;
   theme?: AppTheme;
   evenSpaceGraph?: boolean;
+  graphRegression?: boolean;
 }
 
 export interface LocalUserWithFilters extends User, LocalFilters {}

@@ -20,10 +20,13 @@ export interface PerformanceGraphDataPoint {
 export type PerformanceGraphMetric =
   | 'greens-in-regulation'
   | 'scrambling'
-  | 'strokes-all'
-  | 'strokes-18'
+  | 'putts-all'
+  | 'putts-18'
   | 'score-to-par-all'
-  | 'score-to-par-18';
+  | 'score-to-par-18'
+  | 'score-on-par-3s'
+  | 'score-on-par-4s'
+  | 'score-on-par-5s';
 
 export interface HoleResults {
   eaglesOrBetter: number;
@@ -132,32 +135,60 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
       );
     },
   },
-  'strokes-all': {
-    yAxisLabel: 'Strokes (Per 9 Holes)',
+  'putts-all': {
+    yAxisLabel: 'Avg. Putts (Per 9 Holes)',
     yValueExtractor: (holeResults) => {
-      if (!holeResults.completedNinesInAllRounds) {
+      if (!holeResults.holesPlayedWithPutts) {
+        return null;
+      }
+      return (9 * holeResults.putts) / holeResults.holesPlayedWithPutts;
+    },
+  },
+  'putts-18': {
+    yAxisLabel: 'Putts (18-Hole Rounds)',
+    yValueExtractor: (holeResults) => {
+      if (
+        !holeResults.completed18HoleRounds ||
+        !holeResults.holesPlayedWithPuttsInFullRounds
+      ) {
         return null;
       }
       return (
-        holeResults.totalStrokesInAllCompletedRounds /
-        holeResults.completedNinesInAllRounds
+        18 *
+        (holeResults.puttsInFullRounds /
+          holeResults.holesPlayedWithPuttsInFullRounds)
       );
     },
   },
-  'strokes-18': {
-    yAxisLabel: 'Strokes (18-Hole Rounds)',
+  'score-on-par-3s': {
+    yAxisLabel: 'Avg. Score on Par 3s',
     yValueExtractor: (holeResults) => {
-      if (!holeResults.completed18HoleRounds) {
+      if (!holeResults.par3sPlayed) {
         return null;
       }
-      return (
-        holeResults.totalStrokesInCompleted18HoleRounds /
-        holeResults.completed18HoleRounds
-      );
+      return holeResults.totalStrokesOnPar3s / holeResults.par3sPlayed;
+    },
+  },
+  'score-on-par-4s': {
+    yAxisLabel: 'Avg. Score on Par 4s',
+    yValueExtractor: (holeResults) => {
+      if (!holeResults.par4sPlayed) {
+        return null;
+      }
+      return holeResults.totalStrokesOnPar4s / holeResults.par4sPlayed;
+    },
+  },
+  'score-on-par-5s': {
+    yAxisLabel: 'Avg. Score on Par 5s',
+    yValueExtractor: (holeResults) => {
+      if (!holeResults.par5sPlayed) {
+        return null;
+      }
+      return holeResults.totalStrokesOnPar5s / holeResults.par5sPlayed;
     },
   },
   'score-to-par-all': {
-    yAxisLabel: 'Score to Par (Per 9 Holes)',
+    yAxisLabel: 'Avg. Score to Par (Per 9 Holes)',
     scoreToPar: true,
     yValueExtractor: (holeResults) => {
       if (!holeResults.completedNinesInAllRounds) {
