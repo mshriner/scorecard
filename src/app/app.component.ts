@@ -22,9 +22,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterOutlet, RoutesRecognized } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
-import { filter, pairwise } from 'rxjs';
 import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
 import { PwaInstallDialogComponent } from './components/pwa-install-dialog/pwa-install-dialog.component';
 import {
@@ -73,7 +72,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
   public readonly showSpinner = signal(false);
-  private previousUrl: string | null = null;
   public readonly APP_THEMES = Object.values(AppTheme).filter(
     (val) => typeof val !== 'string',
   );
@@ -95,24 +93,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.logout();
       }
     });
-    this.router.events
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        filter((e) => e instanceof RoutesRecognized),
-        pairwise(),
-      )
-      .subscribe((e) => {
-        const urlAfterRedirects = e[0].urlAfterRedirects; // previous url
-        if (
-          urlAfterRedirects &&
-          !urlAfterRedirects?.includes(APP_ROUTES.CLEAR_DATA) &&
-          !urlAfterRedirects?.includes(APP_ROUTES.PROFILES)
-        ) {
-          this.previousUrl = urlAfterRedirects;
-        } else {
-          this.previousUrl = null;
-        }
-      });
     this.appStateService.useSmallerButtons();
     this.appStateService.appTheming();
     const doNotShowInstallPrompt =
@@ -227,12 +207,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if (!hasPreviousHistory) {
       // No previous history entry — go to home
-      this.router.navigateByUrl(APP_ROUTES.HOME);
-    } else if (this.previousUrl) {
-      this.router.navigateByUrl(this.previousUrl);
-    } else if (this.isOnEditCourseScreen) {
-      this.router.navigateByUrl(APP_ROUTES.COURSES);
-    } else if (this.isOnEditRoundScreen) {
       this.router.navigateByUrl(APP_ROUTES.HOME);
     } else {
       this.location.back();
