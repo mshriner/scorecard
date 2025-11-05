@@ -530,4 +530,8 @@ export class EditRoundComponent implements OnInit {
   private doesThisRoundIdExistOnThisDevice(roundId: string): boolean {
     return !!this.roundService.getRoundById(roundId);
   }
+
+  public addNewCourse(): void {
+    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
+  }
 }

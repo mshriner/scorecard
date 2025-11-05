@@ -102,7 +102,16 @@ export class AppComponent implements OnInit, AfterViewInit {
         pairwise(),
       )
       .subscribe((e) => {
-        this.previousUrl = e[0].urlAfterRedirects; // previous url
+        const urlAfterRedirects = e[0].urlAfterRedirects; // previous url
+        if (
+          urlAfterRedirects &&
+          !urlAfterRedirects?.includes(APP_ROUTES.CLEAR_DATA) &&
+          !urlAfterRedirects?.includes(APP_ROUTES.PROFILES)
+        ) {
+          this.previousUrl = urlAfterRedirects;
+        } else {
+          this.previousUrl = null;
+        }
       });
     this.appStateService.useSmallerButtons();
     this.appStateService.appTheming();
@@ -204,8 +213,22 @@ export class AppComponent implements OnInit, AfterViewInit {
     return this.router.url === `/${APP_ROUTES.ABOUT}`;
   }
 
+  public get showHamburgerMenu(): boolean {
+    return (
+      this.isOnProfilesScreen ||
+      this.isOnHomeScreen ||
+      this.isOnCoursesScreen ||
+      this.isOnAboutScreen
+    );
+  }
+
   private doGoBack(): void {
-    if (this.previousUrl) {
+    const hasPreviousHistory = globalThis.history.length > 1;
+
+    if (!hasPreviousHistory) {
+      // No previous history entry — go to home
+      this.router.navigateByUrl(APP_ROUTES.HOME);
+    } else if (this.previousUrl) {
       this.router.navigateByUrl(this.previousUrl);
     } else if (this.isOnEditCourseScreen) {
       this.router.navigateByUrl(APP_ROUTES.COURSES);

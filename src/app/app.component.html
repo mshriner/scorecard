@@ -115,10 +115,7 @@
     <mat-toolbar>
       @if (currentUser && !isOnWipeDataScreen) {
         @if (
-          isOnProfilesScreen ||
-          isOnHomeScreen ||
-          isOnCoursesScreen ||
-          isOnAboutScreen
+          showHamburgerMenu
         ) {
           <button mat-icon-button (click)="sidenav.toggle()">
             <mat-icon>menu</mat-icon>
