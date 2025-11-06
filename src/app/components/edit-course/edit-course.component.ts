@@ -9,7 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
 import {
   APP_ROUTES,
   DELETE_COURSE,
@@ -26,6 +25,7 @@ import { CourseVarietySlicePipe } from '../../pipes/course-variety-slice.pipe';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
+import { NavigationMessageService } from '../../services/navigation-message.service';
 import { RoundService } from '../../services/round.service';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
@@ -55,7 +55,7 @@ export class EditCourseComponent implements OnInit {
   private readonly courseService = inject(CourseService);
   private readonly dialog = inject(MatDialog);
   private readonly roundService = inject(RoundService);
-  private readonly router = inject(Router);
+  private readonly router = inject(NavigationMessageService);
   private readonly sharingService = inject(SharingService);
   private readonly snackBarService = inject(SnackBarService);
   private readonly courseVarietySlicePipe = inject(CourseVarietySlicePipe);
@@ -99,28 +99,21 @@ export class EditCourseComponent implements OnInit {
   }
 
   constructor() {
-    const router = this.router;
-
     this.showSummaryRow = this.showSummaryRow.bind(this);
-    this.courseIdToEdit =
-      router.getCurrentNavigation()?.extras?.state?.[
-        NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT
-      ];
+    const navState = this.router.getCurrentNavigation()?.extras?.state;
+    this.courseIdToEdit = navState?.[NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT];
     console.log(`id if this is an existing course: ${this.courseIdToEdit}`);
-    const navigationMessage =
-      router.getCurrentNavigation()?.extras?.state?.[
-        NAVIGATION_STATE_KEYS.MESSAGE
-      ];
-    if (navigationMessage) {
-      this.snackBarService.openTemporarySnackBar(navigationMessage);
-    }
     if (this.courseIdToEdit) {
       const retrieved = this.courseService.getCourse(this.courseIdToEdit);
       if (!retrieved) {
-        this.editingCourse = {} as Course;
+        this.editingCourse = {
+          name: '',
+          par: EIGHTEEN_NUMBERS_ZEROED,
+          id: '-1',
+        };
         this.redirectToHome = true;
       } else {
-        this.editingCourse = JSON.parse(JSON.stringify(retrieved));
+        this.editingCourse = structuredClone(retrieved);
         if (!this.editingCourse.numberOfHoles) {
           this.editingCourse.numberOfHoles =
             this.editingCourse.par.length === 9
@@ -138,7 +131,7 @@ export class EditCourseComponent implements OnInit {
       };
       this.appStateService.setPageTitle(`Create Course`);
     }
-    this.originalCourse = JSON.parse(JSON.stringify(this.editingCourse));
+    this.originalCourse = structuredClone(this.editingCourse);
   }
 
   ngOnInit(): void {
@@ -236,13 +229,11 @@ export class EditCourseComponent implements OnInit {
             return structuredClone(updatedCurrentUser);
           });
           this.courseService.deleteCourses([this.courseIdToEdit]);
-          this.router.navigateByUrl(APP_ROUTES.COURSES, {
-            state: {
-              [NAVIGATION_STATE_KEYS.MESSAGE]: `Deleted course "${
-                this.editingCourse.name
-              }"`,
-            },
-          });
+          this.router.navigateByUrl(
+            APP_ROUTES.COURSES,
+            {},
+            `Deleted course "${this.editingCourse.name}"`,
+          );
         }
       });
   }
@@ -259,20 +250,18 @@ export class EditCourseComponent implements OnInit {
   public saveCourse(): void {
     this.updateCourseNumberOfHoles();
     this.courseService.setCourse(this.editingCourse);
-    this.router.navigateByUrl(APP_ROUTES.COURSES, {
-      state: {
-        [NAVIGATION_STATE_KEYS.MESSAGE]: `Saved course "${
-          this.editingCourse.name
-        }"`,
-      },
-    });
+    this.router.navigateByUrl(
+      APP_ROUTES.COURSES,
+      {},
+      `Saved course "${this.editingCourse.name}"`,
+    );
   }
 
   public async onFileSelected(input: HTMLInputElement): Promise<boolean> {
     const file = input.files?.[0];
     if (!file?.text?.call) {
       input.value = '';
-      return Promise.resolve(false);
+      return false;
     }
     return file.text().then(
       (uploaded) => {
@@ -293,17 +282,17 @@ export class EditCourseComponent implements OnInit {
           this.snackBarService.openTemporarySnackBar(
             `Course "${importedCourse.name}" was imported successfully.`,
           );
-          return Promise.resolve(true);
+          return true;
         } else {
           this.snackBarService.openTemporarySnackBar(
             'Failed to import the course.',
           );
-          return Promise.resolve(false);
+          return false;
         }
       },
-      (reject) => {
+      (error_) => {
         input.value = '';
-        return Promise.reject(new Error(reject));
+        throw new Error(error_);
       },
     );
   }

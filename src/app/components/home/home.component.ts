@@ -34,7 +34,6 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { Router } from '@angular/router';
 import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import {
@@ -69,6 +68,7 @@ import { PipesModule } from '../../pipes/pipes.module';
 import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
+import { NavigationMessageService } from '../../services/navigation-message.service';
 import { RoundService } from '../../services/round.service';
 import { DataUtils } from '../../util/data-utils';
 import { BestRoundDialogComponent } from '../best-round-dialog/best-round-dialog.component';
@@ -108,7 +108,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private readonly roundService = inject(RoundService);
   courseService = inject(CourseService);
   private readonly roundScorePipe = inject(TotalRoundScorePipe);
-  private readonly router = inject(Router);
+  private readonly router = inject(NavigationMessageService);
   readonly dialog = inject(MatDialog);
 
   @ViewChild('courseStatsFilterSelect') select!: MatSelect;
@@ -417,12 +417,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   public viewRound(roundId: string, message?: string): void {
-    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND, {
-      state: {
-        [NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT]: roundId,
-        [NAVIGATION_STATE_KEYS.MESSAGE]: message,
+    this.router.navigateByUrl(
+      APP_ROUTES.ADD_EDIT_ROUND,
+      {
+        state: {
+          [NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT]: roundId,
+        },
       },
-    });
+      message,
+    );
   }
 
   public toggleAllSelection(): void {

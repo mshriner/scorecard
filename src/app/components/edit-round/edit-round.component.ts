@@ -19,7 +19,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
 import { AutosizeModule } from 'ngx-autosize';
 import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import {
@@ -49,6 +48,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { DataToShare, RoundWithCourse } from '../../models/data-transfer';
 import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
+import { NavigationMessageService } from '../../services/navigation-message.service';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { DataUtils } from '../../util/data-utils';
@@ -82,7 +82,7 @@ export class EditRoundComponent implements OnInit {
   appStateService = inject(AppStateService);
   private readonly courseService = inject(CourseService);
   private readonly roundService = inject(RoundService);
-  private readonly router = inject(Router);
+  private readonly router = inject(NavigationMessageService);
   private readonly dialog = inject(MatDialog);
   private readonly sharingService = inject(SharingService);
   private readonly snackBarService = inject(SnackBarService);
@@ -162,49 +162,54 @@ export class EditRoundComponent implements OnInit {
   }
 
   constructor() {
-    const router = this.router;
     const datePipe = inject(DatePipe);
 
+    // keep method bound for template callbacks
     this.showSummaryRow = this.showSummaryRow.bind(this);
+
     this.coursesToChooseFrom = this.courseService.getAllCoursesForCurrentUser();
-    this.roundIdToEdit =
-      router.getCurrentNavigation()?.extras?.state?.[
-        NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT
-      ];
-    console.log(`id if this is an existing round: ${this.roundIdToEdit}`);
-    const navigationMessage =
-      router.getCurrentNavigation()?.extras?.state?.[
-        NAVIGATION_STATE_KEYS.MESSAGE
-      ];
-    if (navigationMessage) {
-      this.snackBarService.openTemporarySnackBar(navigationMessage);
-    }
+
+    const navState = this.router.getCurrentNavigation()?.extras?.state;
+    this.roundIdToEdit = navState?.[NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT];
+
     if (this.roundIdToEdit) {
       const retrieved = this.roundService.getRoundById(this.roundIdToEdit);
       if (!retrieved) {
         this.editingRound = {} as Round;
         this.redirectToHome = true;
-      } else {
-        this.editingRound = structuredClone(retrieved);
-        this.appStateService.setPageTitle(
-          `Editing ${datePipe.transform(retrieved?.dateStringISO)}`,
-        );
-        this.updateCurrentCourse(this.editingRound.courseId);
-        this.scrollIntoViewIfUnfinished();
+        this.originalRound = structuredClone(this.editingRound);
+        return;
       }
-    } else {
-      this.editingRound = {
-        id: DataUtils.generateUUID('round'),
-        strokes: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
-        putts: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
-        courseId: '',
-        dateStringISO: new Date().toISOString(),
-        roundVariety: RoundVariety.EIGHTEEN,
-        generalNotes: '',
-      };
-      this.appStateService.setPageTitle(`Create Round`);
+
+      this.editingRound = structuredClone(retrieved);
+      this.appStateService.setPageTitle(
+        `Editing ${datePipe.transform(retrieved.dateStringISO)}`,
+      );
+      this.updateCurrentCourse(this.editingRound.courseId);
+      this.scrollIntoViewIfUnfinished();
+      this.originalRound = structuredClone(this.editingRound);
+      return;
     }
+
+    // Create new round
+    this.editingRound = {
+      id: DataUtils.generateUUID('round'),
+      strokes: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
+      putts: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
+      courseId: '',
+      dateStringISO: new Date().toISOString(),
+      roundVariety: RoundVariety.EIGHTEEN,
+      generalNotes: '',
+    };
+    this.appStateService.setPageTitle(`Create Round`);
     this.originalRound = structuredClone(this.editingRound);
+
+    if (this.coursesToChooseFrom.length === 1) {
+      this.editingRound.courseId = this.coursesToChooseFrom[0].id;
+      this.updateCurrentCourse(this.editingRound.courseId);
+    }
+
+    setTimeout(() => this.updateUnsavedData());
   }
 
   ngOnInit(): void {
