@@ -59,7 +59,7 @@ export const DELETE_ROUND: AreYouSureDialogConfig = {
 export const DELETE_COURSE: AreYouSureDialogConfig = {
   title: 'Delete Course',
   message:
-    'Are you sure? This will also delete ALL recorded rounds for this course.',
+    'Are you sure you want to delete this course? This action cannot be undone.',
   confirmButtonText: 'Delete',
   confirmButtonIcon: 'delete',
   nonConfirmButtonText: 'Cancel',

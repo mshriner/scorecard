@@ -51,6 +51,7 @@ import {
 } from '../../models/graph';
 import {
   BestRound,
+  compareRoundsByDate,
   EMPTY_EIGHTEEN_NUMBERS,
   EMPTY_NINE_NUMBERS,
   FullRoundVarietyAtCourse,
@@ -381,15 +382,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.rounds.set(
       this.roundService
         .getRoundsByIds(this.currentUser?.roundIds || [])
-        .sort((a, b) => {
-          if (a?.dateStringISO > b?.dateStringISO) {
-            return 1;
-          }
-          if (a?.dateStringISO < b?.dateStringISO) {
-            return -1;
-          }
-          return 0;
-        }),
+        .sort(compareRoundsByDate),
     );
   }
 
