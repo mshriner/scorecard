@@ -40,6 +40,7 @@ describe('EditRoundComponent', () => {
     appStateService = jasmine.createSpyObj('AppStateService', [
       'currentUser',
       'setPageTitle',
+      'useSmallerButtons',
     ]);
 
     // Create a function to act as the signal
