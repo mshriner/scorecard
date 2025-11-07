@@ -51,7 +51,7 @@ import {
 } from '../../models/graph';
 import {
   BestRound,
-  compareRoundsByDate,
+  compareRoundsByDateDescending,
   EMPTY_EIGHTEEN_NUMBERS,
   EMPTY_NINE_NUMBERS,
   FullRoundVarietyAtCourse,
@@ -382,7 +382,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.rounds.set(
       this.roundService
         .getRoundsByIds(this.currentUser?.roundIds || [])
-        .sort(compareRoundsByDate),
+        .sort(compareRoundsByDateDescending),
     );
   }
 

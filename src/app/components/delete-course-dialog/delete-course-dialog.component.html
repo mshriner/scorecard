@@ -11,18 +11,18 @@
     }
   </p>
 
-  <mat-table [dataSource]="options.roundsToDelete" class="full-width-table">
-    <ng-container matColumnDef="date">
+  <mat-table [dataSource]="options.roundsToDelete" class="round-results-table">
+    <ng-container matColumnDef="roundDate">
       <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
       <mat-cell *matCellDef="let round">
         {{ round.dateStringISO | date }}
       </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="score">
+    <ng-container matColumnDef="roundScore">
       <mat-header-cell *matHeaderCellDef>Score</mat-header-cell>
       <mat-cell *matCellDef="let round">
-        {{ round.strokes | totalRoundScore }}
+        {{ round | totalRoundScore }} ({{ round | scoreToPar: options.course }})
       </mat-cell>
     </ng-container>
 

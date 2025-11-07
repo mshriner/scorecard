@@ -20,7 +20,10 @@ import {
   EIGHTEEN_NUMBERS_ZEROED,
 } from '../../models/course';
 import { DataToShare } from '../../models/data-transfer';
-import { compareRoundsByDate, RoundVariety } from '../../models/round';
+import {
+  compareRoundsByDateDescending,
+  RoundVariety,
+} from '../../models/round';
 import { CourseVarietySlicePipe } from '../../pipes/course-variety-slice.pipe';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
@@ -200,7 +203,7 @@ export class EditCourseComponent implements OnInit {
     const roundsToDelete = this.roundService
       .getRoundsByIds(this.appStateService.currentUser()?.roundIds || [])
       .filter((round) => round.courseId === this.courseIdToEdit)
-      .sort(compareRoundsByDate);
+      .sort(compareRoundsByDateDescending);
 
     if (roundsToDelete.length > 0) {
       // Show confirmation dialog with rounds that will be deleted

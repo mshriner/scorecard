@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { Course } from '../../models/course';
 import { Round } from '../../models/round';
+import { ScoreToParPipe } from '../../pipes/score-to-par.pipe';
 import { TotalRoundScorePipe } from '../../pipes/total-round-score.pipe';
 
 interface DeleteCourseOptions {
@@ -34,6 +35,7 @@ interface DeleteCourseOptions {
     MatRippleModule,
     DatePipe,
     TotalRoundScorePipe,
+    ScoreToParPipe,
   ],
   templateUrl: './delete-course-dialog.component.html',
   styleUrl: './delete-course-dialog.component.scss',
@@ -42,7 +44,7 @@ export class DeleteCourseDialogComponent {
   readonly dialogRef = inject(MatDialogRef<DeleteCourseDialogComponent>);
   readonly options: DeleteCourseOptions =
     inject<DeleteCourseOptions>(MAT_DIALOG_DATA);
-  readonly columns = ['date', 'score'];
+  readonly columns = ['roundDate', 'roundScore'];
 
   public confirm(): void {
     this.dialogRef.close(true);

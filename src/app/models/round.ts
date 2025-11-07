@@ -83,12 +83,12 @@ export const EMPTY_EIGHTEEN_NUMBERS: EighteenNumbersOrNulls = [
 
 export const ROUND_NOTES_MAX_LENGTH = 1000;
 
-export function compareRoundsByDate(a: Round, b: Round): number {
+export function compareRoundsByDateDescending(a: Round, b: Round): number {
   if (a?.dateStringISO > b?.dateStringISO) {
-    return 1;
+    return -1;
   }
   if (a?.dateStringISO < b?.dateStringISO) {
-    return -1;
+    return 1;
   }
   return 0;
 }
