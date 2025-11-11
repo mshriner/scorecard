@@ -95,7 +95,7 @@ export class EditCourseComponent implements OnInit {
   public readonly COURSE_VARIETIES = Object.values(CourseVariety);
 
   @HostListener('document:keydown.enter', ['$event'])
-  handleEnterKey(event: KeyboardEvent): void {
+  handleEnterKey(event: Event): void {
     if (!this.disableSaveButton && this.appStateService.unsavedDataOnPage()) {
       this.saveCourse();
     }

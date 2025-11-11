@@ -154,7 +154,7 @@ export class EditRoundComponent implements OnInit {
   courseSelectInput: Signal<MatSelect | undefined> = viewChild('courseSelect');
 
   @HostListener('document:keydown.enter', ['$event'])
-  handleEnterKey(event: KeyboardEvent): void {
+  handleEnterKey(event: Event): void {
     if (!this.disableSaveButton && this.appStateService.unsavedDataOnPage()) {
       this.saveRound();
     }
