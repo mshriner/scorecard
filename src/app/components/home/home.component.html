@@ -386,8 +386,17 @@
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title></mat-card-title>
               <mat-card-content class="padding-inline-8">
-                <sub> Total Holes Played </sub>
+                <sub> Holes Played </sub>
                 <h3>{{ holeResultTotals().holesPlayed }}</h3>
+              </mat-card-content>
+            </mat-card>
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title></mat-card-title>
+              <mat-card-content class="padding-inline-8">
+                <sub> Strokes Taken </sub>
+                <h3>
+                  {{ holeResultTotals().totalStrokesInAllCompletedRounds }}
+                </h3>
               </mat-card-content>
             </mat-card>
           </div>
