@@ -22,9 +22,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterOutlet, RoutesRecognized } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
-import { filter, pairwise } from 'rxjs';
 import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
 import { PwaInstallDialogComponent } from './components/pwa-install-dialog/pwa-install-dialog.component';
 import {
@@ -39,6 +38,7 @@ import {
 } from './models/user';
 import { PipesModule } from './pipes/pipes.module';
 import { AppStateService } from './services/app-state.service';
+import { NavigationMessageService } from './services/navigation-message.service';
 import { SnackBarService } from './services/snack-bar.service';
 @Component({
   selector: 'app-root',
@@ -65,7 +65,7 @@ import { SnackBarService } from './services/snack-bar.service';
 })
 export class AppComponent implements OnInit, AfterViewInit {
   appStateService = inject(AppStateService);
-  private readonly router = inject(Router);
+  private readonly router = inject(NavigationMessageService);
   private readonly dialog = inject(MatDialog);
   private readonly location = inject(Location);
   private readonly snackBarService = inject(SnackBarService);
@@ -73,7 +73,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
   public readonly showSpinner = signal(false);
-  private previousUrl: string | null = null;
   public readonly APP_THEMES = Object.values(AppTheme).filter(
     (val) => typeof val !== 'string',
   );
@@ -95,15 +94,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.logout();
       }
     });
-    this.router.events
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        filter((e) => e instanceof RoutesRecognized),
-        pairwise(),
-      )
-      .subscribe((e) => {
-        this.previousUrl = e[0].urlAfterRedirects; // previous url
-      });
     this.appStateService.useSmallerButtons();
     this.appStateService.appTheming();
     const doNotShowInstallPrompt =
@@ -204,15 +194,22 @@ export class AppComponent implements OnInit, AfterViewInit {
     return this.router.url === `/${APP_ROUTES.ABOUT}`;
   }
 
+  public get showHamburgerMenu(): boolean {
+    return (
+      this.isOnProfilesScreen ||
+      this.isOnHomeScreen ||
+      this.isOnCoursesScreen ||
+      this.isOnAboutScreen
+    );
+  }
+
   private doGoBack(): void {
-    if (this.previousUrl) {
-      this.router.navigateByUrl(this.previousUrl);
-    } else if (this.isOnEditCourseScreen) {
-      this.router.navigateByUrl(APP_ROUTES.COURSES);
-    } else if (this.isOnEditRoundScreen) {
-      this.router.navigateByUrl(APP_ROUTES.HOME);
-    } else {
+    const hasPreviousHistory = globalThis.history.length > 1;
+
+    if (hasPreviousHistory) {
       this.location.back();
+    } else {
+      this.router.navigateByUrl(APP_ROUTES.HOME);
     }
   }
 

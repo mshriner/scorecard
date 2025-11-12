@@ -37,7 +37,9 @@ interface SelectCourseOptions {
   styleUrl: './select-course-dialog.component.scss',
 })
 export class SelectCourseDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<SelectCourseDialogComponent>);
+  private readonly dialogRef = inject(
+    MatDialogRef<SelectCourseDialogComponent>,
+  );
   readonly options: SelectCourseOptions =
     inject<SelectCourseOptions>(MAT_DIALOG_DATA) || [];
   public readonly columns = ['courseName', 'coursePar'];

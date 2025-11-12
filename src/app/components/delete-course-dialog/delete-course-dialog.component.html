@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>Delete Course</h2>
+<mat-dialog-content>
+  <p>
+    Are you sure you want to delete "{{ options.course.name }}"? This will also
+    delete the following
+
+    @if (options.roundsToDelete.length > 1) {
+      {{ options.roundsToDelete.length }} rounds:
+    } @else {
+      round:
+    }
+  </p>
+
+  <mat-table [dataSource]="options.roundsToDelete" class="round-results-table">
+    <ng-container matColumnDef="roundDate">
+      <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
+      <mat-cell *matCellDef="let round">
+        {{ round.dateStringISO | date }}
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="roundScore">
+      <mat-header-cell *matHeaderCellDef>Score</mat-header-cell>
+      <mat-cell *matCellDef="let round">
+        {{ round | totalRoundScore }} ({{ round | scoreToPar: options.course }})
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="columns; sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: columns"></mat-row>
+  </mat-table>
+</mat-dialog-content>
+<mat-dialog-actions class="no-padding actions-center">
+  <button mat-stroked-button (click)="cancel()">
+    <mat-icon>cancel</mat-icon>
+    Cancel
+  </button>
+  <button mat-stroked-button color="warn" (click)="confirm()" cdkFocusInitial>
+    <mat-icon>delete</mat-icon>
+    Delete
+  </button>
+</mat-dialog-actions>

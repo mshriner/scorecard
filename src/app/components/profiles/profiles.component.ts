@@ -27,7 +27,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
 import {
   APP_NAME,
   APP_ROUTES,
@@ -41,6 +40,7 @@ import {
 import { LocalUserWithFilters, User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
+import { NavigationMessageService } from '../../services/navigation-message.service';
 import { RoundService } from '../../services/round.service';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
@@ -69,7 +69,7 @@ export class ProfilesComponent {
   private readonly courseService = inject(CourseService);
   private readonly sharingService = inject(SharingService);
   private readonly snackBarService = inject(SnackBarService);
-  private readonly router = inject(Router);
+  private readonly router = inject(NavigationMessageService);
   private readonly changeDetection = inject(ChangeDetectorRef);
 
   readonly profiles: WritableSignal<LocalUserWithFilters[]> = signal([]);

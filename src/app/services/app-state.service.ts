@@ -7,9 +7,9 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppTheme, LocalUserWithFilters } from '../models/user';
+import { NavigationMessageService } from './navigation-message.service';
 import { UserService } from './user.service';
 
 @Injectable({
@@ -17,7 +17,7 @@ import { UserService } from './user.service';
 })
 export class AppStateService implements OnDestroy {
   private readonly userService = inject(UserService);
-  private readonly router = inject(Router);
+  private readonly router = inject(NavigationMessageService);
 
   public readonly pageTitle: WritableSignal<string> = signal('');
   public readonly useSmallerButtons = computed(() => {

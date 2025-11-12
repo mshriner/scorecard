@@ -10,12 +10,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { Course } from '../../models/course';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
+import { NavigationMessageService } from '../../services/navigation-message.service';
 import { SnackBarService } from '../../services/snack-bar.service';
 import { UserService } from '../../services/user.service';
 
@@ -36,7 +36,7 @@ export class CourseListComponent implements OnInit {
   appStateService = inject(AppStateService);
   courseService = inject(CourseService);
   userService = inject(UserService);
-  private readonly router = inject(Router);
+  private readonly router = inject(NavigationMessageService);
   private readonly snackBarService = inject(SnackBarService);
 
   public courses: WritableSignal<Course[]> = signal([]);
@@ -47,14 +47,6 @@ export class CourseListComponent implements OnInit {
     this.COURSE_NAME_COL,
     this.COURSE_PAR_COL,
   ];
-
-  constructor() {
-    this.snackBarService.openTemporarySnackBar(
-      this.router.getCurrentNavigation()?.extras?.state?.[
-        NAVIGATION_STATE_KEYS.MESSAGE
-      ],
-    );
-  }
 
   ngOnInit(): void {
     this.appStateService.setPageTitle(
@@ -68,12 +60,15 @@ export class CourseListComponent implements OnInit {
   }
 
   public viewCourse(courseId: string, message?: string): void {
-    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE, {
-      state: {
-        [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: courseId,
-        [NAVIGATION_STATE_KEYS.MESSAGE]: message,
+    this.router.navigateByUrl(
+      APP_ROUTES.ADD_EDIT_COURSE,
+      {
+        state: {
+          [NAVIGATION_STATE_KEYS.COURSE_ID_TO_EDIT]: courseId,
+        },
       },
-    });
+      message,
+    );
   }
 
   public addNewRound(): void {

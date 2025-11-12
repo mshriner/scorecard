@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   providedIn: 'root',
 })
 export class SnackBarService {
-  private _snackBar = inject(MatSnackBar);
+  private readonly _snackBar = inject(MatSnackBar);
   constructor() {}
 
   public openTemporarySnackBar(

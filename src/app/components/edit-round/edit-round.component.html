@@ -492,24 +492,34 @@
         accept="application/json"
       />
     }
-    <button
-      mat-stroked-button
-      (click)="saveRound()"
-      [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
-    >
-      <mat-icon>
+    @if (coursesToChooseFrom.length) {
+      <button
+        mat-stroked-button
+        (click)="saveRound()"
+        [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
+      >
+        <mat-icon>
+          @if (roundIdToEdit && !imported) {
+            save_as
+          } @else {
+            save
+          }
+        </mat-icon>
         @if (roundIdToEdit && !imported) {
-          save_as
+          Update
         } @else {
-          save
+          Save
         }
-      </mat-icon>
-      @if (roundIdToEdit && !imported) {
-        Update
-      } @else {
-        Save
-      }
-    </button>
+      </button>
+    } @else {
+      <button mat-stroked-button (click)="addNewCourse()">
+        <mat-icon>add</mat-icon>
+        @if (!appStateService.useSmallerButtons()) {
+          New
+        }
+        Course
+      </button>
+    }
   </div>
   @if (roundIdToEdit && !imported) {
     <div class="full-width-center space-evenly">

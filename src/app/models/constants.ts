@@ -26,7 +26,6 @@ export const APP_ROUTES = {
 export const NAVIGATION_STATE_KEYS = {
   COURSE_ID_TO_EDIT: 'course-id-to-edit',
   ROUND_ID_TO_EDIT: 'round-id-to-edit',
-  MESSAGE: 'message',
 };
 
 export const CLEAR_ALL_APP_DATA: AreYouSureDialogConfig = {
@@ -60,7 +59,7 @@ export const DELETE_ROUND: AreYouSureDialogConfig = {
 export const DELETE_COURSE: AreYouSureDialogConfig = {
   title: 'Delete Course',
   message:
-    'Are you sure? This will also delete ALL recorded rounds for this course.',
+    'Are you sure you want to delete this course? This action cannot be undone.',
   confirmButtonText: 'Delete',
   confirmButtonIcon: 'delete',
   nonConfirmButtonText: 'Cancel',
