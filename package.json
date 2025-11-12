@@ -32,7 +32,7 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.11",
     "@angular/cli": "^19.2.11",
-    "@angular/compiler-cli": "^19.2.10",
+    "@angular/compiler-cli": "^20.3.10",
     "@types/jasmine": "~5.1.9",
     "eslint": "^9.34.0",
     "jasmine-core": "~5.10.0",
