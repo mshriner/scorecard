@@ -18,7 +18,6 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { Router } from '@angular/router';
 import {
   dot,
   frame,
@@ -33,6 +32,7 @@ import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { PerformanceGraphData } from '../../models/graph';
 import { RoundVarietyPipe } from '../../pipes/round-variety.pipe';
 import { AppStateService } from '../../services/app-state.service';
+import { NavigationMessageService } from '../../services/navigation-message.service';
 
 @Component({
   selector: 'app-performance-graph-dialog',
@@ -55,7 +55,7 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
   readonly dialogRef = inject(MatDialogRef<PerformanceGraphDialogComponent>);
   public readonly graphData = inject<PerformanceGraphData>(MAT_DIALOG_DATA);
   private readonly roundVarietyPipe = inject(RoundVarietyPipe);
-  private readonly router = inject(Router);
+  private readonly router = inject(NavigationMessageService);
   private readonly appStateService = inject(AppStateService);
   private readonly idOfClickedRound = signal('');
   public readonly evenlySpaceRounds = signal(true);

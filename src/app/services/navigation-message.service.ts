@@ -1,11 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import {
+  Event,
   Navigation,
   NavigationBehaviorOptions,
   NavigationEnd,
   Router,
   UrlTree,
 } from '@angular/router';
+import { Observable } from 'rxjs';
 import { SnackBarService } from './snack-bar.service';
 
 /**
@@ -19,6 +21,14 @@ export class NavigationMessageService {
   private readonly router = inject(Router);
   private readonly snackBarService = inject(SnackBarService);
   private readonly STORAGE_KEY = 'navigationMessage';
+
+  public get url(): string {
+    return this.router.url;
+  }
+
+  public get events(): Observable<Event> {
+    return this.router.events;
+  }
 
   constructor() {
     // On every successful navigation, check for a saved message and show it.
