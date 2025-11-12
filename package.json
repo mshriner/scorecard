@@ -22,7 +22,7 @@
     "@angular/material": "^19.2.15",
     "@angular/platform-browser": "^19.2.10",
     "@angular/platform-browser-dynamic": "^19.2.10",
-    "@angular/router": "^19.2.10",
+    "@angular/router": "^20.3.10",
     "@angular/service-worker": "^19.2.10",
     "@observablehq/plot": "^0.6.17",
     "ngx-autosize": "^2.0.4",
