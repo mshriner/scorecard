@@ -205,11 +205,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   private doGoBack(): void {
     const hasPreviousHistory = globalThis.history.length > 1;
 
-    if (!hasPreviousHistory) {
-      // No previous history entry — go to home
-      this.router.navigateByUrl(APP_ROUTES.HOME);
-    } else {
+    if (hasPreviousHistory) {
       this.location.back();
+    } else {
+      this.router.navigateByUrl(APP_ROUTES.HOME);
     }
   }
 
