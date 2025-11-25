@@ -1,5 +1,5 @@
 @if (courses().length) {
-  <ng-container *ngTemplateOutlet="addActions"></ng-container>
+  <ng-container *ngTemplateOutlet="addActions" />
 
   <br />
 
@@ -20,19 +20,17 @@
         {{ course | par }}
       </mat-cell>
     </ng-container>
-    <mat-header-row
-      *matHeaderRowDef="COURSE_TABLE_COLUMNS; sticky: true"
-    ></mat-header-row>
-    <mat-row
-      mat-ripple
+    <mat-header-row *matHeaderRowDef="COURSE_TABLE_COLUMNS; sticky: true"
+     />
+    <mat-row mat-ripple
       *matRowDef="let course; columns: COURSE_TABLE_COLUMNS"
       (click)="viewCourse(course.id)"
-    ></mat-row>
+     />
   </mat-table>
 } @else {
   <div class="full-width-center">No golf courses created.</div>
   <br />
-  <ng-container *ngTemplateOutlet="addActions"></ng-container>
+  <ng-container *ngTemplateOutlet="addActions" />
 }
 
 <ng-template #addActions>

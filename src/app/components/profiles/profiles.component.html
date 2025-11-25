@@ -62,14 +62,12 @@
       </mat-cell>
     </ng-container>
 
-    <mat-header-row
-      *matHeaderRowDef="['header']; sticky: true"
-    ></mat-header-row>
-    <mat-row
-      mat-ripple
+    <mat-header-row *matHeaderRowDef="['header']; sticky: true"
+     />
+    <mat-row mat-ripple
       (click)="selectProfile(user)"
       *matRowDef="let user; columns: PROFILE_TABLE_COLUMNS"
-    ></mat-row>
+     />
   </mat-table>
 } @else {
   <br />
@@ -105,7 +103,7 @@
 <br />
 <br />
 <div class="full-width-center">Advanced Options</div>
-<mat-divider></mat-divider>
+<mat-divider />
 <br />
 <div class="full-width-center">
   Total storage used: {{ localStorageUsed() | number }} bytes
