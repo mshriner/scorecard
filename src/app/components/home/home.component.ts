@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -95,11 +95,13 @@ import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/per
     MatSelectModule,
     ReactiveFormsModule,
     MatCheckboxModule,
-    CommonModule,
     MatDividerModule,
     MatDialogModule,
     TypedTemplateDirective,
-  ],
+    DatePipe,
+    DecimalPipe,
+    NgTemplateOutlet
+],
   providers: [provideNativeDateAdapter()],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

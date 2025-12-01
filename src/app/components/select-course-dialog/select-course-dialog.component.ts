@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -23,7 +23,6 @@ interface SelectCourseOptions {
   selector: 'app-select-course-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -31,8 +30,8 @@ interface SelectCourseOptions {
     MatDialogContent,
     MatDialogActions,
     MatRippleModule,
-    ParPipe,
-  ],
+    ParPipe
+],
   templateUrl: './select-course-dialog.component.html',
   styleUrl: './select-course-dialog.component.scss',
 })

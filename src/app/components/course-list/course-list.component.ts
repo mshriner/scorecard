@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   inject,
@@ -27,8 +27,8 @@ import { UserService } from '../../services/user.service';
     MatButtonModule,
     PipesModule,
     MatRippleModule,
-    CommonModule,
-  ],
+    NgTemplateOutlet
+],
   templateUrl: './course-list.component.html',
   styleUrl: './course-list.component.scss',
 })
