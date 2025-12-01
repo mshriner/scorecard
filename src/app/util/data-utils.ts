@@ -21,7 +21,12 @@ export class DataUtils {
   */
   public static deepEqual(a: any, b: any): boolean {
     if (a === b) return true;
-    if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) {
+    if (
+      typeof a !== 'object' ||
+      typeof b !== 'object' ||
+      a === null ||
+      b === null
+    ) {
       return Number.isNaN(a) && Number.isNaN(b);
     }
     if (a.constructor !== b.constructor) return false;
@@ -32,14 +37,18 @@ export class DataUtils {
     if (a instanceof RegExp) {
       return a.source === b.source && a.flags === b.flags;
     }
-    if (a.valueOf !== Object.prototype.valueOf || a.toString !== Object.prototype.toString) {
+    if (
+      a.valueOf !== Object.prototype.valueOf ||
+      a.toString !== Object.prototype.toString
+    ) {
       return a.valueOf() === b.valueOf() && a.toString() === b.toString();
     }
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
     if (keysA.length !== keysB.length) return false;
     for (const key of keysA) {
-      if (!b.hasOwnProperty(key) || !DataUtils.deepEqual(a[key], b[key])) return false;
+      if (!b.hasOwnProperty(key) || !DataUtils.deepEqual(a[key], b[key]))
+        return false;
     }
     return true;
   }

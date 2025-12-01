@@ -72,8 +72,8 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
     MatDialogModule,
     MatRippleModule,
     AutosizeModule,
-    NgTemplateOutlet
-],
+    NgTemplateOutlet,
+  ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './edit-round.component.html',
   styleUrl: './edit-round.component.scss',

@@ -100,8 +100,8 @@ import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/per
     TypedTemplateDirective,
     DatePipe,
     DecimalPipe,
-    NgTemplateOutlet
-],
+    NgTemplateOutlet,
+  ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

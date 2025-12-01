@@ -50,9 +50,7 @@
           (dateInput)="dateChanged($event)"
         />
         <mat-hint>MM/DD/YYYY</mat-hint>
-        <mat-datepicker-toggle matIconSuffix
-          [for]="picker3"
-         />
+        <mat-datepicker-toggle matIconSuffix [for]="picker3" />
         <mat-datepicker touchUi #picker3 />
       </mat-form-field>
       <mat-form-field class="almost-full-width-input">
@@ -104,7 +102,8 @@
             *matCellDef="let row; let rowIndex = dataIndex"
             class="center-text"
           >
-            <ng-container *ngTemplateOutlet="
+            <ng-container
+              *ngTemplateOutlet="
                 editRoundRow;
                 context: {
                   holeIndex:
@@ -113,7 +112,7 @@
                   column: column,
                 }
               "
-             />
+            />
           </td>
           <td
             mat-footer-cell
@@ -155,7 +154,8 @@
             *matCellDef="let row; let rowIndex = dataIndex"
             class="center-text thick-bottom-border"
           >
-            <ng-container *ngTemplateOutlet="
+            <ng-container
+              *ngTemplateOutlet="
                 roundSummaryRow;
                 context: {
                   outOrIn:
@@ -165,7 +165,7 @@
                   columnId: column,
                 }
               "
-             />
+            />
           </td>
         </ng-container>
       }
@@ -260,7 +260,8 @@
           "
         >
           @if (currentCourse?.par?.[holeIndex]) {
-            <ng-container *ngTemplateOutlet="
+            <ng-container
+              *ngTemplateOutlet="
                 scoreGraphic;
                 context: {
                   scoreToPar:
@@ -269,7 +270,7 @@
                   score: editingRound.strokes[holeIndex],
                 }
               "
-             />
+            />
           } @else {
             {{ editingRound.strokes[holeIndex] ?? '-' }}
           }
@@ -296,7 +297,8 @@
               <div class="par-value-selector">
                 <div class="par-value-box">
                   @if (currentCourse?.par?.[holeIndex]) {
-                    <ng-container *ngTemplateOutlet="
+                    <ng-container
+                      *ngTemplateOutlet="
                         scoreGraphic;
                         context: {
                           scoreToPar:
@@ -304,7 +306,7 @@
                           score: strokes,
                         }
                       "
-                     />
+                    />
                   } @else {
                     {{ strokes }}
                   }

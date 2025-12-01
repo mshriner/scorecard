@@ -35,8 +35,8 @@ interface DeleteCourseOptions {
     DatePipe,
     TotalRoundScorePipe,
     ScoreToParPipe,
-    DatePipe
-],
+    DatePipe,
+  ],
   templateUrl: './delete-course-dialog.component.html',
   styleUrl: './delete-course-dialog.component.scss',
 })

@@ -62,12 +62,12 @@
       </mat-cell>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="['header']; sticky: true"
-     />
-    <mat-row mat-ripple
+    <mat-header-row *matHeaderRowDef="['header']; sticky: true" />
+    <mat-row
+      mat-ripple
       (click)="selectProfile(user)"
       *matRowDef="let user; columns: PROFILE_TABLE_COLUMNS"
-     />
+    />
   </mat-table>
 } @else {
   <br />

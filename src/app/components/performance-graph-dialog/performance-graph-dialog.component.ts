@@ -1,4 +1,3 @@
-
 import {
   AfterViewInit,
   Component,
@@ -45,8 +44,8 @@ import { NavigationMessageService } from '../../services/navigation-message.serv
     MatMenuModule,
     MatCardModule,
     MatSlideToggleModule,
-    MatIconModule
-],
+    MatIconModule,
+  ],
   templateUrl: './performance-graph-dialog.component.html',
   styleUrl: './performance-graph-dialog.component.scss',
 })

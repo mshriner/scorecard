@@ -50,8 +50,8 @@ import { DeleteCourseDialogComponent } from '../delete-course-dialog/delete-cour
     MatCardModule,
     PipesModule,
     NgTemplateOutlet,
-    TitleCasePipe
-],
+    TitleCasePipe,
+  ],
   templateUrl: './edit-course.component.html',
   styleUrl: './edit-course.component.scss',
 })

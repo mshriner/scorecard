@@ -27,8 +27,8 @@ import { UserService } from '../../services/user.service';
     MatButtonModule,
     PipesModule,
     MatRippleModule,
-    NgTemplateOutlet
-],
+    NgTemplateOutlet,
+  ],
   templateUrl: './course-list.component.html',
   styleUrl: './course-list.component.scss',
 })

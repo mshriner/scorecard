@@ -20,12 +20,12 @@
         {{ course | par }}
       </mat-cell>
     </ng-container>
-    <mat-header-row *matHeaderRowDef="COURSE_TABLE_COLUMNS; sticky: true"
-     />
-    <mat-row mat-ripple
+    <mat-header-row *matHeaderRowDef="COURSE_TABLE_COLUMNS; sticky: true" />
+    <mat-row
+      mat-ripple
       *matRowDef="let course; columns: COURSE_TABLE_COLUMNS"
       (click)="viewCourse(course.id)"
-     />
+    />
   </mat-table>
 } @else {
   <div class="full-width-center">No golf courses created.</div>

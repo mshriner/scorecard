@@ -13,8 +13,8 @@ import { MatTableModule } from '@angular/material/table';
 import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import { CourseVariety } from '../../models/course';
 import { BestRound, RoundVariety } from '../../models/round';
-import { PipesModule } from '../../pipes/pipes.module';
 import { ColumnDef } from '../../models/table';
+import { PipesModule } from '../../pipes/pipes.module';
 
 @Component({
   selector: 'app-best-round-dialog',
@@ -28,8 +28,8 @@ import { ColumnDef } from '../../models/table';
     PipesModule,
     TypedTemplateDirective,
     DatePipe,
-    NgTemplateOutlet
-],
+    NgTemplateOutlet,
+  ],
   templateUrl: './best-round-dialog.component.html',
   styleUrl: './best-round-dialog.component.scss',
 })
