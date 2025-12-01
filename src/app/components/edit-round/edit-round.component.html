@@ -50,11 +50,10 @@
           (dateInput)="dateChanged($event)"
         />
         <mat-hint>MM/DD/YYYY</mat-hint>
-        <mat-datepicker-toggle
-          matIconSuffix
+        <mat-datepicker-toggle matIconSuffix
           [for]="picker3"
-        ></mat-datepicker-toggle>
-        <mat-datepicker touchUi #picker3></mat-datepicker>
+         />
+        <mat-datepicker touchUi #picker3 />
       </mat-form-field>
       <mat-form-field class="almost-full-width-input">
         <mat-label>Add Notes For Your Round</mat-label>
@@ -84,7 +83,7 @@
     <br />
   }
 
-  <ng-container *ngTemplateOutlet="saveActions"></ng-container>
+  <ng-container *ngTemplateOutlet="saveActions" />
 
   @if (coursesToChooseFrom.length) {
     <table
@@ -105,8 +104,7 @@
             *matCellDef="let row; let rowIndex = dataIndex"
             class="center-text"
           >
-            <ng-container
-              *ngTemplateOutlet="
+            <ng-container *ngTemplateOutlet="
                 editRoundRow;
                 context: {
                   holeIndex:
@@ -115,7 +113,7 @@
                   column: column,
                 }
               "
-            ></ng-container>
+             />
           </td>
           <td
             mat-footer-cell
@@ -157,8 +155,7 @@
             *matCellDef="let row; let rowIndex = dataIndex"
             class="center-text thick-bottom-border"
           >
-            <ng-container
-              *ngTemplateOutlet="
+            <ng-container *ngTemplateOutlet="
                 roundSummaryRow;
                 context: {
                   outOrIn:
@@ -168,7 +165,7 @@
                   columnId: column,
                 }
               "
-            ></ng-container>
+             />
           </td>
         </ng-container>
       }
@@ -202,7 +199,7 @@
     </table>
 
     <br />
-    <ng-container *ngTemplateOutlet="saveActions"></ng-container>
+    <ng-container *ngTemplateOutlet="saveActions" />
   }
 </form>
 <br />
@@ -215,7 +212,7 @@
 >
   <div
     class="score-graphic"
-    [ngClass]="{
+    [class]="{
       'double-bogey-or-worse': score && scoreToPar >= 2,
       'bogey-score': score && scoreToPar === 1,
       'birdie-score': score && scoreToPar === -1,
@@ -263,8 +260,7 @@
           "
         >
           @if (currentCourse?.par?.[holeIndex]) {
-            <ng-container
-              *ngTemplateOutlet="
+            <ng-container *ngTemplateOutlet="
                 scoreGraphic;
                 context: {
                   scoreToPar:
@@ -273,7 +269,7 @@
                   score: editingRound.strokes[holeIndex],
                 }
               "
-            ></ng-container>
+             />
           } @else {
             {{ editingRound.strokes[holeIndex] ?? '-' }}
           }
@@ -300,8 +296,7 @@
               <div class="par-value-selector">
                 <div class="par-value-box">
                   @if (currentCourse?.par?.[holeIndex]) {
-                    <ng-container
-                      *ngTemplateOutlet="
+                    <ng-container *ngTemplateOutlet="
                         scoreGraphic;
                         context: {
                           scoreToPar:
@@ -309,7 +304,7 @@
                           score: strokes,
                         }
                       "
-                    ></ng-container>
+                     />
                   } @else {
                     {{ strokes }}
                   }

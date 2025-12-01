@@ -1,4 +1,4 @@
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { PwaInstallDialogComponent } from './pwa-install-dialog.component';
@@ -11,7 +11,7 @@ describe('PwaInstallDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [PwaInstallDialogComponent],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         {
           provide: MatDialogRef,
           useValue: { close: jasmine.createSpy('close') },

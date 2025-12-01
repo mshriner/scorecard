@@ -19,8 +19,7 @@
           *matCellDef="let row; let rowIndex = dataIndex"
           class="center-text"
         >
-          <ng-container
-            *ngTemplateOutlet="
+          <ng-container *ngTemplateOutlet="
               roundRow;
               context: {
                 holeIndex:
@@ -29,7 +28,7 @@
                 column: column,
               }
             "
-          ></ng-container>
+           />
         </td>
         <td
           mat-footer-cell
@@ -73,8 +72,7 @@
           *matCellDef="let row; let rowIndex = dataIndex"
           class="center-text thick-bottom-border"
         >
-          <ng-container
-            *ngTemplateOutlet="
+          <ng-container *ngTemplateOutlet="
               roundSummaryRow;
               context: {
                 outOrIn:
@@ -85,7 +83,7 @@
                 columnId: column,
               }
             "
-          ></ng-container>
+           />
         </td>
       </ng-container>
     }
@@ -126,7 +124,7 @@
   >
     <div
       class="score-graphic"
-      [ngClass]="{
+      [class]="{
         'double-bogey-or-worse': score && scoreToPar >= 2,
         'bogey-score': score && scoreToPar === 1,
         'birdie-score': score && scoreToPar === -1,
@@ -157,8 +155,7 @@
         <div class="hole-par-adjustment">
           <div class="par-value-box">
             @if (bestPossibleRound.course.par[holeIndex]) {
-              <ng-container
-                *ngTemplateOutlet="
+              <ng-container *ngTemplateOutlet="
                   scoreGraphic;
                   context: {
                     scoreToPar:
@@ -167,7 +164,7 @@
                     score: bestPossibleRound.strokes[holeIndex],
                   }
                 "
-              ></ng-container>
+               />
             } @else {
               {{ bestPossibleRound.strokes[holeIndex] }}
             }

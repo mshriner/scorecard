@@ -1,4 +1,4 @@
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { Course, CourseDTO, CourseVariety } from '../../models/course';
@@ -23,7 +23,7 @@ describe('EditCourseComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EditCourseComponent],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         provideAnimationsAsync(),
         { provide: SnackBarService, useValue: snackBarService },
         { provide: SharingService, useValue: sharingService },

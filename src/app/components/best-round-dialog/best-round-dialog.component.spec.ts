@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { COURSE_EXAMPLE } from '../../models/course';
 import { BestRound, ROUND_EXAMPLE } from '../../models/round';
@@ -20,7 +20,7 @@ describe('BestRoundDialogComponent', () => {
     await TestBed.configureTestingModule({
       imports: [BestRoundDialogComponent],
       providers: [
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
         { provide: MatDialogRef, useValue: {} },
         {
           provide: MAT_DIALOG_DATA,

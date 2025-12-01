@@ -1,4 +1,4 @@
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { RoundVariety } from '../models/round';
 import { ParPipe } from './par.pipe';
@@ -13,7 +13,7 @@ describe('ParPipe', () => {
       providers: [
         ParPipe,
         RoundVarietyScoresPipe,
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
       ],
     }).compileComponents();
 

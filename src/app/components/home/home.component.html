@@ -60,7 +60,7 @@
                   Select All
                 </mat-checkbox>
               </div>
-              <mat-divider></mat-divider>
+              <mat-divider />
               @for (topping of courseIdOptions(); track topping) {
                 <mat-option
                   [value]="topping"
@@ -85,10 +85,9 @@
             (dateInput)="earliestDateChanged($event, pickerEarly)"
           />
           <mat-hint>MM/DD/YYYY</mat-hint>
-          <mat-datepicker-toggle
-            matIconSuffix
+          <mat-datepicker-toggle matIconSuffix
             [for]="pickerEarly"
-          ></mat-datepicker-toggle>
+           />
           <mat-datepicker touchUi #pickerEarly>
             <mat-datepicker-actions>
               <button
@@ -118,10 +117,9 @@
             (dateInput)="latestDateChanged($event, pickerLate)"
           />
           <mat-hint>MM/DD/YYYY</mat-hint>
-          <mat-datepicker-toggle
-            matIconSuffix
+          <mat-datepicker-toggle matIconSuffix
             [for]="pickerLate"
-          ></mat-datepicker-toggle>
+           />
           <mat-datepicker touchUi #pickerLate>
             <mat-datepicker-actions>
               <button
@@ -162,7 +160,7 @@
       </mat-card>
     </div>
     <br />
-    <ng-container *ngTemplateOutlet="addActions"></ng-container>
+    <ng-container *ngTemplateOutlet="addActions" />
     <br />
     <mat-tab-group
       dynamicHeight
@@ -215,14 +213,12 @@
               }})
             </mat-cell>
           </ng-container>
-          <mat-header-row
-            *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"
-          ></mat-header-row>
-          <mat-row
-            mat-ripple
+          <mat-header-row *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"
+           />
+          <mat-row mat-ripple
             *matRowDef="let round; columns: ROUND_TABLE_COLUMNS"
             (click)="viewRound(round.id)"
-          ></mat-row>
+           />
         </mat-table>
       </mat-tab>
       <mat-tab label="Stats">
@@ -230,10 +226,10 @@
         <div class="stat-cards">
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub>
-                  <ng-container *ngTemplateOutlet="averageLabel"></ng-container>
+                  <ng-container *ngTemplateOutlet="averageLabel" />
                   9 Holes
                 </sub>
                 <br />
@@ -258,21 +254,20 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().completedNinesInAllRounds) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-to-par-all',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub>
-                  <ng-container *ngTemplateOutlet="averageLabel"></ng-container>
+                  <ng-container *ngTemplateOutlet="averageLabel" />
                   18 Holes
                 </sub>
                 <br />
@@ -297,24 +292,23 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().completed18HoleRounds) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-to-par-18',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
           </div>
           <br />
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub>
-                  <ng-container *ngTemplateOutlet="averageLabel"></ng-container>
+                  <ng-container *ngTemplateOutlet="averageLabel" />
                   Putts
                 </sub>
                 <br />
@@ -335,21 +329,20 @@
                 holeResultTotals().holesPlayedWithPutts &&
                 holeResultTotals().completedNinesInAllRounds
               ) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'putts-all',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub>
-                  <ng-container *ngTemplateOutlet="averageLabel"></ng-container>
+                  <ng-container *ngTemplateOutlet="averageLabel" />
                   Putts
                 </sub>
                 <br />
@@ -370,28 +363,27 @@
                 holeResultTotals().holesPlayedWithPuttsInFullRounds &&
                 holeResultTotals().completed18HoleRounds
               ) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'putts-18',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
           </div>
-          <mat-divider class="divider-padding"></mat-divider>
+          <mat-divider class="divider-padding" />
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Holes Played </sub>
                 <h3>{{ holeResultTotals().holesPlayed }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Strokes Taken </sub>
                 <h3>
@@ -403,21 +395,21 @@
           <br />
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Eagles or Better </sub>
                 <h3>{{ holeResultTotals().eaglesOrBetter }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Birdies </sub>
                 <h3>{{ holeResultTotals().birdies }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Pars </sub>
                 <h3>{{ holeResultTotals().pars }}</h3>
@@ -427,21 +419,21 @@
           <br />
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Bogeys </sub>
                 <h3>{{ holeResultTotals().bogeys }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Doubles or Worse </sub>
                 <h3>{{ holeResultTotals().doubleBogeysOrWorse }}</h3>
               </mat-card-content>
             </mat-card>
           </div>
-          <mat-divider class="divider-padding"></mat-divider>
+          <mat-divider class="divider-padding" />
           <div
             class="full-width-center space-evenly padding-inline-4 padding-bottom-12"
           >
@@ -449,7 +441,7 @@
           </div>
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Par 3s </sub>
                 <h3>
@@ -465,18 +457,17 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().par3sPlayed) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-on-par-3s',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Par 4s </sub>
                 <h3>
@@ -492,21 +483,20 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().par4sPlayed) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-on-par-4s',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
           </div>
           <br />
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Par 5s </sub>
                 <h3>
@@ -522,21 +512,20 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().par5sPlayed) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-on-par-5s',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
           </div>
-          <mat-divider class="divider-padding"></mat-divider>
+          <mat-divider class="divider-padding" />
           <div class="full-width-center space-evenly padding-inline-4">
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Greens in </sub>
                 <br />
@@ -559,18 +548,17 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().holesPlayedWithPutts) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'greens-in-regulation',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
-              <mat-card-title></mat-card-title>
+              <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Scrambling </sub>
                 <br />
@@ -594,18 +582,17 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().inferredHolesScramblingNeeded) {
-                <ng-container
-                  *ngTemplateOutlet="
+                <ng-container *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'scrambling',
                     }
                   "
-                ></ng-container>
+                 />
               }
             </mat-card>
           </div>
-          <mat-divider class="divider-padding"></mat-divider>
+          <mat-divider class="divider-padding" />
           <div
             class="full-width-center space-evenly padding-inline-4 padding-bottom-12"
           >
@@ -644,14 +631,12 @@
                 }})
               </mat-cell>
             </ng-container>
-            <mat-header-row
-              *matHeaderRowDef="THEORETICAL_BEST_ROUND_COLUMNS; sticky: true"
-            ></mat-header-row>
-            <mat-row
-              mat-ripple
+            <mat-header-row *matHeaderRowDef="THEORETICAL_BEST_ROUND_COLUMNS; sticky: true"
+             />
+            <mat-row mat-ripple
               *matRowDef="let courseId; columns: THEORETICAL_BEST_ROUND_COLUMNS"
               (click)="viewBestRoundOnCourse(courseId)"
-            ></mat-row>
+             />
           </mat-table>
         </div>
       </mat-tab>
@@ -665,12 +650,12 @@
       </div>
     </div>
     <br />
-    <ng-container *ngTemplateOutlet="addActions"></ng-container>
+    <ng-container *ngTemplateOutlet="addActions" />
   }
 } @else {
   <div class="full-width-center">No rounds of golf recorded.</div>
   <br />
-  <ng-container *ngTemplateOutlet="addActions"></ng-container>
+  <ng-container *ngTemplateOutlet="addActions" />
 }
 
 <ng-template

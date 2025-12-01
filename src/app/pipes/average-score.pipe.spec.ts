@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CourseVariety } from '../models/course';
 import { RoundVariety } from '../models/round';
@@ -23,7 +23,7 @@ describe('AverageScorePipe', () => {
         CountValidRoundsToAveragePipe,
         DecimalPipe,
         RoundVarietyScoresPipe,
-        provideExperimentalZonelessChangeDetection(),
+        provideZonelessChangeDetection(),
       ],
     }).compileComponents();
 
