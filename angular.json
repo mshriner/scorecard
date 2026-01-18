@@ -30,8 +30,7 @@
             ],
             "styles": [
               "src/styles.scss"
-            ],
-            "scripts": []
+            ]
           },
           "configurations": {
             "production": {
@@ -77,14 +76,14 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "tsconfig.spec.json",
-            "testRunner": "vitest"
+            "tsConfig": "tsconfig.spec.json"
           }
         }
       }
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": false,
+    "packageManager": "npm"
   }
 }

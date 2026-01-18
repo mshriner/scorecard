@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
+import { Mocked, vi } from 'vitest';
 import { Course, CourseVariety } from '../models/course';
 import { Round, RoundVariety } from '../models/round';
 import { CourseService } from '../services/course.service';
@@ -10,7 +10,7 @@ import { ScoreToParPipe } from './score-to-par.pipe';
 describe('ScoreToParPipe', () => {
   let component: ScoreToParPipe;
   let roundVarietyScoresPipe: RoundVarietyScoresPipe;
-  let courseService: CourseService;
+  let courseService: Mocked<CourseService>;
 
   beforeEach(async () => {
     const courseServiceSpy = {
@@ -27,7 +27,7 @@ describe('ScoreToParPipe', () => {
     }).compileComponents();
 
     roundVarietyScoresPipe = TestBed.inject(RoundVarietyScoresPipe);
-    courseService = TestBed.inject(CourseService);
+    courseService = TestBed.inject(CourseService) as Mocked<CourseService>;
     component = TestBed.inject(ScoreToParPipe);
   });
 

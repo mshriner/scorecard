@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
+import { assert, Mocked, vi } from 'vitest';
 import { Course, CourseDTO, CourseVariety } from '../../models/course';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
@@ -9,16 +9,16 @@ import { EditCourseComponent } from './edit-course.component';
 describe('EditCourseComponent', () => {
   let component: EditCourseComponent;
   let fixture: ComponentFixture<EditCourseComponent>;
-  let snackBarService: SnackBarService;
-  let sharingService: SharingService;
+  let snackBarService: Mocked<SnackBarService>;
+  let sharingService: Mocked<SharingService>;
 
   beforeEach(async () => {
     snackBarService = {
       openTemporarySnackBar: vi.fn(),
-    };
+    } as unknown as Mocked<SnackBarService>;
     sharingService = {
       convertDTOToDomain: vi.fn(),
-    };
+    } as unknown as Mocked<SharingService>;
 
     await TestBed.configureTestingModule({
       imports: [EditCourseComponent],
@@ -119,6 +119,6 @@ describe('EditCourseComponent', () => {
       expect(component.imported).toBe(false);
       return;
     }
-    fail('should have rejected');
+    assert.fail('should have rejected');
   });
 });

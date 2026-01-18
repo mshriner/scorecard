@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
+import { assert, Mocked, vi } from 'vitest';
 import { Course, CourseVariety } from '../../models/course';
 import { Round, RoundVariety } from '../../models/round';
 import { AppStateService } from '../../services/app-state.service';
@@ -13,35 +13,38 @@ import { EditRoundComponent } from './edit-round.component';
 describe('EditRoundComponent', () => {
   let component: EditRoundComponent;
   let fixture: ComponentFixture<EditRoundComponent>;
-  let snackBarService: SnackBarService;
-  let sharingService: SharingService;
-  let courseService: CourseService;
-  let roundService: RoundService;
-  let appStateService: AppStateService;
+  let snackBarService: Mocked<SnackBarService>;
+  let sharingService: Mocked<SharingService>;
+  let courseService: Mocked<CourseService>;
+  let roundService: Mocked<RoundService>;
+  let appStateService: Mocked<AppStateService>;
 
   beforeEach(async () => {
     snackBarService = {
       openTemporarySnackBar: vi.fn(),
-    };
+      _snackBar: {} as any,
+    } as unknown as Mocked<SnackBarService>;
     sharingService = {
+      shareData: vi.fn(),
+      convertDomainToDTO: vi.fn(),
       convertDTOToDomain: vi.fn(),
-    };
+    } as unknown as Mocked<SharingService>;
     courseService = {
       getAllCoursesForCurrentUser: vi.fn(),
       getCourse: vi.fn(),
       setCourse: vi.fn(),
-    };
+    } as unknown as Mocked<CourseService>;
     roundService = {
       getRoundById: vi.fn(),
       saveRounds: vi.fn(),
       deleteRounds: vi.fn(),
-    };
+    } as unknown as Mocked<RoundService>;
 
     appStateService = {
       currentUser: vi.fn(),
       setPageTitle: vi.fn(),
       useSmallerButtons: vi.fn(),
-    };
+    } as unknown as Mocked<AppStateService>;
 
     // Create a function to act as the signal
     const unsavedDataSignal = (() => unsavedDataSignal.value) as any;
@@ -220,7 +223,7 @@ describe('EditRoundComponent', () => {
       expect(component.imported).toBe(false);
       return;
     }
-    fail('should have rejected');
+    assert.fail('should have rejected');
   });
 
   it('should update round variety', () => {
