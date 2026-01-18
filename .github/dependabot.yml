@@ -5,13 +5,15 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: 'npm' # See documentation for possible values
+    directory: '/' # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     groups:
       angular-dependencies:
         patterns:
-          - "@angular/*"
-          - "@angular-devkit/*"
-          - "typescript"
+          - '@angular/*'
+          - '@angular-devkit/*'
+          - 'typescript'
+      dev-dependencies: # Group for all devDependencies
+        dependency-type: 'development'
