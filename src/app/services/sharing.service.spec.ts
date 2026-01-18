@@ -1,5 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { Course, CourseDTO, CourseVariety } from '../models/course';
 import {
   DataToShare,
@@ -18,7 +19,7 @@ describe('SharingService', () => {
 
   beforeEach(() => {
     snackBarServiceSpy = {
-      openTemporarySnackBar: jasmine.createSpy('openTemporarySnackBar'),
+      openTemporarySnackBar: vi.fn(),
     };
 
     TestBed.configureTestingModule({
@@ -29,7 +30,7 @@ describe('SharingService', () => {
       ],
     });
     service = TestBed.inject(SharingService);
-    spyOn(DataUtils, 'generateUUID').and.returnValue('uuid-test');
+    vi.spyOn(DataUtils, 'generateUUID').mockReturnValue('uuid-test');
   });
 
   it('should be created', () => {
@@ -360,14 +361,14 @@ describe('SharingService', () => {
 
     const userResult = result as UserProfileDTO;
     expect(userResult).toEqual(
-      jasmine.objectContaining({
+      expect.objectContaining({
         userDTO: {
           id: 'user1',
           name: 'Test User',
           appFontScaling: 1.2,
         },
-        roundDTOs: jasmine.any(Array),
-        courseDTOs: jasmine.any(Array),
+        roundDTOs: expect.any(Array),
+        courseDTOs: expect.any(Array),
       }),
     );
 

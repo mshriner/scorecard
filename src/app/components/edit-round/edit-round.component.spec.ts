@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { vi } from 'vitest';
 import { Course, CourseVariety } from '../../models/course';
 import { Round, RoundVariety } from '../../models/round';
 import { AppStateService } from '../../services/app-state.service';
@@ -13,48 +13,48 @@ import { EditRoundComponent } from './edit-round.component';
 describe('EditRoundComponent', () => {
   let component: EditRoundComponent;
   let fixture: ComponentFixture<EditRoundComponent>;
-  let snackBarService: jasmine.SpyObj<SnackBarService>;
-  let sharingService: jasmine.SpyObj<SharingService>;
-  let courseService: jasmine.SpyObj<CourseService>;
-  let roundService: jasmine.SpyObj<RoundService>;
-  let appStateService: jasmine.SpyObj<AppStateService>;
+  let snackBarService: SnackBarService;
+  let sharingService: SharingService;
+  let courseService: CourseService;
+  let roundService: RoundService;
+  let appStateService: AppStateService;
 
   beforeEach(async () => {
-    snackBarService = jasmine.createSpyObj('SnackBarService', [
-      'openTemporarySnackBar',
-    ]);
-    sharingService = jasmine.createSpyObj('SharingService', [
-      'convertDTOToDomain',
-    ]);
-    courseService = jasmine.createSpyObj('CourseService', [
-      'getAllCoursesForCurrentUser',
-      'getCourse',
-      'setCourse',
-    ]);
-    roundService = jasmine.createSpyObj('RoundService', [
-      'getRoundById',
-      'saveRounds',
-      'deleteRounds',
-    ]);
+    snackBarService = {
+      openTemporarySnackBar: vi.fn(),
+    };
+    sharingService = {
+      convertDTOToDomain: vi.fn(),
+    };
+    courseService = {
+      getAllCoursesForCurrentUser: vi.fn(),
+      getCourse: vi.fn(),
+      setCourse: vi.fn(),
+    };
+    roundService = {
+      getRoundById: vi.fn(),
+      saveRounds: vi.fn(),
+      deleteRounds: vi.fn(),
+    };
 
-    appStateService = jasmine.createSpyObj('AppStateService', [
-      'currentUser',
-      'setPageTitle',
-      'useSmallerButtons',
-    ]);
+    appStateService = {
+      currentUser: vi.fn(),
+      setPageTitle: vi.fn(),
+      useSmallerButtons: vi.fn(),
+    };
 
     // Create a function to act as the signal
     const unsavedDataSignal = (() => unsavedDataSignal.value) as any;
     unsavedDataSignal.value = false;
-    unsavedDataSignal.set = jasmine.createSpy('set');
+    unsavedDataSignal.set = vi.fn();
     // Optionally, add .bind if needed
     unsavedDataSignal.bind = Function.prototype.bind;
 
     // Assign the function as the property
     (appStateService as any).unsavedDataOnPage = unsavedDataSignal;
 
-    courseService.getAllCoursesForCurrentUser.and.returnValue([]);
-    appStateService.currentUser.and.returnValue({
+    courseService.getAllCoursesForCurrentUser.mockReturnValue([]);
+    appStateService.currentUser.mockReturnValue({
       courseIds: [],
       roundIds: [],
       name: 'test',
@@ -66,7 +66,6 @@ describe('EditRoundComponent', () => {
       imports: [EditRoundComponent],
       providers: [
         provideZonelessChangeDetection(),
-        provideAnimationsAsync(),
         { provide: SnackBarService, useValue: snackBarService },
         { provide: SharingService, useValue: sharingService },
         { provide: CourseService, useValue: courseService },
@@ -104,7 +103,7 @@ describe('EditRoundComponent', () => {
       objectType: 'round',
       data: { round: mockRound, course: mockCourse },
     };
-    sharingService.convertDTOToDomain.and.returnValue(mockParsed);
+    sharingService.convertDTOToDomain.mockReturnValue(mockParsed);
 
     const fileContent = JSON.stringify({
       objectType: 'round',
@@ -114,17 +113,18 @@ describe('EditRoundComponent', () => {
     const file = new File([fileContent], 'round.json', {
       type: 'application/json',
     });
-    spyOn(file, 'text').and.returnValue(Promise.resolve(fileContent));
+    // Mock the text method on the file object
+    (file.text as any) = vi.fn().mockResolvedValue(fileContent);
 
     const input = { files: [file] } as unknown as HTMLInputElement;
 
     // Mock getCourse to return undefined so it triggers needToSaveImportedCourse
-    courseService.getCourse.and.returnValue(undefined as any);
+    courseService.getCourse.mockReturnValue(undefined as any);
 
     await component.onFileSelected(input);
 
     expect(component.editingRound.id).toBe('round-id');
-    expect(component.imported).toBeTrue();
+    expect(component.imported).toBe(true);
     expect(component.currentCourse?.name).toBe('Imported Course');
     expect(snackBarService.openTemporarySnackBar).toHaveBeenCalledWith(
       'Round at "Imported Course" was imported successfully.',
@@ -133,13 +133,14 @@ describe('EditRoundComponent', () => {
 
   it('should show error when importing a non-round object', async () => {
     const mockParsed: any = { objectType: 'other', data: {} };
-    sharingService.convertDTOToDomain.and.returnValue(mockParsed);
+    sharingService.convertDTOToDomain.mockReturnValue(mockParsed);
 
     const fileContent = JSON.stringify(mockParsed);
     const file = new File([fileContent], 'not-round.json', {
       type: 'application/json',
     });
-    spyOn(file, 'text').and.returnValue(Promise.resolve(fileContent));
+    // Mock the text method on the file object
+    (file.text as any) = vi.fn().mockResolvedValue(fileContent);
 
     const input = { files: [file] } as unknown as HTMLInputElement;
 
@@ -148,14 +149,14 @@ describe('EditRoundComponent', () => {
     expect(snackBarService.openTemporarySnackBar).toHaveBeenCalledWith(
       'Failed to import the round.',
     );
-    expect(component.imported).toBeFalse();
+    expect(component.imported).toBe(false);
   });
 
   it('should not import if no file is selected', async () => {
     const input = { files: [] } as unknown as HTMLInputElement;
     component.onFileSelected(input);
     expect(snackBarService.openTemporarySnackBar).not.toHaveBeenCalled();
-    expect(component.imported).toBeFalse();
+    expect(component.imported).toBe(false);
   });
 
   it('should update current course and round variety for nine hole course', () => {
@@ -165,7 +166,7 @@ describe('EditRoundComponent', () => {
       numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
-    courseService.getCourse.and.returnValue(course);
+    courseService.getCourse.mockReturnValue(course);
     component.currentCourse = course;
     component.editingRound = {
       id: 'r1',
@@ -187,7 +188,7 @@ describe('EditRoundComponent', () => {
       numberOfHoles: CourseVariety.EIGHTEEN,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
-    courseService.getCourse.and.returnValue(course);
+    courseService.getCourse.mockReturnValue(course);
     component.currentCourse = course;
     component.editingRound = {
       id: 'r2',
@@ -204,18 +205,19 @@ describe('EditRoundComponent', () => {
 
   it('should handle file.text() rejection gracefully', async () => {
     const file = new File([''], 'bad.json', { type: 'application/json' });
-    spyOn(file, 'text').and.returnValue(Promise.reject(new Error('error')));
+    // Mock the text method on the file object to reject
+    (file.text as any) = vi.fn().mockRejectedValue(new Error('error'));
     const input = { files: [file] } as unknown as HTMLInputElement;
 
     // Suppress console error for this test
-    spyOn(console, 'log');
+    vi.spyOn(console, 'log');
 
     try {
       await component.onFileSelected(input);
     } catch (ignored) {
       expect(ignored).toBeInstanceOf(Error);
       expect(snackBarService.openTemporarySnackBar).not.toHaveBeenCalled();
-      expect(component.imported).toBeFalse();
+      expect(component.imported).toBe(false);
       return;
     }
     fail('should have rejected');
@@ -266,7 +268,7 @@ describe('EditRoundComponent', () => {
       numberOfHoles: CourseVariety.EIGHTEEN,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
-    expect(component.showSummaryRow(8)).toBeTrue();
+    expect(component.showSummaryRow(8)).toBe(true);
   });
 
   it('should return false for showSummaryRow at index 8 for 9-hole course', () => {
@@ -276,11 +278,11 @@ describe('EditRoundComponent', () => {
       numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
-    expect(component.showSummaryRow(8)).toBeFalse();
+    expect(component.showSummaryRow(8)).toBe(false);
   });
 
   it('should return true from returnTrue()', () => {
-    expect(component.returnTrue()).toBeTrue();
+    expect(component.returnTrue()).toBe(true);
   });
 
   it('should update date on dateChanged()', () => {
@@ -308,6 +310,6 @@ describe('EditRoundComponent', () => {
       roundVariety: null as any,
       generalNotes: '',
     };
-    expect(component.disableSaveButton).toBeTrue();
+    expect(component.disableSaveButton).toBe(true);
   });
 });

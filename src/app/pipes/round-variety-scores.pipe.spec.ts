@@ -92,13 +92,13 @@ describe('RoundVarietyScoresPipe', () => {
     const pipe = new RoundVarietyScoresPipe();
     const result = pipe.transform(undefined, RoundVariety.FRONT_NINE);
     expect(result.length).toBe(9);
-    expect(result.every((x) => x === null)).toBeTrue();
+    expect(result.every((x) => x === null)).toBe(true);
   });
 
   it('should return default EMPTY_EIGHTEEN_NUMBERS for undefined strokes and EIGHTEEN', () => {
     const pipe = new RoundVarietyScoresPipe();
     const result = pipe.transform(undefined, RoundVariety.EIGHTEEN);
     expect(result.length).toBe(18);
-    expect(result.every((x) => x === null)).toBeTrue();
+    expect(result.every((x) => x === null)).toBe(true);
   });
 });

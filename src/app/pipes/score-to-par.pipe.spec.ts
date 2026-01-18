@@ -1,5 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { Course, CourseVariety } from '../models/course';
 import { Round, RoundVariety } from '../models/round';
 import { CourseService } from '../services/course.service';
@@ -9,12 +10,12 @@ import { ScoreToParPipe } from './score-to-par.pipe';
 describe('ScoreToParPipe', () => {
   let component: ScoreToParPipe;
   let roundVarietyScoresPipe: RoundVarietyScoresPipe;
-  let courseService: jasmine.SpyObj<CourseService>;
+  let courseService: CourseService;
 
   beforeEach(async () => {
-    const courseServiceSpy = jasmine.createSpyObj('CourseService', [
-      'getCourse',
-    ]);
+    const courseServiceSpy = {
+      getCourse: vi.fn(),
+    };
 
     await TestBed.configureTestingModule({
       providers: [
@@ -26,9 +27,7 @@ describe('ScoreToParPipe', () => {
     }).compileComponents();
 
     roundVarietyScoresPipe = TestBed.inject(RoundVarietyScoresPipe);
-    courseService = TestBed.inject(
-      CourseService,
-    ) as jasmine.SpyObj<CourseService>;
+    courseService = TestBed.inject(CourseService);
     component = TestBed.inject(ScoreToParPipe);
   });
 
@@ -53,8 +52,8 @@ describe('ScoreToParPipe', () => {
       id: 'r1',
     };
 
-    courseService.getCourse.and.returnValue(mockCourse);
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    courseService.getCourse.mockReturnValue(mockCourse);
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       0, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
 
@@ -79,8 +78,8 @@ describe('ScoreToParPipe', () => {
       id: 'r1',
     };
 
-    courseService.getCourse.and.returnValue(mockCourse);
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    vi.spyOn(courseService, 'getCourse').mockReturnValue(mockCourse);
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]);
 
@@ -105,8 +104,8 @@ describe('ScoreToParPipe', () => {
       id: 'r1',
     };
 
-    courseService.getCourse.and.returnValue(mockCourse);
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    courseService.getCourse.mockReturnValue(mockCourse);
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       -1, -1, -1, -1, -1, -1, -1, -1, -1,
     ]);
 
@@ -125,7 +124,7 @@ describe('ScoreToParPipe', () => {
       id: 'r1',
     };
 
-    courseService.getCourse.and.returnValue(null);
+    courseService.getCourse.mockReturnValue(null);
 
     expect(() => component.transform(mockRound)).toThrowError(
       'course with ID 999 not found',
@@ -149,8 +148,8 @@ describe('ScoreToParPipe', () => {
       id: 'r1',
     };
 
-    courseService.getCourse.and.returnValue(mockCourse);
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    courseService.getCourse.mockReturnValue(mockCourse);
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       1, 0, -1, 1, 0, -1, 1, 0, -1,
     ]);
 
@@ -179,8 +178,8 @@ describe('ScoreToParPipe', () => {
       id: 'r1',
     };
 
-    courseService.getCourse.and.returnValue(mockCourse);
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    courseService.getCourse.mockReturnValue(mockCourse);
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       1, 1, 1, 1, 1, 1, 1, 1, 1,
     ]);
 
@@ -205,8 +204,8 @@ describe('ScoreToParPipe', () => {
       id: 'r1',
     };
 
-    courseService.getCourse.and.returnValue(mockCourse);
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    courseService.getCourse.mockReturnValue(mockCourse);
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       -1, -1, -1, -1, -1, -1, -1, -1, -1,
     ]);
 
@@ -225,7 +224,7 @@ describe('ScoreToParPipe', () => {
       id: 'r1',
     };
 
-    courseService.getCourse.and.returnValue(null);
+    courseService.getCourse.mockReturnValue(null);
 
     expect(() => component.transform(mockRound)).toThrowError(
       'course with ID 999 not found',
