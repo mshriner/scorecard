@@ -26,7 +26,7 @@ describe('ParPipe', () => {
   });
 
   it('should calculate round score', () => {
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       0, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
   });
@@ -61,7 +61,7 @@ describe('ParPipe', () => {
       par: Array(18).fill(4),
     } as any;
     const mockRound = { roundVariety: RoundVariety.FRONT_NINE } as any;
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       4, 4, 4, 4, 4, 4, 4, 4, 4,
     ]);
     const result = component.transform(
@@ -80,7 +80,7 @@ describe('ParPipe', () => {
       par: Array(18).fill(4),
     } as any;
     const mockRound = { roundVariety: RoundVariety.BACK_NINE } as any;
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       4, 4, 4, 4, 4, 4, 4, 4, 4,
     ]);
     const result = component.transform(
@@ -98,7 +98,7 @@ describe('ParPipe', () => {
       numberOfHoles: 9,
       par: [4, null, 4, 0, 4, null, 4, 4, 4],
     } as any;
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       4,
       null,
       4,
@@ -121,7 +121,7 @@ describe('ParPipe', () => {
       par: [],
     } as any;
     // Provide an array of the correct length with all zeros
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       0, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
     const result = component.transform(mockCourse);
@@ -136,7 +136,7 @@ describe('ParPipe', () => {
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     } as any;
     const mockRound = { roundVariety: RoundVariety.FRONT_NINE } as any;
-    spyOn(roundVarietyScoresPipe, 'transform').and.returnValue([
+    vi.spyOn(roundVarietyScoresPipe, 'transform').mockReturnValue([
       4, 4, 4, 4, 4, 4, 4, 4, 4,
     ]);
     const result = component.transform(mockCourse, mockRound);

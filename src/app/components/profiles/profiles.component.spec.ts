@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideZonelessChangeDetection } from '@angular/core';
+import { of } from 'rxjs';
 import { UserWithRoundsAndCourses } from '../../models/data-transfer';
 import { ProfilesComponent } from './profiles.component';
 
@@ -37,49 +38,53 @@ describe('ProfilesComponent', () => {
       roundDTOs: [],
       courseDTOs: [],
     };
-    spyOn(component['sharingService'], 'convertDTOToDomain').and.returnValue({
-      objectType: 'user',
-      data: { user: validProfile.userDTO, rounds: [], courses: [] },
-    });
+    vi.spyOn(component['sharingService'], 'convertDTOToDomain').mockReturnValue(
+      {
+        objectType: 'user',
+        data: { user: validProfile.userDTO, rounds: [], courses: [] },
+      },
+    );
     const input = {
       files: [{ text: () => Promise.resolve(JSON.stringify(validProfile)) }],
     } as any;
     // Spy on dialog.open before calling the function
-    spyOn(component['dialog'], 'open').and.callThrough();
+    vi.spyOn(component['dialog'], 'open').mockReturnValue({
+      afterClosed: () => of(validProfile.userDTO.name),
+    } as any);
     const result = await component.onFileSelected(input);
-    expect(result).toBeTrue();
+    expect(result).toBe(true);
     // Check that dialog was opened
     expect(component['dialog'].open).toHaveBeenCalled();
   });
 
   it('should show error and return false for invalid user profile import', async () => {
-    spyOn(component['sharingService'], 'convertDTOToDomain').and.returnValue(
+    vi.spyOn(component['sharingService'], 'convertDTOToDomain').mockReturnValue(
       null,
     );
     const input = { files: [{ text: () => Promise.resolve('{}') }] } as any;
     const result = await component.onFileSelected(input);
-    expect(result).toBeFalse();
+    expect(result).toBe(false);
   });
 
   it('should return false if file input is null or has no files', async () => {
     const input = { files: [] } as any;
     const result = await component.onFileSelected(input);
-    expect(result).toBeFalse();
+    expect(result).toBe(false);
   });
 
   it('should return false if file object does not have text() method', async () => {
     const input = { files: [{}] } as any;
     const result = await component.onFileSelected(input);
-    expect(result).toBeFalse();
+    expect(result).toBe(false);
   });
 
   it('should return false if file is empty or not valid JSON', async () => {
     const input = { files: [{ text: () => Promise.resolve('') }] } as any;
-    spyOn(component['sharingService'], 'convertDTOToDomain').and.returnValue(
+    vi.spyOn(component['sharingService'], 'convertDTOToDomain').mockReturnValue(
       null,
     );
     const result = await component.onFileSelected(input);
-    expect(result).toBeFalse();
+    expect(result).toBe(false);
   });
 
   it('should return false if imported objectType is not user', async () => {
@@ -89,14 +94,16 @@ describe('ProfilesComponent', () => {
       roundDTOs: [],
       courseDTOs: [],
     };
-    spyOn(component['sharingService'], 'convertDTOToDomain').and.returnValue({
-      objectType: 'course',
-      data: {} as UserWithRoundsAndCourses,
-    });
+    vi.spyOn(component['sharingService'], 'convertDTOToDomain').mockReturnValue(
+      {
+        objectType: 'course',
+        data: {} as UserWithRoundsAndCourses,
+      },
+    );
     const input = {
       files: [{ text: () => Promise.resolve(JSON.stringify(notUserProfile)) }],
     } as any;
     const result = await component.onFileSelected(input);
-    expect(result).toBeFalse();
+    expect(result).toBe(false);
   });
 });
