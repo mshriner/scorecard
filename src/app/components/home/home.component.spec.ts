@@ -53,7 +53,7 @@ describe('HomeComponent', () => {
     component.rounds.set([round1, round2]);
     component.filteredRounds.set([round1, round2]);
     // Patch courseService.getCourse to return our course
-    spyOn(component.courseService, 'getCourse').and.returnValue(course);
+    vi.spyOn(component.courseService, 'getCourse').mockReturnValue(course);
     // Act
     const stats = component.holeResultTotals();
     // Assert
@@ -80,7 +80,7 @@ describe('HomeComponent', () => {
     } as any;
     component.rounds.set([round]);
     component.filteredRounds.set([round]);
-    spyOn(component.courseService, 'getCourse').and.returnValue(course);
+    vi.spyOn(component.courseService, 'getCourse').mockReturnValue(course);
     // Act
     const stats = component.holeResultTotals();
     // Assert
@@ -110,7 +110,7 @@ describe('HomeComponent', () => {
     } as any;
     component.rounds.set([round]);
     component.filteredRounds.set([round]);
-    spyOn(component.courseService, 'getCourse').and.returnValue(course);
+    vi.spyOn(component.courseService, 'getCourse').mockReturnValue(course);
     // Act
     const stats = component.holeResultTotals();
     // Assert
@@ -119,3 +119,4 @@ describe('HomeComponent', () => {
     expect(stats.inferredHolesScramblingSuccessfully).toBeGreaterThanOrEqual(0);
   });
 });
+

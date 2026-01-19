@@ -14,7 +14,7 @@ describe('PwaInstallDialogComponent', () => {
         provideZonelessChangeDetection(),
         {
           provide: MatDialogRef,
-          useValue: { close: jasmine.createSpy('close') },
+          useValue: { close: vi.fn() },
         },
       ],
     }).compileComponents();

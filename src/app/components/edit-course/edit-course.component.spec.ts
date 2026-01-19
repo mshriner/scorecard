@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { assert, Mocked } from 'vitest';
 import { Course, CourseDTO, CourseVariety } from '../../models/course';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
@@ -9,22 +9,21 @@ import { EditCourseComponent } from './edit-course.component';
 describe('EditCourseComponent', () => {
   let component: EditCourseComponent;
   let fixture: ComponentFixture<EditCourseComponent>;
-  let snackBarService: jasmine.SpyObj<SnackBarService>;
-  let sharingService: jasmine.SpyObj<SharingService>;
+  let snackBarService: Mocked<SnackBarService>;
+  let sharingService: Mocked<SharingService>;
 
   beforeEach(async () => {
-    snackBarService = jasmine.createSpyObj('SnackBarService', [
-      'openTemporarySnackBar',
-    ]);
-    sharingService = jasmine.createSpyObj('SharingService', [
-      'convertDTOToDomain',
-    ]);
+    snackBarService = {
+      openTemporarySnackBar: vi.fn(),
+    } as unknown as Mocked<SnackBarService>;
+    sharingService = {
+      convertDTOToDomain: vi.fn(),
+    } as unknown as Mocked<SharingService>;
 
     await TestBed.configureTestingModule({
       imports: [EditCourseComponent],
       providers: [
         provideZonelessChangeDetection(),
-        provideAnimationsAsync(),
         { provide: SnackBarService, useValue: snackBarService },
         { provide: SharingService, useValue: sharingService },
       ],
@@ -50,7 +49,7 @@ describe('EditCourseComponent', () => {
       objectType: 'course',
       ...mockCourse,
     };
-    sharingService.convertDTOToDomain.and.returnValue({
+    sharingService.convertDTOToDomain.mockReturnValue({
       objectType: 'course',
       data: mockParsed,
     });
@@ -59,14 +58,15 @@ describe('EditCourseComponent', () => {
     const file = new File([fileContent], 'course.json', {
       type: 'application/json',
     });
-    spyOn(file, 'text').and.returnValue(Promise.resolve(fileContent));
+    // Mock the text method on the file object
+    (file.text as any) = vi.fn().mockResolvedValue(fileContent);
 
     const input = { files: [file] } as unknown as HTMLInputElement;
 
     const result = await component.onFileSelected(input);
     expect(result).toBeTruthy();
     expect(component.editingCourse.name).toBe('Imported Course');
-    expect(component.imported).toBeTrue();
+    expect(component.imported).toBe(true);
     expect(snackBarService.openTemporarySnackBar).toHaveBeenCalledWith(
       'Course "Imported Course" was imported successfully.',
     );
@@ -74,7 +74,7 @@ describe('EditCourseComponent', () => {
 
   it('should show error when importing a non-course object', async () => {
     const mockParsed = { garbage1: 'yyy' } as unknown as CourseDTO;
-    sharingService.convertDTOToDomain.and.returnValue({
+    sharingService.convertDTOToDomain.mockReturnValue({
       objectType: 'other',
       data: mockParsed,
     } as any);
@@ -83,7 +83,8 @@ describe('EditCourseComponent', () => {
     const file = new File([fileContent], 'not-course.json', {
       type: 'application/json',
     });
-    spyOn(file, 'text').and.returnValue(Promise.resolve(fileContent));
+    // Mock the text method on the file object
+    (file.text as any) = vi.fn().mockResolvedValue(fileContent);
 
     const input = { files: [file] } as unknown as HTMLInputElement;
 
@@ -98,25 +99,26 @@ describe('EditCourseComponent', () => {
     const input = { files: [] } as unknown as HTMLInputElement;
     component.onFileSelected(input);
     expect(snackBarService.openTemporarySnackBar).not.toHaveBeenCalled();
-    expect(component.imported).toBeFalse();
+    expect(component.imported).toBe(false);
   });
 
   it('should not import if file.text() fails', async () => {
     const file = new File([''], 'bad.json', { type: 'application/json' });
-    spyOn(file, 'text').and.returnValue(Promise.reject(new Error('error')));
+    // Mock the text method on the file object to reject
+    (file.text as any) = vi.fn().mockRejectedValue(new Error('error'));
     const input = { files: [file] } as unknown as HTMLInputElement;
 
     // Suppress console error for this test
-    spyOn(console, 'log');
+    vi.spyOn(console, 'log');
 
     try {
       await component.onFileSelected(input);
     } catch (ignored) {
       expect(ignored).toBeInstanceOf(Error);
       expect(snackBarService.openTemporarySnackBar).not.toHaveBeenCalled();
-      expect(component.imported).toBeFalse();
+      expect(component.imported).toBe(false);
       return;
     }
-    fail('should have rejected');
+    assert.fail('should have rejected');
   });
 });
