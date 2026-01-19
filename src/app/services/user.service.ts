@@ -85,8 +85,8 @@ export class UserService {
     // Only set default properties if they are not already present in newUser
     const userToSave: LocalUserWithFilters = { ...newUser };
     for (const [key, value] of Object.entries(defaultPropertiesForNewUser)) {
-      if ((userToSave)[key] === undefined || (userToSave)[key] === null) {
-        (userToSave)[key] = value;
+      if (userToSave[key] === undefined || userToSave[key] === null) {
+        userToSave[key] = value;
       }
     }
 

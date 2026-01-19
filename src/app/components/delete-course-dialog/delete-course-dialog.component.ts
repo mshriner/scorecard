@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -25,7 +25,6 @@ interface DeleteCourseOptions {
   selector: 'app-delete-course-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -36,6 +35,7 @@ interface DeleteCourseOptions {
     DatePipe,
     TotalRoundScorePipe,
     ScoreToParPipe,
+    DatePipe,
   ],
   templateUrl: './delete-course-dialog.component.html',
   styleUrl: './delete-course-dialog.component.scss',

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -38,7 +37,6 @@ import { NavigationMessageService } from '../../services/navigation-message.serv
   selector: 'app-performance-graph-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatDialogContent,
     MatDialogActions,

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgTemplateOutlet, TitleCasePipe } from '@angular/common';
 import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -48,8 +48,9 @@ import { DeleteCourseDialogComponent } from '../delete-course-dialog/delete-cour
     MatDialogModule,
     MatSelectModule,
     MatCardModule,
-    CommonModule,
     PipesModule,
+    NgTemplateOutlet,
+    TitleCasePipe,
   ],
   templateUrl: './edit-course.component.html',
   styleUrl: './edit-course.component.scss',

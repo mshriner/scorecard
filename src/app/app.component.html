@@ -114,9 +114,7 @@
   <mat-sidenav-content>
     <mat-toolbar>
       @if (currentUser && !isOnWipeDataScreen) {
-        @if (
-          showHamburgerMenu
-        ) {
+        @if (showHamburgerMenu) {
           <button mat-icon-button (click)="sidenav.toggle()">
             <mat-icon>menu</mat-icon>
           </button>

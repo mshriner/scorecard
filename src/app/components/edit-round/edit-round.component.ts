@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   HostListener,
@@ -68,11 +68,11 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
     PipesModule,
     MatSelectModule,
     MatDatepickerModule,
-    CommonModule,
     TypedTemplateDirective,
     MatDialogModule,
     MatRippleModule,
     AutosizeModule,
+    NgTemplateOutlet,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './edit-round.component.html',

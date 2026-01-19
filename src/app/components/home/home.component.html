@@ -85,9 +85,7 @@
             (dateInput)="earliestDateChanged($event, pickerEarly)"
           />
           <mat-hint>MM/DD/YYYY</mat-hint>
-          <mat-datepicker-toggle matIconSuffix
-            [for]="pickerEarly"
-           />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerEarly" />
           <mat-datepicker touchUi #pickerEarly>
             <mat-datepicker-actions>
               <button
@@ -117,9 +115,7 @@
             (dateInput)="latestDateChanged($event, pickerLate)"
           />
           <mat-hint>MM/DD/YYYY</mat-hint>
-          <mat-datepicker-toggle matIconSuffix
-            [for]="pickerLate"
-           />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerLate" />
           <mat-datepicker touchUi #pickerLate>
             <mat-datepicker-actions>
               <button
@@ -213,12 +209,14 @@
               }})
             </mat-cell>
           </ng-container>
-          <mat-header-row *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"
-           />
-          <mat-row mat-ripple
+          <mat-header-row
+            *matHeaderRowDef="ROUND_TABLE_COLUMNS; sticky: true"
+          />
+          <mat-row
+            mat-ripple
             *matRowDef="let round; columns: ROUND_TABLE_COLUMNS"
             (click)="viewRound(round.id)"
-           />
+          />
         </mat-table>
       </mat-tab>
       <mat-tab label="Stats">
@@ -254,13 +252,14 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().completedNinesInAllRounds) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-to-par-all',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
@@ -292,13 +291,14 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().completed18HoleRounds) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-to-par-18',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
           </div>
@@ -329,13 +329,14 @@
                 holeResultTotals().holesPlayedWithPutts &&
                 holeResultTotals().completedNinesInAllRounds
               ) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'putts-all',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
@@ -363,13 +364,14 @@
                 holeResultTotals().holesPlayedWithPuttsInFullRounds &&
                 holeResultTotals().completed18HoleRounds
               ) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'putts-18',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
           </div>
@@ -457,13 +459,14 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().par3sPlayed) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-on-par-3s',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
@@ -483,13 +486,14 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().par4sPlayed) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-on-par-4s',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
           </div>
@@ -512,13 +516,14 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().par5sPlayed) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'score-on-par-5s',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
           </div>
@@ -548,13 +553,14 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().holesPlayedWithPutts) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'greens-in-regulation',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
@@ -582,13 +588,14 @@
                 </h3>
               </mat-card-content>
               @if (holeResultTotals().inferredHolesScramblingNeeded) {
-                <ng-container *ngTemplateOutlet="
+                <ng-container
+                  *ngTemplateOutlet="
                     trendGraphButton;
                     context: {
                       which: 'scrambling',
                     }
                   "
-                 />
+                />
               }
             </mat-card>
           </div>
@@ -631,12 +638,14 @@
                 }})
               </mat-cell>
             </ng-container>
-            <mat-header-row *matHeaderRowDef="THEORETICAL_BEST_ROUND_COLUMNS; sticky: true"
-             />
-            <mat-row mat-ripple
+            <mat-header-row
+              *matHeaderRowDef="THEORETICAL_BEST_ROUND_COLUMNS; sticky: true"
+            />
+            <mat-row
+              mat-ripple
               *matRowDef="let courseId; columns: THEORETICAL_BEST_ROUND_COLUMNS"
               (click)="viewBestRoundOnCourse(courseId)"
-             />
+            />
           </mat-table>
         </div>
       </mat-tab>

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -13,13 +13,12 @@ import { MatTableModule } from '@angular/material/table';
 import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import { CourseVariety } from '../../models/course';
 import { BestRound, RoundVariety } from '../../models/round';
-import { PipesModule } from '../../pipes/pipes.module';
 import { ColumnDef } from '../../models/table';
+import { PipesModule } from '../../pipes/pipes.module';
 
 @Component({
   selector: 'app-best-round-dialog',
   imports: [
-    CommonModule,
     MatTableModule,
     MatButtonModule,
     MatDialogTitle,
@@ -28,6 +27,8 @@ import { ColumnDef } from '../../models/table';
     MatIconModule,
     PipesModule,
     TypedTemplateDirective,
+    DatePipe,
+    NgTemplateOutlet,
   ],
   templateUrl: './best-round-dialog.component.html',
   styleUrl: './best-round-dialog.component.scss',
