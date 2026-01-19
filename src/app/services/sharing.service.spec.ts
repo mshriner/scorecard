@@ -1,6 +1,5 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
 import { Course, CourseDTO, CourseVariety } from '../models/course';
 import {
   DataToShare,

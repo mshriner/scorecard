@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { assert, Mocked, vi } from 'vitest';
+import { assert, Mocked } from 'vitest';
 import { Course, CourseVariety } from '../../models/course';
 import { Round, RoundVariety } from '../../models/round';
 import { AppStateService } from '../../services/app-state.service';

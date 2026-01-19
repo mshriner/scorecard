@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Mocked, vi } from 'vitest';
+import { Mocked } from 'vitest';
 import { Course, CourseVariety } from '../models/course';
 import { Round, RoundVariety } from '../models/round';
 import { CourseService } from '../services/course.service';

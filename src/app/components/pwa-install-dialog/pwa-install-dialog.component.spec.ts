@@ -1,7 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
-import { vi } from 'vitest';
 import { PwaInstallDialogComponent } from './pwa-install-dialog.component';
 
 describe('PwaInstallDialogComponent', () => {

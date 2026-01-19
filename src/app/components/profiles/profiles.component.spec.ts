@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { of } from 'rxjs';
-import { vi } from 'vitest';
 import { UserWithRoundsAndCourses } from '../../models/data-transfer';
 import { ProfilesComponent } from './profiles.component';
 
@@ -85,7 +84,7 @@ describe('ProfilesComponent', () => {
       null,
     );
     const result = await component.onFileSelected(input);
-    expect(result).toBeFalsy();
+    expect(result).toBe(false);
   });
 
   it('should return false if imported objectType is not user', async () => {
@@ -105,6 +104,6 @@ describe('ProfilesComponent', () => {
       files: [{ text: () => Promise.resolve(JSON.stringify(notUserProfile)) }],
     } as any;
     const result = await component.onFileSelected(input);
-    expect(result).toBeFalsy();
+    expect(result).toBe(false);
   });
 });
