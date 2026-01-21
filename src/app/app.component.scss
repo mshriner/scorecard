@@ -13,6 +13,11 @@ mat-toolbar {
   z-index: 101; // table sticky headers are 100
 }
 
+.edit-profile {
+  vertical-align: middle;
+  margin-top: -4px;
+}
+
 .spacer {
   flex: 1 1 auto;
 }

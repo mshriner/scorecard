@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   Component,
   computed,
+  effect,
   inject,
   OnInit,
   Signal,
@@ -377,14 +378,25 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.ROUND_DATE_COL,
   ];
 
+  constructor() {
+    effect(() => {
+      this.appStateService.currentUser();
+      this.setPageTitle();
+    });
+  }
+
   ngOnInit(): void {
-    this.appStateService.setPageTitle(
-      `${this.currentUser?.name?.trim()}'s Results`,
-    );
+    this.setPageTitle();
     this.rounds.set(
       this.roundService
         .getRoundsByIds(this.currentUser?.roundIds || [])
         .sort(compareRoundsByDateDescending),
+    );
+  }
+
+  private setPageTitle() {
+    this.appStateService.setPageTitle(
+      `${this.currentUser?.name?.trim()}'s Results`,
     );
   }
 
