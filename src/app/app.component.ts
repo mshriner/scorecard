@@ -1,6 +1,7 @@
 import { Location } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   inject,
@@ -25,6 +26,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import { AreYouSureDialogComponent } from './components/are-you-sure-dialog/are-you-sure-dialog.component';
+import { EditProfileDialog } from './components/profiles/profiles.component';
 import { PwaInstallDialogComponent } from './components/pwa-install-dialog/pwa-install-dialog.component';
 import {
   APP_ROUTES,
@@ -40,6 +42,7 @@ import { PipesModule } from './pipes/pipes.module';
 import { AppStateService } from './services/app-state.service';
 import { NavigationMessageService } from './services/navigation-message.service';
 import { SnackBarService } from './services/snack-bar.service';
+import { UserService } from './services/user.service';
 @Component({
   selector: 'app-root',
   imports: [
@@ -71,6 +74,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   private readonly snackBarService = inject(SnackBarService);
   private readonly serviceWorker = inject(SwUpdate);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly changeDetection = inject(ChangeDetectorRef);
+  private readonly userService = inject(UserService);
 
   public readonly showSpinner = signal(false);
   public readonly APP_THEMES = Object.values(AppTheme).filter(
@@ -325,5 +330,27 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public get currentUser(): LocalUserWithFilters | null {
     return this.appStateService.currentUser();
+  }
+
+  public editProfile(): void {
+    this.dialog
+      .open(EditProfileDialog, {
+        data: {
+          profileName: this.currentUser?.name,
+          checkAgainstOriginalProfileName: true,
+        },
+      })
+      .afterClosed()
+      .subscribe((newProfileName) => {
+        const sanitizedName = newProfileName?.trim();
+        if (sanitizedName?.length && this.currentUser) {
+          this.currentUser.name = sanitizedName;
+          this.userService.setCurrentUser(this.currentUser);
+          this.appStateService.currentUser.set(
+            this.userService.getCurrentUser(),
+          );
+          this.changeDetection.markForCheck();
+        }
+      });
   }
 }

@@ -3,6 +3,9 @@
     @if (currentUser) {
       <div style="margin-bottom: 16px; margin-top: 8px">
         Profile: {{ currentUser.name }}
+        <button mat-icon-button (click)="editProfile()" class="edit-profile">
+          <mat-icon>edit</mat-icon>
+        </button>
       </div>
 
       <mat-divider />
