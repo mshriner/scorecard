@@ -106,8 +106,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         SESSION_STORAGE_KEYS.DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION,
       ) || this.currentUser?.pwaPrompted;
     const isPwa =
-      globalThis.matchMedia('(display-mode: standalone)').matches ||
-      (globalThis.navigator as any).standalone === true;
+      this.isInWebAppChrome() ||
+      this.isInWebAppiOS() ||
+      this.isInWebAppFirefox();
     if (!isPwa && !doNotShowInstallPrompt) {
       setTimeout(() => {
         this.dialog
@@ -352,5 +353,26 @@ export class AppComponent implements OnInit, AfterViewInit {
           this.changeDetection.markForCheck();
         }
       });
+  }
+
+  private isInWebAppiOS(): boolean {
+    return (globalThis.navigator as any).standalone === true;
+  }
+
+  private isInWebAppChrome() {
+    return globalThis.matchMedia('(display-mode: standalone)').matches;
+  }
+
+  private isInWebAppFirefox(): boolean {
+    // Firefox doesn't reliably set display-mode: standalone or navigator.standalone
+    // Check if running as PWA by looking for:
+    // 1. Service worker registration (PWAs have SW)
+    // 2. No referrer (apps launched from homescreen have no referrer)
+    // 3. Firefox user agent
+    const isFirefox = /firefox/i.test(globalThis.navigator.userAgent);
+    const hasServiceWorker = 'serviceWorker' in globalThis.navigator;
+    const noReferrer = !globalThis.document.referrer;
+
+    return isFirefox && hasServiceWorker && noReferrer;
   }
 }
