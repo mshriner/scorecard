@@ -1,6 +1,5 @@
 import { Location } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
   DestroyRef,
@@ -66,7 +65,7 @@ import { UserService } from './services/user.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit {
   appStateService = inject(AppStateService);
   private readonly router = inject(NavigationMessageService);
   private readonly dialog = inject(MatDialog);
@@ -133,13 +132,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       }, 2000);
     } else {
       this.checkForUpdates(false);
-    }
-  }
-
-  ngAfterViewInit() {
-    if (sessionStorage.getItem(SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD)) {
-      sessionStorage.removeItem(SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD);
-      this.sidenav?.open();
     }
   }
 
@@ -316,16 +308,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
       return structuredClone(user);
     });
-    setTimeout(() => {
-      if (this.currentUser?.theme === AppTheme.SYSTEM) {
-        sessionStorage.setItem(
-          SESSION_STORAGE_KEYS.OPEN_SIDENAV_ON_RELOAD,
-          'y',
-        );
-        globalThis.location.reload();
-      }
-      this.appStateService.appTheming();
-    });
+    setTimeout(() => this.appStateService.appTheming());
   }
 
   public get currentUser(): LocalUserWithFilters | null {

@@ -48,7 +48,7 @@ export class AppStateService implements OnDestroy {
       default: {
         document.body.classList.remove(
           'override-to-dark-theme',
-          'override-to-dark-theme',
+          'override-to-light-theme',
         );
         document.body.classList.add('system-preference-theme');
         break;
