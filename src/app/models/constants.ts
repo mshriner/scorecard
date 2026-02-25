@@ -9,7 +9,6 @@ export const LOCAL_STORAGE_KEYS = {
 
 export const SESSION_STORAGE_KEYS = {
   DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION: 'doNotShowInstallPrompt',
-  OPEN_SIDENAV_ON_RELOAD: 'openSideNavOnReload',
   GO_TO_CHANGELOG: 'goToChangeLog',
 };
 
