@@ -1,20 +1,26 @@
 version: 2
 updates:
   - package-ecosystem: 'npm'
-    directory: '/'
+    directory: '/' 
     schedule:
       interval: 'weekly'
     groups:
+      compiler-cli:
+        patterns:
+          - '@angular/compiler-cli'
+        update-types:
+          - 'minor'
+          - 'patch'
       angular-dependencies:
         patterns:
           - '@angular/*'
           - '@angular-devkit/*'
           - 'typescript'
+        exclude-patterns:
+          - '@angular/compiler-cli'
         update-types:
           - 'minor'
           - 'patch'
-        allow:
-          - dependency-type: 'all'
       dev-dependencies:
         dependency-type: 'development'
         exclude-patterns:
