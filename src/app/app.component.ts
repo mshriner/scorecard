@@ -108,7 +108,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const showInstallPrompt =
       !doNotShowInstallPromptPreference &&
       !this.isInFirefox &&
-      !this.isInWebAppChrome &&
+      !this.isInWebAppChromium &&
       !this.isInWebAppiOS;
     if (showInstallPrompt) {
       setTimeout(() => {
@@ -360,7 +360,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     return (globalThis.navigator as any).standalone === true;
   }
 
-  private get isInWebAppChrome() {
+  private get isInWebAppChromium() {
     return globalThis.matchMedia('(display-mode: standalone)').matches;
   }
 
