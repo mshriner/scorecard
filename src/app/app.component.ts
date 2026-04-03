@@ -101,16 +101,16 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
     this.appStateService.useSmallerButtons();
     this.appStateService.appTheming();
-    const doNotShowInstallPrompt =
+    const doNotShowInstallPromptPreference =
       sessionStorage.getItem(
         SESSION_STORAGE_KEYS.DO_NOT_SHOW_PWA_PROMPT_AGAIN_THIS_SESSION,
       ) || this.currentUser?.pwaPrompted;
-    if (
-      !doNotShowInstallPrompt &&
-      !this.isInFirefox() &&
-      !this.isInWebAppChrome() &&
-      !this.isInWebAppiOS()
-    ) {
+    const showInstallPrompt =
+      !doNotShowInstallPromptPreference &&
+      !this.isInFirefox &&
+      !this.isInWebAppChrome &&
+      !this.isInWebAppiOS;
+    if (showInstallPrompt) {
       setTimeout(() => {
         this.dialog
           .open(PwaInstallDialogComponent)
@@ -356,15 +356,15 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
   }
 
-  private isInWebAppiOS(): boolean {
+  private get isInWebAppiOS(): boolean {
     return (globalThis.navigator as any).standalone === true;
   }
 
-  private isInWebAppChrome() {
+  private get isInWebAppChrome() {
     return globalThis.matchMedia('(display-mode: standalone)').matches;
   }
 
-  private isInFirefox(): boolean {
+  private get isInFirefox(): boolean {
     // Firefox doesn't appear to provide a way to detect if it's installed as a PWA
     return /firefox/i.test(globalThis.navigator.userAgent);
   }
