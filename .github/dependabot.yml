@@ -7,24 +7,14 @@ updates:
     groups:
       angular-dependencies:
         patterns:
-          - '@angular/animations'
-          - '@angular/common'
-          - '@angular/compiler'
-          - '@angular/compiler-cli'
-          - '@angular/core'
-          - '@angular/forms'
-          - '@angular/material'
-          - '@angular/platform-browser'
-          - '@angular/platform-browser-dynamic'
-          - '@angular/router'
-          - '@angular/service-worker'
-          - '@angular/build'
-          - '@angular/cli'
+          - '@angular/*'
           - '@angular-devkit/*'
           - 'typescript'
         update-types:
           - 'minor'
           - 'patch'
+        allow:
+          - dependency-type: 'all'
       dev-dependencies:
         dependency-type: 'development'
         exclude-patterns:
