@@ -1,17 +1,33 @@
 version: 2
 updates:
-  - package-ecosystem: 'npm' # See documentation for possible values
-    directory: '/' # Location of package manifests
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
       interval: 'weekly'
     groups:
       angular-dependencies:
         patterns:
-          - '@angular/*'
+          - '@angular/animations'
+          - '@angular/common'
+          - '@angular/compiler'
+          - '@angular/compiler-cli'
+          - '@angular/core'
+          - '@angular/forms'
+          - '@angular/material'
+          - '@angular/platform-browser'
+          - '@angular/platform-browser-dynamic'
+          - '@angular/router'
+          - '@angular/service-worker'
+          - '@angular/build'
+          - '@angular/cli'
           - '@angular-devkit/*'
           - 'typescript'
         update-types:
           - 'minor'
           - 'patch'
-      dev-dependencies: # Group for all devDependencies
+      dev-dependencies:
         dependency-type: 'development'
+        exclude-patterns:
+          - '@angular/*'
+          - '@angular-devkit/*'
+          - 'typescript'
