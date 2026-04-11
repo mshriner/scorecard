@@ -1,9 +1,14 @@
-<h2 mat-dialog-title>{{ data.title }}</h2>
+<h2 mat-dialog-title>{{ data.dialogTitle }}</h2>
 <mat-dialog-content>
   <pre class="preformatted-content">{{ data.content }}</pre>
 </mat-dialog-content>
-<mat-dialog-actions class="actions-center">
+<mat-dialog-actions class="no-padding actions-center">
+  <button mat-stroked-button>
+    <mat-icon>download</mat-icon>
+    <a [href]="downloadHref" [download]="downloadName"> Download </a>
+  </button>
   <button mat-stroked-button (click)="closeClicked()" cdkFocusInitial>
+    <mat-icon>cancel</mat-icon>
     Close
   </button>
 </mat-dialog-actions>
