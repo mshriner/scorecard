@@ -12,7 +12,7 @@
           [disabled]="imported"
           (selectionChange)="updateCurrentCourse($event.value)"
         >
-          @for (course of coursesToChooseFrom; track $index) {
+          @for (course of coursesToChooseFrom; track course.id) {
             <mat-option value="{{ course.id }}"
               >{{ course.name }} (Par {{ course | par }})</mat-option
             >

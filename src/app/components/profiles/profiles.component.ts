@@ -314,7 +314,7 @@ export class ProfilesComponent {
   private doesAnotherProfileHaveThisUserIdOnThisDevice(
     userId: string,
   ): boolean {
-    return !this.userService.getAllUserIds().includes(userId);
+    return this.userService.getAllUserIds().includes(userId);
   }
 
   private doesThisCourseIdExistOnThisDevice(courseId: string): boolean {
