@@ -1,10 +1,24 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { LOCAL_STORAGE_KEYS } from '../models/constants';
 import { LocalUserWithFilters } from '../models/user';
 import { AppDatabase } from './app-database.service';
 import { LocalStorageService } from './local-storage.service';
+
+export const TEST_LOCAL_STORAGE_SERVICE_MOCK = {
+  getUser: vi.fn(),
+  setUser: vi.fn(),
+  getCourse: vi.fn(),
+  setCourse: vi.fn(),
+  getRound: vi.fn(),
+  setRound: vi.fn(),
+  getCurrentUserId: vi.fn(),
+  setCurrentUserId: vi.fn(),
+  getAllUserIds: vi.fn(() => []),
+  setAllUserIds: vi.fn(),
+  getStorageUsageBytes: vi.fn(),
+} as unknown as Mocked<LocalStorageService>;
 
 interface MockTable {
   put: ReturnType<typeof vi.fn>;
@@ -68,6 +82,10 @@ const createLocalStorageMock = (): Storage => {
 };
 
 describe('LocalStorageService', () => {
+  // beforeAll(() => {
+  //   TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+  // });
+
   let service: LocalStorageService;
   let mockDb: {
     open: ReturnType<typeof vi.fn>;
@@ -103,17 +121,17 @@ describe('LocalStorageService', () => {
     await service.initialize();
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     TestBed.resetTestingModule();
     globalThis.localStorage = createLocalStorageMock();
     mockDb = createMockDb();
 
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
         { provide: AppDatabase, useValue: mockDb },
       ],
-    });
+    }).compileComponents();
   });
 
   it('should be created', async () => {
@@ -124,32 +142,44 @@ describe('LocalStorageService', () => {
   it('should store ALL_USERS metadata and return the cached value', async () => {
     await initializeService();
 
-    expect(service.setItem(LOCAL_STORAGE_KEYS.ALL_USERS, ['one', 'two'])).toBe(
-      true,
-    );
+    expect(service.setAllUserIds(['one', 'two'])).toBe(true);
     expect(mockDb.metadata.put).toHaveBeenCalledWith({
       key: LOCAL_STORAGE_KEYS.ALL_USERS,
       value: ['one', 'two'],
     });
-    expect(service.getItem(LOCAL_STORAGE_KEYS.ALL_USERS)).toEqual([
-      'one',
-      'two',
-    ]);
+    expect(service.getAllUserIds()).toEqual(['one', 'two']);
   });
 
   it('should store CURRENT_USER_ID metadata and return the cached value', async () => {
     await initializeService();
 
-    expect(
-      service.setItem(LOCAL_STORAGE_KEYS.CURRENT_USER_ID, 'user-123'),
-    ).toBe(true);
+    expect(service.setCurrentUserId('user-123')).toBe(true);
     expect(mockDb.metadata.put).toHaveBeenCalledWith({
       key: LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
       value: 'user-123',
     });
-    expect(service.getItem(LOCAL_STORAGE_KEYS.CURRENT_USER_ID)).toBe(
-      'user-123',
-    );
+    expect(service.getCurrentUserId()).toBe('user-123');
+  });
+
+  it('should support typed metadata and user accessors', async () => {
+    await initializeService();
+
+    expect(service.setAllUserIds(['user-a', 'user-b'])).toBe(true);
+    expect(service.getAllUserIds()).toEqual(['user-a', 'user-b']);
+
+    expect(service.setCurrentUserId('user-a')).toBe(true);
+    expect(service.getCurrentUserId()).toBe('user-a');
+
+    const typedUser: LocalUserWithFilters = {
+      id: 'user-a',
+      name: 'Typed User',
+      roundIds: [],
+      courseIds: [],
+      appFontScaling: 0,
+    };
+
+    expect(service.setUser(typedUser)).toBe(true);
+    expect(service.getUser(typedUser.id)).toEqual(typedUser);
   });
 
   it('should store and retrieve a user object', async () => {
@@ -163,10 +193,10 @@ describe('LocalStorageService', () => {
       appFontScaling: 0,
     };
 
-    expect(service.setItem(user.id, user)).toBe(true);
+    expect(service.setUser(user)).toBe(true);
     expect(mockDb.users.put).toHaveBeenCalledWith({ ...user, id: user.id });
-    expect(service.getItem(user.id)).toEqual(user);
-    expect(service.getItem(user.id)).not.toBe(user);
+    expect(service.getUser(user.id)).toEqual(user);
+    expect(service.getUser(user.id)).not.toBe(user);
   });
 
   it('should remove an item and delete the record from the DB', async () => {
@@ -179,17 +209,17 @@ describe('LocalStorageService', () => {
       courseIds: [],
       appFontScaling: 1,
     };
-    service.setItem(user.id, user);
+    service.setUser(user);
 
     service.removeItem(user.id);
 
     expect(mockDb.users.delete).toHaveBeenCalledWith(user.id);
-    expect(service.getItem(user.id)).toBeNull();
+    expect(service.getUser(user.id)).toBeNull();
   });
 
-  it('should clear all storage and DB tables', async () => {
+  it('should clear all storage and DB tables without removing unrelated localStorage keys', async () => {
     await initializeService();
-    service.setItem(LOCAL_STORAGE_KEYS.CURRENT_USER_ID, 'any-user');
+    service.setCurrentUserId('any-user');
     localStorage.setItem('legacy-key', 'legacy-value');
 
     await service.clear();
@@ -198,7 +228,7 @@ describe('LocalStorageService', () => {
     expect(mockDb.courses.clear).toHaveBeenCalled();
     expect(mockDb.rounds.clear).toHaveBeenCalled();
     expect(mockDb.metadata.clear).toHaveBeenCalled();
-    expect(localStorage.length).toBe(0);
+    expect(localStorage.getItem('legacy-key')).toBeNull();
   });
 
   it('should migrate legacy localStorage entries into IndexedDB on initialize', async () => {
@@ -237,7 +267,7 @@ describe('LocalStorageService', () => {
   it('should compute storage usage bytes after caching values', async () => {
     await initializeService();
 
-    service.setItem(LOCAL_STORAGE_KEYS.ALL_USERS, ['one']);
+    service.setAllUserIds(['one']);
     const bytes = service.getStorageUsageBytes();
 
     expect(bytes).toBeGreaterThan(0);

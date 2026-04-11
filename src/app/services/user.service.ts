@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { LOCAL_STORAGE_KEYS } from '../models/constants';
 import {
   LocalFilters,
   LocalUserWithFilters,
@@ -15,44 +14,31 @@ export class UserService {
   private readonly localStorageService = inject(LocalStorageService);
 
   public getAllUserIds(): string[] {
-    const retrieved = this.localStorageService.getItem(
-      LOCAL_STORAGE_KEYS.ALL_USERS,
-    );
-    if (!Array.isArray(retrieved)) {
-      return [];
-    }
-    return retrieved as string[];
+    return this.localStorageService.getAllUserIds();
   }
 
   public getAllUsers(): LocalUserWithFilters[] {
     return this.getAllUserIds()
       .map((userId) => this.getUser(userId))
-      .filter((value) => !!value);
+      .filter((value): value is LocalUserWithFilters => !!value);
   }
 
   private setAllUserIds(newValue: string[]): boolean {
-    return this.localStorageService.setItem(
-      LOCAL_STORAGE_KEYS.ALL_USERS,
+    return this.localStorageService.setAllUserIds(
       newValue?.filter((value) => value?.length),
     );
   }
 
   public getUser(userId: string): LocalUserWithFilters | null {
-    const retrieved = this.localStorageService.getItem(userId);
-    if (!retrieved?.id) {
-      return null;
-    }
-    return retrieved as LocalUserWithFilters;
+    return this.localStorageService.getUser(userId);
   }
 
   public setUser(updatedUser: LocalUserWithFilters): boolean {
-    return this.localStorageService.setItem(updatedUser?.id, updatedUser);
+    return this.localStorageService.setUser(updatedUser);
   }
 
   public getCurrentUser(): LocalUserWithFilters | null {
-    const currentUserId = this.localStorageService.getItem(
-      LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
-    );
+    const currentUserId = this.localStorageService.getCurrentUserId();
     if (!currentUserId) {
       return null;
     }
@@ -60,12 +46,7 @@ export class UserService {
   }
 
   public setCurrentUser(newUser: LocalUserWithFilters | null): boolean {
-    if (
-      !this.localStorageService.setItem(
-        LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
-        newUser?.id ?? null,
-      )
-    ) {
+    if (!this.localStorageService.setCurrentUserId(newUser?.id ?? null)) {
       return false;
     }
     if (!newUser) {

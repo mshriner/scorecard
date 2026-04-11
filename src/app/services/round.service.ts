@@ -14,27 +14,21 @@ export class RoundService {
   private readonly roundVarietyScoresPipe = new RoundVarietyScoresPipe();
 
   public getRoundById(roundId: string): Round | null {
-    const retrieved = this.localStorageService.getItem(roundId);
-    if (!retrieved?.id) {
+    const retrieved = this.localStorageService.getRound(roundId);
+    if (!retrieved) {
       return null;
     }
     retrieved.roundVariety ??= RoundVariety.EIGHTEEN;
-    return retrieved as Round;
+    return retrieved;
   }
 
   public getRoundsByIds(roundIds?: string[]): Round[] {
     return (
       roundIds
-        ?.map((roundId) => {
-          const retrieved = this.localStorageService.getItem(roundId);
-          if (!retrieved?.id) {
-            return null;
-          }
-          return retrieved as Round;
-        })
+        ?.map((roundId) => this.localStorageService.getRound(roundId))
         ?.filter((value) => !!value) || ([] as Round[])
     ).map((round) => {
-      // setting defult values
+      // setting default values
       if (!round.roundVariety) {
         round.roundVariety = RoundVariety.EIGHTEEN;
       }
@@ -107,7 +101,7 @@ export class RoundService {
         } else {
           round.generalNotes = round.generalNotes.trim();
         }
-        return this.localStorageService.setItem(round?.id, round);
+        return this.localStorageService.setRound(round);
       })
       ?.every((result) => !!result);
   }

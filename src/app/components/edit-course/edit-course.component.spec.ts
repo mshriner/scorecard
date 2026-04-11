@@ -5,6 +5,7 @@ import { Course, CourseDTO, CourseVariety } from '../../models/course';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
+import { TEST_LOCAL_STORAGE_SERVICE_MOCK } from '../../services/local-storage.service.spec';
 import { EditCourseComponent } from './edit-course.component';
 
 describe('EditCourseComponent', () => {
@@ -15,10 +16,7 @@ describe('EditCourseComponent', () => {
   let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    localStorageService = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-    } as unknown as Mocked<LocalStorageService>;
+    localStorageService = TEST_LOCAL_STORAGE_SERVICE_MOCK;
     snackBarService = {
       openTemporarySnackBar: vi.fn(),
     } as unknown as Mocked<SnackBarService>;

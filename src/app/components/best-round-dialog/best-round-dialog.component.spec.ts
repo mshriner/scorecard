@@ -6,6 +6,7 @@ import { Mocked } from 'vitest';
 import { COURSE_EXAMPLE } from '../../models/course';
 import { BestRound, ROUND_EXAMPLE } from '../../models/round';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { TEST_LOCAL_STORAGE_SERVICE_MOCK } from '../../services/local-storage.service.spec';
 import { BestRoundDialogComponent } from './best-round-dialog.component';
 
 describe('BestRoundDialogComponent', () => {
@@ -14,10 +15,7 @@ describe('BestRoundDialogComponent', () => {
   let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    localStorageService = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-    } as unknown as Mocked<LocalStorageService>;
+    localStorageService = TEST_LOCAL_STORAGE_SERVICE_MOCK;
     const bestRound: BestRound = {
       strokes: ROUND_EXAMPLE.strokes,
       roundVariety: ROUND_EXAMPLE.roundVariety,

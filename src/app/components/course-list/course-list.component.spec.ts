@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { Mocked } from 'vitest';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { TEST_LOCAL_STORAGE_SERVICE_MOCK } from '../../services/local-storage.service.spec';
 import { CourseListComponent } from './course-list.component';
 
 describe('CourseListComponent', () => {
@@ -11,10 +12,7 @@ describe('CourseListComponent', () => {
   let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    localStorageService = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-    } as unknown as Mocked<LocalStorageService>;
+    localStorageService = TEST_LOCAL_STORAGE_SERVICE_MOCK;
     await TestBed.configureTestingModule({
       imports: [CourseListComponent],
       providers: [

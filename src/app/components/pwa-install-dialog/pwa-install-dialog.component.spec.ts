@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Mocked } from 'vitest';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { TEST_LOCAL_STORAGE_SERVICE_MOCK } from '../../services/local-storage.service.spec';
 import { PwaInstallDialogComponent } from './pwa-install-dialog.component';
 
 describe('PwaInstallDialogComponent', () => {
@@ -11,10 +12,7 @@ describe('PwaInstallDialogComponent', () => {
   let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    localStorageService = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-    } as unknown as Mocked<LocalStorageService>;
+    localStorageService = TEST_LOCAL_STORAGE_SERVICE_MOCK;
     await TestBed.configureTestingModule({
       imports: [PwaInstallDialogComponent],
       providers: [

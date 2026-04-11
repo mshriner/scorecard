@@ -20,13 +20,7 @@ export class CourseService {
   public getCoursesByIds(courseIds: string[]): Course[] {
     return (
       courseIds
-        ?.map((courseId) => {
-          const retrieved = this.localStorageService.getItem(courseId);
-          if (!retrieved?.id) {
-            return null;
-          }
-          return retrieved as Course;
-        })
+        ?.map((courseId) => this.localStorageService.getCourse(courseId))
         ?.filter((value) => !!value) || ([] as Course[])
     );
   }
@@ -35,7 +29,7 @@ export class CourseService {
     return updatedCourses
       ?.map((course) => {
         course.name = course.name?.trim() || '';
-        return this.localStorageService.setItem(course?.id, course);
+        return this.localStorageService.setCourse(course);
       })
       ?.every((result) => !!result);
   }

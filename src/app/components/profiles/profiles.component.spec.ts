@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { Mocked } from 'vitest';
 import { UserWithRoundsAndCourses } from '../../models/data-transfer';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { TEST_LOCAL_STORAGE_SERVICE_MOCK } from '../../services/local-storage.service.spec';
 import { ProfilesComponent } from './profiles.component';
 
 describe('ProfilesComponent', () => {
@@ -13,11 +14,7 @@ describe('ProfilesComponent', () => {
   let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    localStorageService = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      getStorageUsageBytes: vi.fn(),
-    } as unknown as Mocked<LocalStorageService>;
+    localStorageService = TEST_LOCAL_STORAGE_SERVICE_MOCK;
     await TestBed.configureTestingModule({
       imports: [ProfilesComponent],
       providers: [

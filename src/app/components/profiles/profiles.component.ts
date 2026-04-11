@@ -84,9 +84,10 @@ export class ProfilesComponent {
     'username',
     'delete',
   ];
-  public readonly localStorageUsed = computed(() =>
-    this.localStorageService.getStorageUsageBytes(),
-  );
+  public readonly localStorageUsed = computed(() => {
+    this.profiles();
+    return this.localStorageService.getStorageUsageBytes();
+  });
 
   constructor() {
     this.appStateService.setPageTitle('Profiles');

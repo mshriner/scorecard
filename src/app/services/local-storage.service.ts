@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { AppDatabase } from './app-database.service';
 import { LOCAL_STORAGE_KEYS } from '../models/constants';
 import { Course } from '../models/course';
-import { LocalUserWithFilters } from '../models/user';
 import { Round } from '../models/round';
+import { LocalUserWithFilters } from '../models/user';
+import { AppDatabase } from './app-database.service';
 
 const RESERVED_KEYS = [
   LOCAL_STORAGE_KEYS.ALL_USERS,
@@ -38,77 +38,92 @@ export class LocalStorageService {
     this.initialized = true;
   }
 
-  public setItem(key: string, value: unknown): boolean {
-    if (value === null) {
-      this.removeItem(key);
-      return true;
-    }
-
-    if (key === LOCAL_STORAGE_KEYS.ALL_USERS) {
-      if (!Array.isArray(value)) {
-        return false;
-      }
-      this.allUserIds = value.filter((item) => typeof item === 'string');
-      void this.db.metadata
-        .put({ key, value: this.allUserIds })
-        .catch(console.error);
-      return true;
-    }
-
-    if (key === LOCAL_STORAGE_KEYS.CURRENT_USER_ID) {
-      this.currentUserId = typeof value === 'string' ? value : null;
-      void this.db.metadata
-        .put({ key, value: this.currentUserId })
-        .catch(console.error);
-      return true;
-    }
-
-    if (this.isUserObject(value)) {
-      this.userCache.set(key, structuredClone(value));
-      void this.db.users.put({ ...value, id: key }).catch(console.error);
-      return true;
-    }
-
-    if (this.isCourseObject(value)) {
-      this.courseCache.set(key, structuredClone(value));
-      void this.db.courses.put({ ...value, id: key }).catch(console.error);
-      return true;
-    }
-
-    if (this.isRoundObject(value)) {
-      this.roundCache.set(key, structuredClone(value));
-      void this.db.rounds.put({ ...value, id: key }).catch(console.error);
-      return true;
-    }
-
-    console.warn(
-      `LocalStorageService.setItem could not classify data for key ${key}`,
-    );
-    return false;
+  public getAllUserIds(): string[] {
+    return [...this.allUserIds];
   }
 
-  public getItem(key: string): any {
-    if (key === LOCAL_STORAGE_KEYS.ALL_USERS) {
-      return [...this.allUserIds];
+  public setAllUserIds(userIds: string[]): boolean {
+    if (!Array.isArray(userIds)) {
+      return false;
     }
 
-    if (key === LOCAL_STORAGE_KEYS.CURRENT_USER_ID) {
-      return this.currentUserId;
+    this.allUserIds = userIds.filter((id) => typeof id === 'string');
+    void this.db.metadata
+      .put({
+        key: LOCAL_STORAGE_KEYS.ALL_USERS,
+        value: this.allUserIds,
+      })
+      .catch(console.error);
+    return true;
+  }
+
+  public getCurrentUserId(): string | null {
+    return this.currentUserId;
+  }
+
+  public setCurrentUserId(userId: string | null): boolean {
+    this.currentUserId = typeof userId === 'string' ? userId : null;
+    void this.db.metadata
+      .put({
+        key: LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
+        value: this.currentUserId,
+      })
+      .catch(console.error);
+    return true;
+  }
+
+  public getUser(userId: string): LocalUserWithFilters | null {
+    if (!this.userCache.has(userId)) {
+      return null;
+    }
+    return structuredClone(this.userCache.get(userId)!);
+  }
+
+  public setUser(user: LocalUserWithFilters): boolean {
+    if (!user?.id) {
+      return false;
     }
 
-    if (this.userCache.has(key)) {
-      return structuredClone(this.userCache.get(key));
+    const clonedUser = structuredClone(user);
+    this.userCache.set(user.id, clonedUser);
+    void this.db.users.put(clonedUser).catch(console.error);
+    return true;
+  }
+
+  public getCourse(courseId: string): Course | null {
+    if (!this.courseCache.has(courseId)) {
+      return null;
+    }
+    return structuredClone(this.courseCache.get(courseId)!);
+  }
+
+  public setCourse(course: Course): boolean {
+    if (!course?.id) {
+      return false;
     }
 
-    if (this.courseCache.has(key)) {
-      return structuredClone(this.courseCache.get(key));
+    const clonedCourse = structuredClone(course);
+    this.courseCache.set(course.id, clonedCourse);
+    void this.db.courses.put(clonedCourse).catch(console.error);
+    return true;
+  }
+
+  public getRound(roundId: string): Round | null {
+    if (!this.roundCache.has(roundId)) {
+      return null;
+    }
+    return structuredClone(this.roundCache.get(roundId)!);
+  }
+
+  public setRound(round: Round): boolean {
+    if (!round?.id) {
+      return false;
     }
 
-    if (this.roundCache.has(key)) {
-      return structuredClone(this.roundCache.get(key));
-    }
-
-    return null;
+    const clonedRound = structuredClone(round);
+    this.roundCache.set(round.id, clonedRound);
+    void this.db.rounds.put(clonedRound).catch(console.error);
+    return true;
   }
 
   public removeItem(key: string): void {
@@ -133,7 +148,7 @@ export class LocalStorageService {
     void this.db.users.delete(key).catch(console.error);
     void this.db.courses.delete(key).catch(console.error);
     void this.db.rounds.delete(key).catch(console.error);
-    localStorage.removeItem(key);
+      localStorage.removeItem(key);
   }
 
   public async clear(): Promise<void> {
@@ -295,7 +310,7 @@ export class LocalStorageService {
 
   private canParseLegacyKey(key: string): boolean {
     const value = localStorage.getItem(key);
-    if (!value) {
+    if (typeof value !== 'string') {
       return false;
     }
     const data = this.parseJson(value);
@@ -307,7 +322,7 @@ export class LocalStorageService {
   }
 
   private parseJson(value: string | null): any {
-    if (value === null) {
+    if (typeof value !== 'string') {
       return null;
     }
 

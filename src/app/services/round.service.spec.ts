@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { Mocked } from 'vitest';
+import { TEST_LOCAL_STORAGE_SERVICE_MOCK } from '../services/local-storage.service.spec';
 import { LocalStorageService } from './local-storage.service';
 import { RoundService } from './round.service';
 
@@ -10,10 +11,7 @@ describe('RoundService', () => {
   let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    localStorageService = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-    } as unknown as Mocked<LocalStorageService>;
+    localStorageService = TEST_LOCAL_STORAGE_SERVICE_MOCK;
     await TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
