@@ -1,15 +1,28 @@
 import { TestBed } from '@angular/core/testing';
 
 import { provideZonelessChangeDetection } from '@angular/core';
+import { Mocked } from 'vitest';
 import { CourseService } from './course.service';
+import { LocalStorageService } from './local-storage.service';
 
 describe('CourseService', () => {
   let service: CourseService;
+  let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection()],
-    }).compileComponents();
+    localStorageService = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+    } as unknown as Mocked<LocalStorageService>;
+    TestBed.configureTestingModule({
+      providers: [
+        provideZonelessChangeDetection(),
+        {
+          provide: LocalStorageService,
+          useValue: localStorageService,
+        },
+      ],
+    });
     service = TestBed.inject(CourseService);
   });
 

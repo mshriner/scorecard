@@ -2,15 +2,28 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { HomeComponent } from './home.component';
+import { LocalStorageService } from '../../services/local-storage.service';
+import { Mocked } from 'vitest';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
+  let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
+    localStorageService = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+    } as unknown as Mocked<LocalStorageService>;
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [provideZonelessChangeDetection()],
+      providers: [
+        provideZonelessChangeDetection(),
+        {
+          provide: LocalStorageService,
+          useValue: localStorageService,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
@@ -119,4 +132,3 @@ describe('HomeComponent', () => {
     expect(stats.inferredHolesScramblingSuccessfully).toBeGreaterThanOrEqual(0);
   });
 });
-
