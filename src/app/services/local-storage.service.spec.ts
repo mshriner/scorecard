@@ -82,10 +82,6 @@ const createLocalStorageMock = (): Storage => {
 };
 
 describe('LocalStorageService', () => {
-  // beforeAll(() => {
-  //   TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
-  // });
-
   let service: LocalStorageService;
   let mockDb: {
     open: ReturnType<typeof vi.fn>;

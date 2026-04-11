@@ -6,7 +6,7 @@ import { LocalUserWithFilters } from '../models/user';
 
 export interface AppMetadata {
   key: string;
-  value: unknown;
+  value: string[] | string | null;
 }
 
 @Injectable({
