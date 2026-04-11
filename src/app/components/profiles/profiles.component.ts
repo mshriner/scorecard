@@ -40,6 +40,7 @@ import {
 import { LocalUserWithFilters, User } from '../../models/user';
 import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
+import { LocalStorageService } from '../../services/local-storage.service';
 import { NavigationMessageService } from '../../services/navigation-message.service';
 import { RoundService } from '../../services/round.service';
 import { SharingService } from '../../services/sharing.service';
@@ -70,6 +71,7 @@ export class ProfilesComponent {
   private readonly sharingService = inject(SharingService);
   private readonly snackBarService = inject(SnackBarService);
   private readonly router = inject(NavigationMessageService);
+  private readonly localStorageService = inject(LocalStorageService);
   private readonly changeDetection = inject(ChangeDetectorRef);
 
   readonly profiles: WritableSignal<LocalUserWithFilters[]> = signal([]);
@@ -82,12 +84,9 @@ export class ProfilesComponent {
     'username',
     'delete',
   ];
-  public readonly localStorageUsed = computed(() => {
-    if (!this.profiles()?.length) {
-      return 0;
-    }
-    return new Blob(Object.values(localStorage)).size;
-  });
+  public readonly localStorageUsed = computed(() =>
+    this.localStorageService.getStorageUsageBytes(),
+  );
 
   constructor() {
     this.appStateService.setPageTitle('Profiles');
@@ -314,7 +313,7 @@ export class ProfilesComponent {
   private doesAnotherProfileHaveThisUserIdOnThisDevice(
     userId: string,
   ): boolean {
-    return !this.userService.getAllUserIds().includes(userId);
+    return this.userService.getAllUserIds().includes(userId);
   }
 
   private doesThisCourseIdExistOnThisDevice(courseId: string): boolean {

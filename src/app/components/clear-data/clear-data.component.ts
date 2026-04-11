@@ -14,10 +14,11 @@ export class ClearDataComponent {
 
   constructor() {
     this.appStateService.currentUser.set(null);
-    this.localStorageService.clear();
-    this.appStateService.setPageTitle('App Data Cleared! Reloading...');
-    setTimeout(() => {
-      globalThis.location.reload();
-    }, 1750);
+    this.localStorageService.clear().then(() => {
+      this.appStateService.setPageTitle('App Data Cleared! Reloading...');
+      setTimeout(() => {
+        globalThis.location.reload();
+      }, 1750);
+    });
   }
 }

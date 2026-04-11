@@ -8,11 +8,11 @@
         <mat-label>Select Course</mat-label>
         <mat-select
           #courseSelect
-          [(value)]="editingRound.courseId"
           [disabled]="imported"
+          [(value)]="editingRound.courseId"
           (selectionChange)="updateCurrentCourse($event.value)"
         >
-          @for (course of coursesToChooseFrom; track $index) {
+          @for (course of coursesToChooseFrom; track course.id) {
             <mat-option value="{{ course.id }}"
               >{{ course.name }} (Par {{ course | par }})</mat-option
             >
