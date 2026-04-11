@@ -24,7 +24,7 @@ export class LocalStorageService {
   private readonly roundCache = new Map<string, Round>();
 
   constructor() {
-    // this.loadFromLegacyLocalStorage();
+    this.loadFromLegacyLocalStorage();
   }
 
   public async initialize(): Promise<void> {
@@ -33,7 +33,7 @@ export class LocalStorageService {
     }
 
     await this.db.open();
-    // await this.migrateIfNeeded();
+    await this.migrateIfNeeded();
     await this.loadCaches();
     this.initialized = true;
   }
