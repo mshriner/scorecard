@@ -1,6 +1,7 @@
 import {
-  APP_INITIALIZER,
   ApplicationConfig,
+  inject,
+  provideAppInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -15,11 +16,8 @@ export const appConfig: ApplicationConfig = {
     provideServiceWorker('ngsw-worker.js', {
       registrationStrategy: 'registerWhenStable:30000',
     }),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (storage: LocalStorageService) => () => storage.initialize(),
-      deps: [LocalStorageService],
-      multi: true,
-    },
+    provideAppInitializer(async () => {
+      await inject(LocalStorageService).initialize();
+    }),
   ],
 };
