@@ -84,7 +84,8 @@ export class SharingService {
             this.dialog
               .open(PreformattedDialogComponent, {
                 data: {
-                  title: 'Copy Data',
+                  dialogTitle: 'Copy Data',
+                  fileTitle: shareFileName,
                   content: JSON.stringify(exportedItem),
                 },
               })
