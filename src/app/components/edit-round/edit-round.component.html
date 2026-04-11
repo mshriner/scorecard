@@ -8,8 +8,8 @@
         <mat-label>Select Course</mat-label>
         <mat-select
           #courseSelect
-          [disabled]="imported"
           [(value)]="editingRound.courseId"
+          [disabled]="imported"
           (selectionChange)="updateCurrentCourse($event.value)"
         >
           @for (course of coursesToChooseFrom; track course.id) {
