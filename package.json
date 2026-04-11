@@ -22,6 +22,8 @@
     "@angular/platform-browser-dynamic": "^21.2.8",
     "@angular/router": "^21.2.8",
     "@angular/service-worker": "^21.2.8",
+    "@emnapi/core": "^1.9.2",
+    "@emnapi/runtime": "^1.9.2",
     "@observablehq/plot": "^0.6.17",
     "dexie": "^4.4.2",
     "ngx-autosize": "^2.0.4",
@@ -42,7 +44,7 @@
     "vitest": "^4.1.4"
   },
   "engines": {
-    "node": ">=24.0.0",
+    "node": ">=25",
     "npm": ">=11"
   }
 }
