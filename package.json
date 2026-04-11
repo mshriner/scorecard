@@ -37,7 +37,6 @@
     "@angular/compiler-cli": "^21.2.8",
     "@vitest/browser-webdriverio": "^4.1.4",
     "eslint": "^10.2.0",
-    "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.0.2",
     "prettier": "^3.8.2",
     "typescript": "~5.9.3",
