@@ -3,9 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { assert, Mocked } from 'vitest';
 import { Course, CourseDTO, CourseVariety } from '../../models/course';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { createLocalStorageServiceTestMock } from '../../services/local-storage.service.spec';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
-import { TEST_LOCAL_STORAGE_SERVICE_MOCK } from '../../services/local-storage.service.spec';
 import { EditCourseComponent } from './edit-course.component';
 
 describe('EditCourseComponent', () => {
@@ -16,7 +16,7 @@ describe('EditCourseComponent', () => {
   let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    localStorageService = TEST_LOCAL_STORAGE_SERVICE_MOCK;
+    localStorageService = createLocalStorageServiceTestMock();
     snackBarService = {
       openTemporarySnackBar: vi.fn(),
     } as unknown as Mocked<SnackBarService>;

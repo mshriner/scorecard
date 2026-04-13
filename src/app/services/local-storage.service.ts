@@ -5,10 +5,10 @@ import { Round } from '../models/round';
 import { LocalUserWithFilters } from '../models/user';
 import { AppDatabase } from './app-database.service';
 
-const RESERVED_KEYS = [
+const RESERVED_KEYS = new Set([
   LOCAL_STORAGE_KEYS.ALL_USERS,
   LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
-];
+]);
 
 @Injectable({
   providedIn: 'root',
@@ -148,7 +148,7 @@ export class LocalStorageService {
     void this.db.users.delete(key).catch(console.error);
     void this.db.courses.delete(key).catch(console.error);
     void this.db.rounds.delete(key).catch(console.error);
-      localStorage.removeItem(key);
+    localStorage.removeItem(key);
   }
 
   public async clear(): Promise<void> {
@@ -188,7 +188,7 @@ export class LocalStorageService {
 
     const localKeys = Object.keys(localStorage);
     const keysToMigrate = localKeys.filter(
-      (key) => RESERVED_KEYS.includes(key) || this.canParseLegacyKey(key),
+      (key) => RESERVED_KEYS.has(key) || this.canParseLegacyKey(key),
     );
     if (!keysToMigrate.length) {
       return;
@@ -289,7 +289,7 @@ export class LocalStorageService {
     }
 
     for (const key of Object.keys(localStorage)) {
-      if (RESERVED_KEYS.includes(key)) {
+      if (RESERVED_KEYS.has(key)) {
         continue;
       }
       const rawValue = localStorage.getItem(key);
@@ -349,7 +349,7 @@ export class LocalStorageService {
       typeof value === 'object' &&
       typeof value.id === 'string' &&
       typeof value.name === 'string' &&
-      typeof value.par !== 'undefined'
+      value.par !== undefined
     );
   }
 

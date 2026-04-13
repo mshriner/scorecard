@@ -4,13 +4,13 @@ import { SwUpdate } from '@angular/service-worker';
 import { Mocked } from 'vitest';
 import { AppComponent } from './app.component';
 import { LocalStorageService } from './services/local-storage.service';
-import { TEST_LOCAL_STORAGE_SERVICE_MOCK } from './services/local-storage.service.spec';
+import { createLocalStorageServiceTestMock } from './services/local-storage.service.spec';
 
 describe('AppComponent', () => {
   let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
-    localStorageService = TEST_LOCAL_STORAGE_SERVICE_MOCK;
+    localStorageService = createLocalStorageServiceTestMock();
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [

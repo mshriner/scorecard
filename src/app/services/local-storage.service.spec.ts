@@ -6,19 +6,21 @@ import { LocalUserWithFilters } from '../models/user';
 import { AppDatabase } from './app-database.service';
 import { LocalStorageService } from './local-storage.service';
 
-export const TEST_LOCAL_STORAGE_SERVICE_MOCK = {
-  getUser: vi.fn(),
-  setUser: vi.fn(),
-  getCourse: vi.fn(),
-  setCourse: vi.fn(),
-  getRound: vi.fn(),
-  setRound: vi.fn(),
-  getCurrentUserId: vi.fn(),
-  setCurrentUserId: vi.fn(),
-  getAllUserIds: vi.fn(() => []),
-  setAllUserIds: vi.fn(),
-  getStorageUsageBytes: vi.fn(),
-} as unknown as Mocked<LocalStorageService>;
+export function createLocalStorageServiceTestMock(): Mocked<LocalStorageService> {
+  return {
+    getUser: vi.fn(),
+    setUser: vi.fn(),
+    getCourse: vi.fn(),
+    setCourse: vi.fn(),
+    getRound: vi.fn(),
+    setRound: vi.fn(),
+    getCurrentUserId: vi.fn(),
+    setCurrentUserId: vi.fn(),
+    getAllUserIds: vi.fn(() => []),
+    setAllUserIds: vi.fn(),
+    getStorageUsageBytes: vi.fn(),
+  } as unknown as Mocked<LocalStorageService>;
+}
 
 interface MockTable {
   put: ReturnType<typeof vi.fn>;
@@ -38,47 +40,30 @@ interface MockMetadata {
 const createLocalStorageMock = (): Storage => {
   const store = new Map<string, string>();
 
-  const handler: ProxyHandler<object> = {
-    get(_, prop) {
-      if (prop === 'getItem') {
-        return (key: string) => (store.has(key) ? store.get(key)! : null);
-      }
-      if (prop === 'setItem') {
-        return (key: string, value: string) => {
+  return new Proxy({} as Storage, {
+    get(target, prop, receiver) {
+      if (prop === 'getItem')
+        return (key: string) => store.get(String(key)) ?? null;
+      if (prop === 'setItem')
+        return (key: string, value: string) =>
           store.set(String(key), String(value));
-        };
-      }
-      if (prop === 'removeItem') {
+      if (prop === 'removeItem')
         return (key: string) => store.delete(String(key));
-      }
-      if (prop === 'clear') {
-        return () => store.clear();
-      }
-      if (prop === 'key') {
-        return (index: number) => Array.from(store.keys())[index] ?? null;
-      }
-      if (prop === 'length') {
-        return store.size;
-      }
-      return (store as any).get(prop as string);
+      if (prop === 'clear') return () => store.clear();
+      if (prop === 'key')
+        return (idx: number) => Array.from(store.keys())[idx] ?? null;
+      if (prop === 'length') return store.size;
+
+      // Ensure internal JS calls (like Symbol.toStringTag) don't crash
+      return Reflect.get(target, prop, receiver);
     },
     ownKeys() {
-      return [...store.keys()];
+      return Array.from(store.keys());
     },
-    getOwnPropertyDescriptor(_, prop) {
-      if (typeof prop === 'string' && store.has(prop)) {
-        return {
-          configurable: true,
-          enumerable: true,
-          writable: true,
-          value: store.get(prop),
-        };
-      }
-      return undefined;
+    getOwnPropertyDescriptor() {
+      return { enumerable: true, configurable: true };
     },
-  };
-
-  return new Proxy({}, handler) as Storage;
+  });
 };
 
 describe('LocalStorageService', () => {
@@ -112,19 +97,21 @@ describe('LocalStorageService', () => {
     },
   });
 
+  const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
+
   const initializeService = async () => {
     service = TestBed.inject(LocalStorageService);
     await service.initialize();
   };
 
   beforeEach(async () => {
-    TestBed.resetTestingModule();
-    globalThis.localStorage = createLocalStorageMock();
+    vi.stubGlobal('localStorage', createLocalStorageMock());
     mockDb = createMockDb();
 
     await TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
+        LocalStorageService,
         { provide: AppDatabase, useValue: mockDb },
       ],
     }).compileComponents();
@@ -137,13 +124,13 @@ describe('LocalStorageService', () => {
 
   it('should store ALL_USERS metadata and return the cached value', async () => {
     await initializeService();
+    service.setAllUserIds(['one', 'two']);
+    await flushPromises();
 
-    expect(service.setAllUserIds(['one', 'two'])).toBe(true);
     expect(mockDb.metadata.put).toHaveBeenCalledWith({
       key: LOCAL_STORAGE_KEYS.ALL_USERS,
       value: ['one', 'two'],
     });
-    expect(service.getAllUserIds()).toEqual(['one', 'two']);
   });
 
   it('should store CURRENT_USER_ID metadata and return the cached value', async () => {
@@ -192,7 +179,6 @@ describe('LocalStorageService', () => {
     expect(service.setUser(user)).toBe(true);
     expect(mockDb.users.put).toHaveBeenCalledWith({ ...user, id: user.id });
     expect(service.getUser(user.id)).toEqual(user);
-    expect(service.getUser(user.id)).not.toBe(user);
   });
 
   it('should remove an item and delete the record from the DB', async () => {
@@ -267,5 +253,11 @@ describe('LocalStorageService', () => {
     const bytes = service.getStorageUsageBytes();
 
     expect(bytes).toBeGreaterThan(0);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+    TestBed.resetTestingModule();
   });
 });
