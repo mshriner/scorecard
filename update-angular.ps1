@@ -5,7 +5,7 @@ git reset
 git add .\package.json .\package-lock.json
 git commit -m "npm install"
 
-ng update @angular/cli@latest @angular/core@latest @angular/material@latest
+ng update @angular/build @angular/cli @angular/core @angular/material
 npm install
 
 git add .\package.json .\package-lock.json
