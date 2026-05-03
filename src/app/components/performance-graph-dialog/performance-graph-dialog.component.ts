@@ -138,7 +138,7 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
         nice: !this.graphData.percent,
         tickFormat: this.graphData.scoreToPar
           ? this.formatScoreToPar
-          : undefined,
+          : this.formatStandardNumber,
       },
       x: {
         domain: this.evenlySpaceRounds()
@@ -209,6 +209,13 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
       return '±0';
     }
     return `${toPar}`;
+  }
+
+  private formatStandardNumber(value: number): string {
+    return value.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1,
+    });
   }
 
   private formatDiscreteDate(idx: number): string {

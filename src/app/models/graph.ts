@@ -140,7 +140,7 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
       if (!holeResults.holesPlayedWithPutts) {
         return null;
       }
-      return (9 * holeResults.putts) / holeResults.holesPlayedWithPutts;
+      return 9 * (holeResults.putts / holeResults.holesPlayedWithPutts);
     },
   },
   'putts-18': {
