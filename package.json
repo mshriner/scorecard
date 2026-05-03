@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@angular/build": "^21.2.7",
-    "@angular/cli": "^21.2.7",
+    "@angular/cli": "^21.2.9",
     "@angular/compiler": "^21.2.9",
     "@angular/compiler-cli": "^21.2.9",
     "@vitest/browser-webdriverio": "^4.1.4",
