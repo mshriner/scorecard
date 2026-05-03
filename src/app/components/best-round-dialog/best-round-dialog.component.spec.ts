@@ -2,15 +2,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Mocked } from 'vitest';
 import { COURSE_EXAMPLE } from '../../models/course';
 import { BestRound, ROUND_EXAMPLE } from '../../models/round';
+import { LocalStorageService } from '../../services/local-storage.service';
+import { createLocalStorageServiceTestMock } from '../../services/local-storage.service.spec';
 import { BestRoundDialogComponent } from './best-round-dialog.component';
 
 describe('BestRoundDialogComponent', () => {
   let component: BestRoundDialogComponent;
   let fixture: ComponentFixture<BestRoundDialogComponent>;
+  let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
+    localStorageService = createLocalStorageServiceTestMock();
     const bestRound: BestRound = {
       strokes: ROUND_EXAMPLE.strokes,
       roundVariety: ROUND_EXAMPLE.roundVariety,
@@ -25,6 +30,10 @@ describe('BestRoundDialogComponent', () => {
         {
           provide: MAT_DIALOG_DATA,
           useValue: bestRound,
+        },
+        {
+          provide: LocalStorageService,
+          useValue: localStorageService,
         },
       ],
     }).compileComponents();

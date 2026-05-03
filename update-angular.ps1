@@ -1,3 +1,10 @@
+$updateMajor = Read-Host "Update Angular to a new major version? Enter Y to add @latest, N to stay on the current major version"
+if ($updateMajor -match '^[Yy]') {
+    $ngSuffix = "@latest"
+} else {
+    $ngSuffix = ""
+}
+
 npm install -g @angular/cli@latest
 npm install @angular/cli@latest --save-dev
 
@@ -5,7 +12,7 @@ git reset
 git add .\package.json .\package-lock.json
 git commit -m "npm install"
 
-ng update @angular/cli@latest @angular/core@latest @angular/material@latest @angular-devkit/build-angular@latest
+ng update @angular/cli$ngSuffix @angular/core$ngSuffix @angular/material$ngSuffix @angular/build$ngSuffix
 npm install
 
 git add .\package.json .\package-lock.json

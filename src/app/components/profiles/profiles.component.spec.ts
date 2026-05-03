@@ -2,17 +2,28 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { of } from 'rxjs';
+import { Mocked } from 'vitest';
 import { UserWithRoundsAndCourses } from '../../models/data-transfer';
+import { LocalStorageService } from '../../services/local-storage.service';
+import { createLocalStorageServiceTestMock } from '../../services/local-storage.service.spec';
 import { ProfilesComponent } from './profiles.component';
 
 describe('ProfilesComponent', () => {
   let component: ProfilesComponent;
   let fixture: ComponentFixture<ProfilesComponent>;
+  let localStorageService: Mocked<LocalStorageService>;
 
   beforeEach(async () => {
+    localStorageService = createLocalStorageServiceTestMock();
     await TestBed.configureTestingModule({
       imports: [ProfilesComponent],
-      providers: [provideZonelessChangeDetection()],
+      providers: [
+        provideZonelessChangeDetection(),
+        {
+          provide: LocalStorageService,
+          useValue: localStorageService,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProfilesComponent);
