@@ -1,6 +1,7 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   Component,
+  ElementRef,
   HostListener,
   inject,
   OnInit,
@@ -25,6 +26,7 @@ import {
   APP_ROUTES,
   DELETE_ROUND,
   NAVIGATION_STATE_KEYS,
+  SNACKBAR_MESSAGES,
 } from '../../models/constants';
 import { Course, CourseVariety } from '../../models/course';
 import {
@@ -45,7 +47,11 @@ import {
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { DataToShare, RoundWithCourse } from '../../models/data-transfer';
+import {
+  DataToShare,
+  RoundWithCourse,
+  YesNoReason,
+} from '../../models/data-transfer';
 import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
 import { NavigationMessageService } from '../../services/navigation-message.service';
@@ -85,7 +91,7 @@ export class EditRoundComponent implements OnInit {
   private readonly router = inject(NavigationMessageService);
   private readonly dialog = inject(MatDialog);
   private readonly sharingService = inject(SharingService);
-  private readonly snackBarService = inject(SnackBarService);
+  public readonly snackBarService = inject(SnackBarService);
   private readonly roundVarietyScoresPipe = inject(RoundVarietyScoresPipe);
 
   private readonly originalRound: Round;
@@ -96,6 +102,7 @@ export class EditRoundComponent implements OnInit {
   public roundIdToEdit: string;
   public imported = false;
   private needToSaveImportedCourse = false;
+  public readonly SNACKBAR_MESSAGES = SNACKBAR_MESSAGES;
   public readonly ROUND_NOTES_MAX_LENGTH = ROUND_NOTES_MAX_LENGTH;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
@@ -153,9 +160,18 @@ export class EditRoundComponent implements OnInit {
 
   courseSelectInput: Signal<MatSelect | undefined> = viewChild('courseSelect');
 
+  notesTextarea: Signal<ElementRef<HTMLTextAreaElement> | undefined> =
+    viewChild('notesForRoundInput');
+
   @HostListener('document:keydown.enter', ['$event'])
   handleEnterKey(event: Event): void {
-    if (!this.disableSaveButton && this.appStateService.unsavedDataOnPage()) {
+    if ((event.target as HTMLElement) === this.notesTextarea()?.nativeElement) {
+      return;
+    }
+    if (
+      !this.disableSaveButton.result &&
+      this.appStateService.unsavedDataOnPage()
+    ) {
       this.saveRound();
     }
     event.preventDefault();
@@ -332,12 +348,60 @@ export class EditRoundComponent implements OnInit {
     this.updateUnsavedData();
   }
 
-  public get disableSaveButton(): boolean {
-    return (
-      !Date.parse(this.editingRound.dateStringISO) ||
-      !this.editingRound.roundVariety ||
-      !this.editingRound.courseId.length
-    );
+  public get disableNumberOfHolesPlayed(): YesNoReason {
+    if (!this.editingRound.courseId) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.COURSE_REQUIRED,
+      };
+    }
+    if (this.imported) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.IMPORTED_ROUND,
+      };
+    }
+    if (this.isNineHoleCourse) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.NINE_HOLE_COURSE,
+      };
+    }
+    return {
+      result: false,
+      reason: '',
+    };
+  }
+
+  public get disableSaveButton(): YesNoReason {
+    if (!this.appStateService.unsavedDataOnPage()) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.NO_CHANGES_TO_SAVE,
+      };
+    }
+    if (!Date.parse(this.editingRound.dateStringISO)) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.DATE_REQUIRED,
+      };
+    }
+    if (!this.editingRound.roundVariety) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.ROUND_VARIETY_REQUIRED,
+      };
+    }
+    if (!this.editingRound.courseId.length) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.COURSE_REQUIRED,
+      };
+    }
+    return {
+      result: false,
+      reason: '',
+    };
   }
 
   public deleteRound(): void {

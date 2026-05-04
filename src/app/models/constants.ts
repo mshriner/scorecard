@@ -74,3 +74,16 @@ export const UNSAVED_DATA: AreYouSureDialogConfig = {
   nonConfirmButtonText: 'Edit',
   nonConfirmButtonIcon: 'edit',
 };
+
+export const SNACKBAR_MESSAGES = {
+  NO_CHANGES_TO_SAVE: 'No changes to save.',
+  COURSE_NAME_INVALID: 'Add a course name.',
+  COURSE_MISSING_PAR: 'Pars for all holes must be filled out.',
+  IMPORTED_ROUND: 'Cannot change this value while importing a round.',
+  SELECT_COURSE_FIRST: 'Please select a course first.',
+  NINE_HOLE_COURSE: 'Cannot change this value for a 9-hole course.',
+  DATE_REQUIRED: 'Please select a date for this round.',
+  ROUND_VARIETY_REQUIRED:
+    'Please select which nine(s) on the coursewere played for this round.',
+  COURSE_REQUIRED: 'Please select a course for this round.',
+};

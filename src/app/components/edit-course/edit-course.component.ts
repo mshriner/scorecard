@@ -13,13 +13,14 @@ import {
   APP_ROUTES,
   DELETE_COURSE,
   NAVIGATION_STATE_KEYS,
+  SNACKBAR_MESSAGES,
 } from '../../models/constants';
 import {
   Course,
   CourseVariety,
   EIGHTEEN_NUMBERS_ZEROED,
 } from '../../models/course';
-import { DataToShare } from '../../models/data-transfer';
+import { DataToShare, YesNoReason } from '../../models/data-transfer';
 import {
   compareRoundsByDateDescending,
   RoundVariety,
@@ -62,7 +63,7 @@ export class EditCourseComponent implements OnInit {
   private readonly roundService = inject(RoundService);
   private readonly router = inject(NavigationMessageService);
   private readonly sharingService = inject(SharingService);
-  private readonly snackBarService = inject(SnackBarService);
+  public readonly snackBarService = inject(SnackBarService);
   private readonly courseVarietySlicePipe = inject(CourseVarietySlicePipe);
 
   private readonly originalCourse: Course;
@@ -97,7 +98,10 @@ export class EditCourseComponent implements OnInit {
 
   @HostListener('document:keydown.enter', ['$event'])
   handleEnterKey(event: Event): void {
-    if (!this.disableSaveButton && this.appStateService.unsavedDataOnPage()) {
+    if (
+      !this.disableSaveAndShareButtons.result &&
+      this.appStateService.unsavedDataOnPage()
+    ) {
       this.saveCourse();
     }
     event.preventDefault();
@@ -145,10 +149,6 @@ export class EditCourseComponent implements OnInit {
     }
   }
 
-  public isShareDisabled(): boolean {
-    return this.editingCourse?.par.some((p) => p < 1);
-  }
-
   public parPlusOne(index: number) {
     this.editingCourse.par[index]++;
     this.updateUnsavedData();
@@ -184,11 +184,40 @@ export class EditCourseComponent implements OnInit {
     );
   }
 
-  public get disableSaveButton(): boolean {
-    return (
-      !this.editingCourse.name.length ||
-      this.editingCourse.par.some((hole) => (hole || 0) <= 0)
-    );
+  public get disableSaveAndShareButtons(): YesNoReason {
+    if (!this.editingCourse.name.length) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.COURSE_NAME_INVALID,
+      };
+    }
+    if (this.editingCourse.par.some((hole) => (hole || 0) <= 0)) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.COURSE_MISSING_PAR,
+      };
+    }
+    return {
+      result: false,
+      reason: '',
+    };
+  }
+
+  public get disableSaveCourseButton(): YesNoReason {
+    const disableSaveAndShareButtons = this.disableSaveAndShareButtons;
+    if (disableSaveAndShareButtons.result) {
+      return disableSaveAndShareButtons;
+    }
+    if (!this.appStateService.unsavedDataOnPage()) {
+      return {
+        result: true,
+        reason: SNACKBAR_MESSAGES.NO_CHANGES_TO_SAVE,
+      };
+    }
+    return {
+      result: false,
+      reason: '',
+    };
   }
 
   public updateCourseNumberOfHoles(): void {
