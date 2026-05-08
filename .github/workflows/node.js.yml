@@ -13,6 +13,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      # Export the secret as an env variable for the job
+      GOLF_COURSE_API_KEY: DUMMY_TEST_KEY
+
     strategy:
       matrix:
         node-version: [22.x, 24.x]
