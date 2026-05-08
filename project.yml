@@ -1,4 +1,0 @@
-# project.yml – root of the repo
-# App Platform build-time templating injects the encrypted secret value here.
-env:
-  PUBLIC_GOLF_COURSE_API_KEY: ${GOLF_COURSE_API_KEY}
