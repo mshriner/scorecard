@@ -1,0 +1,32 @@
+I want to implement a new feature to my golf scorecard app that allows the user to search a public API for a 
+golf course (data structure in my app is at src/app/models/course.ts).
+
+First some pre-work:
+install the openapi generator as a dev dependency and create a new script in package.json for turning the data in golfcourseapi-openapi.yml into Typescript classes under a new folder src/app/models/generated.
+Then execute this workflow iteratively until successful. Make sure as part of this script in package.json that the folder is cleared before generation is re-attempted.
+
+
+Now fore the feature (get it?)
+Upon opening the "edit-course" page, if the user is not editing an existing course, 
+
+show a mat-card with 2 options: "search for a course using GolfCourseAPI" or "enter manually". 
+"enter manually" will hide the mat-card and cause the page to behave as it does today.
+"search for a course" will cause a mat-stepper to show.
+
+show a new stepper at the top of the screen (https://material.angular.dev/components/stepper/overview). allow the stepper to be closed at any time with an X or cancel button.
+First step  has a material input for the course name and a search button.
+- when search is clicked, send a request to golf course API (modeled in golfcourseapi-openapi.yml). ensure that the appropriate authorization key is provided.
+
+How to get the key:
+- create a file in a new top-level folder called secrets. make sure to ignore this in .gitignore. when running locally, reference the value in this file.
+- when running on a server, utilize Angular's envorinment variables feature to grab the key value (come up with a good key name for me to use for the server later)
+
+If there are matches, show them in step 2 of the stepper. if there are no search results, say so using a snackbar message and stay in step 1. In step 2, allow the user to select which match they prefer, then move to step 3
+in step 3, explain briefly that some courses may assign different par values to men and women, and ask for a selection (male/female).
+in step 4, ask which tees the user is playing at most often.
+After this is complete, select the correct set of hole data from the response object. convert the  data as defined in the generated classes into the domain object in course.ts.
+
+
+After reading these instructions, double-check for thorough understanding of the feature request. Ask any clarifying questions that would assist you in accomplishing this task, and amend this file with any clarifications.
+
+Thanks!
