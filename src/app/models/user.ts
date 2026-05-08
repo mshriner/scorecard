@@ -12,6 +12,7 @@ export enum AppTheme {
 interface UserBaseData extends StorageObject {
   name: string;
   appFontScaling: number;
+  scoringGender?: 'male' | 'female';
 }
 
 export interface User extends UserBaseData {
@@ -56,4 +57,5 @@ export const USER_EXAMPLE: User = {
   roundIds: ['round1'],
   courseIds: ['course1'],
   appFontScaling: 1,
+  scoringGender: 'female',
 };

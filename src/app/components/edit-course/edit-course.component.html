@@ -1,177 +1,354 @@
 <form>
-  <div class="full-width-center">
-    <mat-form-field class="almost-full-width-input">
-      <mat-label>Course Name</mat-label>
-      <input
-        matInput
-        type="text"
-        [(ngModel)]="editingCourse.name"
-        [ngModelOptions]="{ standalone: true }"
-        autofocus="true"
-        (change)="updateUnsavedData()"
-        (keyup)="updateUnsavedData()"
-        (paste)="updateUnsavedData()"
-        (input)="updateUnsavedData()"
-      />
-    </mat-form-field>
-  </div>
-
-  @if (courseIdToEdit) {
+  @if (mode() === 'edit') {
     <div class="full-width-center">
-      <mat-card appearance="outlined" class="center-text">
+      <mat-form-field class="almost-full-width-input">
+        <mat-label>Course Name</mat-label>
+        <input
+          matInput
+          type="text"
+          [(ngModel)]="editingCourse.name"
+          [ngModelOptions]="{ standalone: true }"
+          autofocus="true"
+          (change)="updateUnsavedData()"
+          (keyup)="updateUnsavedData()"
+          (paste)="updateUnsavedData()"
+          (input)="updateUnsavedData()"
+        />
+      </mat-form-field>
+    </div>
+
+    @if (courseIdToEdit) {
+      <div class="full-width-center">
+        <mat-card appearance="outlined" class="center-text">
+          <mat-card-content>
+            <span>
+              Course Length:
+              <b>{{
+                editingCourse.numberOfHoles | courseVariety | titlecase
+              }}</b>
+            </span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <br />
+    } @else {
+      <div class="full-width-center">
+        <mat-form-field class="almost-full-width-input">
+          <mat-label>Course Length</mat-label>
+          <mat-select
+            [(value)]="editingCourse.numberOfHoles"
+            (selectionChange)="updateUnsavedData()"
+          >
+            @for (variety of COURSE_VARIETIES; track $index) {
+              <mat-option value="{{ variety }}">{{
+                variety | courseVariety
+              }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    }
+
+    <ng-container *ngTemplateOutlet="saveActions" />
+
+    <table
+      mat-table
+      multiTemplateDataRows
+      [dataSource]="
+        editingCourse.par | courseVarietySlice: editingCourse.numberOfHoles
+      "
+    >
+      @for (column of COURSE_TABLE_COLUMNS; track $index) {
+        <ng-container [matColumnDef]="column.columnDef">
+          <th mat-header-cell *matHeaderCellDef class="center-text">
+            {{ column.header }}
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let row; let index = dataIndex"
+            class="center-text"
+          >
+            @switch (column.columnDef) {
+              @case (HOLE_COL) {
+                <b>
+                  {{ index + 1 }}
+                </b>
+              }
+              @case (PAR_COL) {
+                <div class="hole-par-adjustment">
+                  @if (!imported) {
+                    <button
+                      mat-icon-button
+                      class="plusminus"
+                      (click)="parMinusOne(index)"
+                    >
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                  }
+                  <div class="par-value-box">
+                    {{ editingCourse.par[index] }}
+                  </div>
+                  @if (!imported) {
+                    <button
+                      mat-icon-button
+                      class="plusminus"
+                      (click)="parPlusOne(index)"
+                    >
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  }
+                </div>
+              }
+            }
+          </td>
+          <td
+            mat-footer-cell
+            *matFooterCellDef
+            class="center-text border-top thick-top-border"
+          >
+            <b>
+              @if (column.columnDef === HOLE_COL) {
+                Total
+              } @else if (column.columnDef === PAR_COL) {
+                {{ editingCourse | par: undefined : parToShow }}
+              }
+            </b>
+          </td>
+        </ng-container>
+      }
+      @for (column of COURSE_TABLE_SUMMARY_COLUMN_IDS; track $index) {
+        <ng-container [matColumnDef]="column">
+          <td
+            mat-cell
+            *matCellDef="let row; let index = dataIndex"
+            class="center-text thick-bottom-border"
+          >
+            @switch (column) {
+              @case (HOLE_SUMMARY_COL) {
+                @if (index === 8) {
+                  Out
+                } @else {
+                  In
+                }
+              }
+              @case (PAR_SUMMARY_COL) {
+                {{
+                  editingCourse
+                    | par: undefined : (index === 8 ? FRONT_NINE : BACK_NINE)
+                }}
+              }
+            }
+          </td>
+        </ng-container>
+      }
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="COURSE_TABLE_COLUMN_IDS; sticky: true"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="
+          let row;
+          let i = dataIndex;
+          columns: COURSE_TABLE_COLUMN_IDS;
+          when: returnTrue
+        "
+        [class.invalid]="!editingCourse.par[i]"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="
+          let row;
+          columns: COURSE_TABLE_SUMMARY_COLUMN_IDS;
+          when: showSummaryRow
+        "
+      ></tr>
+      <tr
+        mat-footer-row
+        *matFooterRowDef="COURSE_TABLE_COLUMN_IDS; sticky: true"
+      ></tr>
+    </table>
+
+    <br />
+    <ng-container *ngTemplateOutlet="saveActions" />
+  } @else if (showStepper()) {
+    <mat-stepper
+      #searchStepper
+      orientation="vertical"
+      linear
+      (selectionChange)="onStepperSelectionChange($event)"
+    >
+      <mat-step>
+        <ng-template matStepLabel>Search for Course</ng-template>
+        <mat-form-field>
+          <mat-label>Course Name</mat-label>
+          <input
+            #searchQueryInput
+            matInput
+            required
+            [(ngModel)]="searchQuery"
+            [ngModelOptions]="{ standalone: true }"
+          />
+        </mat-form-field>
+
+        <div class="full-width">
+          <div class="spinner-container">
+            @if (searchingForCourses()) {
+              <mat-spinner class="icon-size"></mat-spinner>
+            }
+          </div>
+          <div class="align-right">
+            <button
+              mat-stroked-button
+              (click)="searchCourses()"
+              [disabled]="!isOnline()"
+            >
+              <mat-icon>search</mat-icon>
+              Search
+              @if (!isOnline()) {
+                (Offline)
+              }
+            </button>
+          </div>
+        </div>
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Select Course</ng-template>
+        @if (searchResults().length > 0) {
+          <mat-radio-group
+            [value]="selectedCourseFromSearch()"
+            (change)="selectedCourseFromSearch.set($event.value)"
+            required
+            class="course-search-choices"
+          >
+            @for (course of searchResults(); track course.id) {
+              <mat-radio-button [value]="course">
+                <div class="course-name">
+                  {{ course.club_name || 'Unknown Club' }}
+                  @if (course.course_name !== course.club_name) {
+                    -
+                    {{ course.course_name || 'Unknown Course' }}
+                  }
+                </div>
+                @if (course.location?.city && course.location?.state) {
+                  <div class="course-location">
+                    {{ course.location!.city }}, {{ course.location!.state }}
+                  </div>
+                }
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+          <ng-container
+            *ngTemplateOutlet="
+              nextButton;
+              context: { condition: selectedCourseFromSearch() }
+            "
+          />
+        } @else {
+          <p>No courses found. Go back to search.</p>
+        }
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Select Scoring Prefenence</ng-template>
+        <p>
+          Please select the scoring profile (Men's or Women's) you would like to
+          use for this round. This is used solely to determine hole par values
+          based on course data.
+        </p>
+        <mat-radio-group
+          [value]="selectedGender()"
+          (change)="setUserScoringGender($event.value)"
+          required
+          class="gender-select"
+        >
+          <mat-radio-button value="male">Male</mat-radio-button>
+          <mat-radio-button value="female">Female</mat-radio-button>
+        </mat-radio-group>
+        <ng-container
+          *ngTemplateOutlet="
+            nextButton;
+            context: { condition: selectedGender() }
+          "
+        />
+      </mat-step>
+      <mat-step>
+        <ng-template matStepLabel>Select Tees</ng-template>
+        @if (selectedCourseFromSearch() && selectedGender()) {
+          <mat-radio-group
+            [value]="selectedTee()"
+            (change)="selectedTee.set($event.value)"
+            required
+          >
+            @for (
+              tee of selectedCourseFromSearch()!.tees![selectedGender()!];
+              track tee.tee_name
+            ) {
+              <mat-radio-button [value]="tee">
+                {{ tee.tee_name }} - Par {{ tee.par_total }} -
+                {{ tee.total_yards }} yards
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+          <ng-container
+            *ngTemplateOutlet="
+              nextButton;
+              context: { condition: selectedTee() }
+            "
+          />
+        } @else {
+          <p>Please select a course and gender first.</p>
+        }
+      </mat-step>
+      <mat-step [editable]="false">
+        <ng-template matStepLabel>Finalize Course</ng-template>
+      </mat-step>
+      <ng-template #nextButton let-condition="condition">
+        @if (condition) {
+          <div class="align-right">
+            <button mat-stroked-button matStepperNext [disabled]="!condition">
+              <mat-icon>redo</mat-icon>
+              Next
+            </button>
+          </div>
+        }
+      </ng-template>
+    </mat-stepper>
+    <div class="full-width-center space-evenly">
+      <button mat-stroked-button (click)="closeStepper()">
+        <mat-icon>cancel</mat-icon>
+        Cancel
+      </button>
+    </div>
+  } @else {
+    <!-- Initial choice -->
+    <div class="mode-choice">
+      <mat-card appearance="outlined" class="full-width-center">
         <mat-card-content>
-          <span>
-            Course Length:
-            <b>{{ editingCourse.numberOfHoles | courseVariety | titlecase }}</b>
-          </span>
+          <div class="space-evenly">Choose how to create a course.</div>
+          <mat-divider class="divider-padding" />
+          <div class="space-evenly">
+            <button
+              mat-stroked-button
+              (click)="startSearch()"
+              [disabled]="!isOnline()"
+            >
+              <mat-icon>search</mat-icon>
+              Search
+              @if (!isOnline()) {
+                (Offline)
+              }
+            </button>
+            <span class="align-center-vertically">OR</span>
+            <button mat-stroked-button (click)="enterManual()">
+              <mat-icon>edit</mat-icon>
+              Manually
+            </button>
+          </div>
         </mat-card-content>
       </mat-card>
     </div>
-    <br />
-  } @else {
-    <div class="full-width-center">
-      <mat-form-field class="almost-full-width-input">
-        <mat-label>Course Length</mat-label>
-        <mat-select
-          [(value)]="editingCourse.numberOfHoles"
-          (selectionChange)="updateUnsavedData()"
-        >
-          @for (variety of COURSE_VARIETIES; track $index) {
-            <mat-option value="{{ variety }}">{{
-              variety | courseVariety
-            }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </div>
   }
-
-  <ng-container *ngTemplateOutlet="saveActions" />
-
-  <table
-    mat-table
-    multiTemplateDataRows
-    [dataSource]="
-      editingCourse.par | courseVarietySlice: editingCourse.numberOfHoles
-    "
-  >
-    @for (column of COURSE_TABLE_COLUMNS; track $index) {
-      <ng-container [matColumnDef]="column.columnDef">
-        <th mat-header-cell *matHeaderCellDef class="center-text">
-          {{ column.header }}
-        </th>
-        <td
-          mat-cell
-          *matCellDef="let row; let index = dataIndex"
-          class="center-text"
-        >
-          @switch (column.columnDef) {
-            @case (HOLE_COL) {
-              <b>
-                {{ index + 1 }}
-              </b>
-            }
-            @case (PAR_COL) {
-              <div class="hole-par-adjustment">
-                @if (!imported) {
-                  <button
-                    mat-icon-button
-                    class="plusminus"
-                    (click)="parMinusOne(index)"
-                  >
-                    <mat-icon>remove</mat-icon>
-                  </button>
-                }
-                <div class="par-value-box">
-                  {{ editingCourse.par[index] }}
-                </div>
-                @if (!imported) {
-                  <button
-                    mat-icon-button
-                    class="plusminus"
-                    (click)="parPlusOne(index)"
-                  >
-                    <mat-icon>add</mat-icon>
-                  </button>
-                }
-              </div>
-            }
-          }
-        </td>
-        <td
-          mat-footer-cell
-          *matFooterCellDef
-          class="center-text border-top thick-top-border"
-        >
-          <b>
-            @switch (column.columnDef) {
-              @case (HOLE_COL) {
-                Total
-              }
-              @case (PAR_COL) {
-                {{ editingCourse | par: undefined : parToShow }}
-              }
-            }
-          </b>
-        </td>
-      </ng-container>
-    }
-    @for (column of COURSE_TABLE_SUMMARY_COLUMN_IDS; track $index) {
-      <ng-container [matColumnDef]="column">
-        <td
-          mat-cell
-          *matCellDef="let row; let index = dataIndex"
-          class="center-text thick-bottom-border"
-        >
-          @switch (column) {
-            @case (HOLE_SUMMARY_COL) {
-              @if (index === 8) {
-                Out
-              } @else {
-                In
-              }
-            }
-            @case (PAR_SUMMARY_COL) {
-              {{
-                editingCourse
-                  | par: undefined : (index === 8 ? FRONT_NINE : BACK_NINE)
-              }}
-            }
-          }
-        </td>
-      </ng-container>
-    }
-
-    <tr
-      mat-header-row
-      *matHeaderRowDef="COURSE_TABLE_COLUMN_IDS; sticky: true"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="
-        let row;
-        let i = dataIndex;
-        columns: COURSE_TABLE_COLUMN_IDS;
-        when: returnTrue
-      "
-      [class.invalid]="!editingCourse.par[i]"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="
-        let row;
-        columns: COURSE_TABLE_SUMMARY_COLUMN_IDS;
-        when: showSummaryRow
-      "
-    ></tr>
-    <tr
-      mat-footer-row
-      *matFooterRowDef="COURSE_TABLE_COLUMN_IDS; sticky: true"
-    ></tr>
-  </table>
-
-  <br />
-  <ng-container *ngTemplateOutlet="saveActions" />
 </form>
 <br />
 
@@ -197,7 +374,7 @@
       />
     }
     <button
-      mat-stroked-button
+      matButton="filled"
       (click)="saveCourse()"
       [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
     >

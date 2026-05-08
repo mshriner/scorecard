@@ -57,8 +57,8 @@
         <mat-label>Add Notes For Your Round</mat-label>
         <textarea
           matInput
-          autosize
-          [minRows]="1"
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
           #notes
           maxlength="{{ ROUND_NOTES_MAX_LENGTH }}"
           [(ngModel)]="editingRound.generalNotes"
@@ -491,7 +491,7 @@
     }
     @if (coursesToChooseFrom.length) {
       <button
-        mat-stroked-button
+        matButton="filled"
         (click)="saveRound()"
         [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
       >

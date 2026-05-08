@@ -1,8 +1,10 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
+  afterNextRender,
   Component,
   HostListener,
   inject,
+  Injector,
   OnInit,
   signal,
   Signal,
@@ -19,7 +21,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { AutosizeModule } from 'ngx-autosize';
 import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import {
   APP_ROUTES,
@@ -39,6 +40,7 @@ import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 
+import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
@@ -71,7 +73,6 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
     TypedTemplateDirective,
     MatDialogModule,
     MatRippleModule,
-    AutosizeModule,
     NgTemplateOutlet,
   ],
   providers: [provideNativeDateAdapter()],
@@ -80,6 +81,7 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
 })
 export class EditRoundComponent implements OnInit {
   appStateService = inject(AppStateService);
+  private readonly _injector = inject(Injector);
   private readonly courseService = inject(CourseService);
   private readonly roundService = inject(RoundService);
   private readonly router = inject(NavigationMessageService);
@@ -152,6 +154,7 @@ export class EditRoundComponent implements OnInit {
   public readonly menuOpen = signal('');
 
   courseSelectInput: Signal<MatSelect | undefined> = viewChild('courseSelect');
+  autosize: Signal<CdkTextareaAutosize | undefined> = viewChild('autosize');
 
   @HostListener('document:keydown.enter', ['$event'])
   handleEnterKey(event: Event): void {
@@ -216,6 +219,18 @@ export class EditRoundComponent implements OnInit {
     if (this.redirectToHome) {
       this.router.navigateByUrl(APP_ROUTES.HOME);
     }
+  }
+
+  triggerResize() {
+    // Wait for content to render, then trigger textarea resize.
+    afterNextRender(
+      () => {
+        this.autosize()?.resizeToFitContent(true);
+      },
+      {
+        injector: this._injector,
+      },
+    );
   }
 
   public updateCurrentCourse(newCourseId: string): void {

@@ -188,6 +188,18 @@ mat-dialog-actions {
   display: none;
 }
 
+.divider-padding {
+  margin-top: 14px !important;
+  margin-bottom: 14px !important;
+}
+
+mat-step-header {
+  z-index: 2;
+  position: sticky !important;
+  top: 0;
+  background-color: var(--mat-sys-background) !important;
+}
+
 // hacky way to get select all option to work in mat-select
 .select-all {
   padding: 5px 5px;

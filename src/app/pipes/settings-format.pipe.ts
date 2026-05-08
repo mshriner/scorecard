@@ -28,15 +28,16 @@ export class FormatTextSizePipe implements PipeTransform {
 
 @Pipe({ name: 'formatAppTheme' })
 export class FormatAppThemePipe implements PipeTransform {
-  transform(value?: AppTheme, short?: 'short'): string {
+  transform(value?: AppTheme, short = 'short'): string {
+    const useShort = short === 'short';
     switch (value) {
       case AppTheme.LIGHT:
-        return short ? 'Light' : 'Light Mode';
+        return useShort ? 'Light' : 'Light Mode';
       case AppTheme.DARK:
-        return short ? 'Dark' : 'Dark Mode';
+        return useShort ? 'Dark' : 'Dark Mode';
       case AppTheme.SYSTEM:
       default:
-        return short ? 'Sys' : 'System Theme';
+        return useShort ? 'Sys' : 'System Theme';
     }
   }
 }
