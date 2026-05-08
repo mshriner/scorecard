@@ -154,6 +154,12 @@ export class EditCourseComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      if (this.mode() === 'initial-choice' && !this.isOnline()) {
+        this.mode.set('edit');
+        this.snackBarService.openTemporarySnackBar(
+          'No internet connection. Unable to search for courses.',
+        );
+      }
       if (this.mode() === 'edit' && this.courseIdToEdit) {
         this.appStateService.setPageTitle(
           `Edit Course: ${this.editingCourse.name}`,
