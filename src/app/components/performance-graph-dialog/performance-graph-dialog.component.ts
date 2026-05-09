@@ -133,7 +133,7 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
         domain: this.graphData.percent ? [0, 100] : undefined,
         percent: this.graphData.percent,
         label: `${this.graphData.yAxisLabel.trim()}${this.graphData.percent ? ' (%)' : ''}`,
-        tickSpacing: 50,
+        tickSpacing: 60,
         tickSize: 20,
         nice: !this.graphData.percent,
         tickFormat: this.graphData.scoreToPar
@@ -142,14 +142,14 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
       },
       x: {
         domain: this.evenlySpaceRounds()
-          ? [0, this.graphData.sortedDataPoints.length - 1] // intentional off-by-one to give space for tick label
+          ? [0, (this.graphData.sortedDataPoints.length - 1) * 1.2] // Add some extra space at the end of the graph for readability of the date label
           : undefined,
         type: this.evenlySpaceRounds() ? undefined : 'time',
         interval: this.evenlySpaceRounds() ? undefined : 'day',
-        tickSize: 20,
+        tickSize: 30,
         nice: !this.evenlySpaceRounds(),
-        tickSpacing: this.evenlySpaceRounds() ? 175 : undefined,
-        tickRotate: this.evenlySpaceRounds() ? 15 : undefined,
+        tickSpacing: this.evenlySpaceRounds() ? 175 : 95,
+        tickRotate: this.evenlySpaceRounds() ? 30 : undefined,
         tickFormat: this.evenlySpaceRounds()
           ? this.formatDiscreteDate
           : undefined,
@@ -157,10 +157,10 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
       style: {
         fontSize: '36px',
       },
-      marginBottom: 95,
-      marginLeft: 90,
+      marginBottom: 120,
+      marginLeft: 100,
       marginTop: 75,
-      marginRight: 40,
+      marginRight: 60,
       symbol: {
         transform: (point) => this.roundVarietyPipe.transform(point),
         legend: true,
