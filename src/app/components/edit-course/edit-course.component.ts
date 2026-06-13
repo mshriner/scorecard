@@ -1,5 +1,6 @@
 import { NgTemplateOutlet, TitleCasePipe } from '@angular/common';
 import {
+  ChangeDetectorRef,
   Component,
   computed,
   effect,
@@ -83,6 +84,7 @@ import { DeleteCourseDialogComponent } from '../delete-course-dialog/delete-cour
 })
 export class EditCourseComponent implements OnInit {
   appStateService = inject(AppStateService);
+  private readonly changeDetection = inject(ChangeDetectorRef);
   private readonly courseService = inject(CourseService);
   private readonly dialog = inject(MatDialog);
   private readonly roundService = inject(RoundService);
@@ -527,6 +529,7 @@ export class EditCourseComponent implements OnInit {
           this.snackBarService.openTemporarySnackBar(
             `Course "${importedCourse.name}" was imported successfully.`,
           );
+          this.changeDetection.markForCheck();
           return true;
         } else {
           this.snackBarService.openTemporarySnackBar(
