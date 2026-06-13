@@ -5,8 +5,8 @@ if ($updateMajor -match '^[Yy]') {
     $ngSuffix = ""
 }
 
-npm install -g @angular/cli@latest
-npm install @angular/cli@latest --save-dev
+npm install -g @angular/cli$ngSuffix
+npm install @angular/cli$ngSuffix --save-dev
 
 git reset
 git add .\package.json .\package-lock.json
