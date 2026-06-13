@@ -231,7 +231,7 @@
                     {{ course.course_name || 'Unknown Course' }}
                   }
                 </div>
-                @if (course.location?.city && course.location?.state) {
+                @if (course.location?.city && course.location.state) {
                   <div class="course-location">
                     {{ course.location!.city }}, {{ course.location!.state }}
                   </div>
@@ -250,7 +250,7 @@
         }
       </mat-step>
       <mat-step>
-        <ng-template matStepLabel>Select Scoring Prefenence</ng-template>
+        <ng-template matStepLabel>Select Scoring Preference</ng-template>
         <p>
           Please select the scoring profile (Men's or Women's) you would like to
           use for this round. This is used solely to determine hole par values
@@ -377,9 +377,7 @@
     <div
       (click)="
         disableSaveCourseButton.result &&
-          snackBarService.openTemporarySnackBar(
-            disableSaveCourseButton.reason
-          )
+          snackBarService.openTemporarySnackBar(disableSaveCourseButton.reason)
       "
     >
       <button
