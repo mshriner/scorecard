@@ -6,7 +6,7 @@
     "ng": "ng",
     "prestart": "node scripts/load-secrets.js",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --configuration development",
     "prebuild": "node scripts/write-build-env.js",
     "prebuild:prod": "node scripts/write-build-env.js",
     "build:prod": "ng build --configuration production",
