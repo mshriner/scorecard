@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const secretsPath = join(__dirname, '../secrets/api-key.txt');
-const envPath = join(__dirname, '../src/environments/environment.ts');
+const envPath = join(__dirname, '../src/environments/environment.dev.ts');
 
 try {
   // Read the API key from secrets file
