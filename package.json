@@ -12,8 +12,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "format": "prettier --write .",
+    "format:generated": "prettier --write ./src/app/models/generated",
     "lint": "eslint .",
-    "generate-api": "node scripts/generate-api.js"
+    "generate-api": "node scripts/generate-api.js && npm run format:generated"
   },
   "private": true,
   "dependencies": {
