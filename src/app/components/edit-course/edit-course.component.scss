@@ -1,6 +1,63 @@
-.invalid {
-  background-color: red;
+.course-option {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+
+  .course-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .course-location {
+    font-size: 0.875em;
+    color: rgba(0, 0, 0, 0.6);
+    font-style: italic;
+  }
 }
+
 tr {
   transition: 500ms;
+}
+
+.align-center-vertically {
+  align-content: center;
+  padding-inline: 8px;
+}
+
+.mode-choice {
+  padding-inline: 8px;
+}
+
+.align-right {
+  justify-content: flex-end;
+  display: flex;
+}
+
+.gender-select {
+  display: flex;
+  column-gap: 16px;
+}
+
+.tees-select {
+  display: flex;
+  flex-direction: column;
+}
+
+.spinner-container {
+  position: absolute;
+  padding-left: 72px;
+}
+
+.icon-size {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.course-search-choices {
+  display: grid;
+  row-gap: 12px;
 }

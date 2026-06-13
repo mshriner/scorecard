@@ -11,9 +11,9 @@ import { ParPipe } from './par.pipe';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 import { RoundVarietyPipe } from './round-variety.pipe';
 import { ScoreToParPipe, WordForScoreToParPipe } from './score-to-par.pipe';
+import { FormatAppThemePipe, FormatTextSizePipe } from './settings-format.pipe';
 import { TotalPuttsPipe } from './total-putts.pipe';
 import { TotalRoundScorePipe } from './total-round-score.pipe';
-import { FormatAppThemePipe, FormatTextSizePipe } from './settings-format.pipe';
 
 @NgModule({
   imports: [

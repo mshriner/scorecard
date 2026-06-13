@@ -18,6 +18,9 @@ yarn-error.log
 .c9/
 *.launch
 .settings/
+
+# Secrets
+secrets/
 *.sublime-workspace
 
 # Visual Studio Code

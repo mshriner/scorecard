@@ -76,8 +76,8 @@
         <textarea
           id="notes-for-round-input"
           matInput
-          autosize
-          [minRows]="1"
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
           #notesForRoundInput
           maxlength="{{ ROUND_NOTES_MAX_LENGTH }}"
           [(ngModel)]="editingRound.generalNotes"
@@ -90,7 +90,7 @@
         >
         </textarea>
         <mat-hint align="end"
-          >{{ notesForRoundInput?.value?.length || 0 }} / 1000</mat-hint
+          >{{ notesForRoundInput?.value.length || 0 }} / 1000</mat-hint
         >
       </mat-form-field>
     </div>
@@ -518,7 +518,7 @@
         "
       >
         <button
-          mat-stroked-button
+          matButton="filled"
           (click)="saveRound()"
           [disabled]="disableSaveButton.result"
         >
