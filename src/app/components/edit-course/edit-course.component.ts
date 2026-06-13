@@ -137,6 +137,9 @@ export class EditCourseComponent implements OnInit {
   ];
   public readonly COURSE_VARIETIES = Object.values(CourseVariety);
 
+  private readonly NO_INTERNET =
+    'No internet connection. Unable to search for courses.';
+
   @HostListener('document:keydown.enter', ['$event'])
   handleEnterKey(event: Event): void {
     if (
@@ -158,9 +161,7 @@ export class EditCourseComponent implements OnInit {
     effect(() => {
       if (this.mode() === 'initial-choice' && !this.isOnline()) {
         this.mode.set('edit');
-        this.snackBarService.openTemporarySnackBar(
-          'No internet connection. Unable to search for courses.',
-        );
+        this.snackBarService.openTemporarySnackBar(this.NO_INTERNET);
       }
       if (this.mode() === 'edit' && this.courseIdToEdit) {
         this.appStateService.setPageTitle(
@@ -299,9 +300,8 @@ export class EditCourseComponent implements OnInit {
       return;
     }
     if (!this.isOnline()) {
-      this.snackBarService.openTemporarySnackBar(
-        'No internet connection. Unable to search for courses.',
-      );
+      this.snackBarService.openTemporarySnackBar(this.NO_INTERNET);
+      this.mode.set('edit');
       return;
     }
     this.searchingForCourses.set(true);
