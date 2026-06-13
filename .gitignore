@@ -21,7 +21,6 @@ yarn-error.log
 
 # Secrets
 secrets/
-src/environments/environment.ts
 *.sublime-workspace
 
 # Visual Studio Code
