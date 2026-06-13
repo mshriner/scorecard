@@ -279,6 +279,7 @@
             [value]="selectedTee()"
             (change)="selectedTee.set($event.value)"
             required
+            class="tees-select"
           >
             @for (
               tee of selectedCourseFromSearch()!.tees![selectedGender()!];

@@ -38,6 +38,11 @@ tr {
   column-gap: 16px;
 }
 
+.tees-select {
+  display: flex;
+  flex-direction: column;
+}
+
 .spinner-container {
   position: absolute;
   padding-left: 72px;
