@@ -3,10 +3,12 @@
   <pre class="preformatted-content">{{ data.content }}</pre>
 </mat-dialog-content>
 <mat-dialog-actions class="no-padding actions-center">
-  <button mat-stroked-button>
-    <mat-icon>download</mat-icon>
-    <a [href]="downloadHref" [download]="downloadName"> Download </a>
-  </button>
+  <a [href]="downloadHref" [download]="downloadName">
+    <button mat-stroked-button>
+      <mat-icon>download</mat-icon>
+      Download
+    </button>
+  </a>
   <button mat-stroked-button (click)="closeClicked()" cdkFocusInitial>
     <mat-icon>cancel</mat-icon>
     Close

@@ -23,3 +23,8 @@ export interface DataToShare {
 }
 
 export type ImportType = 'course' | 'round' | 'user';
+
+export interface YesNoReason {
+  result: boolean;
+  reason: string;
+}

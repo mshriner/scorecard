@@ -1,6 +1,7 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { assert, Mocked } from 'vitest';
+import { SNACKBAR_MESSAGES } from '../../models/constants';
 import { Course, CourseVariety } from '../../models/course';
 import { Round, RoundVariety } from '../../models/round';
 import { AppStateService } from '../../services/app-state.service';
@@ -303,16 +304,86 @@ describe('EditRoundComponent', () => {
     expect(component.editingRound.dateStringISO).toBe(date.toISOString());
   });
 
-  it('should disable save button if required fields are missing', () => {
+  it('should disable save button if no changes to save', () => {
+    (appStateService as any).unsavedDataOnPage.value = false;
     component.editingRound = {
       id: 'r6',
-      dateStringISO: '',
-      courseId: '',
-      strokes: [] as any,
-      putts: [] as any,
+      dateStringISO: new Date().toISOString(),
+      courseId: 'c6',
+      strokes: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      putts: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+      roundVariety: RoundVariety.FULL_NINE,
+      generalNotes: '',
+    };
+    expect(component.disableSaveButton.result).toBe(true);
+    expect(component.disableSaveButton.reason).toBe(
+      SNACKBAR_MESSAGES.NO_CHANGES_TO_SAVE,
+    );
+  });
+
+  it('should disable save button if date is invalid', () => {
+    (appStateService as any).unsavedDataOnPage.value = true;
+    component.editingRound = {
+      id: 'r7',
+      dateStringISO: 'invalid-date',
+      courseId: 'c7',
+      strokes: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      putts: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+      roundVariety: RoundVariety.FULL_NINE,
+      generalNotes: '',
+    };
+    expect(component.disableSaveButton.result).toBe(true);
+    expect(component.disableSaveButton.reason).toBe(
+      SNACKBAR_MESSAGES.DATE_REQUIRED,
+    );
+  });
+
+  it('should disable save button if round variety is missing', () => {
+    (appStateService as any).unsavedDataOnPage.value = true;
+    component.editingRound = {
+      id: 'r8',
+      dateStringISO: new Date().toISOString(),
+      courseId: 'c8',
+      strokes: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      putts: [1, 1, 1, 1, 1, 1, 1, 1, 1],
       roundVariety: null as any,
       generalNotes: '',
     };
-    expect(component.disableSaveButton).toBe(true);
+    expect(component.disableSaveButton.result).toBe(true);
+    expect(component.disableSaveButton.reason).toBe(
+      SNACKBAR_MESSAGES.ROUND_VARIETY_REQUIRED,
+    );
+  });
+
+  it('should disable save button if course is not selected', () => {
+    (appStateService as any).unsavedDataOnPage.value = true;
+    component.editingRound = {
+      id: 'r9',
+      dateStringISO: new Date().toISOString(),
+      courseId: '',
+      strokes: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      putts: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+      roundVariety: RoundVariety.FULL_NINE,
+      generalNotes: '',
+    };
+    expect(component.disableSaveButton.result).toBe(true);
+    expect(component.disableSaveButton.reason).toBe(
+      SNACKBAR_MESSAGES.COURSE_REQUIRED,
+    );
+  });
+
+  it('should enable save button if all required fields are valid', () => {
+    (appStateService as any).unsavedDataOnPage.value = true;
+    component.editingRound = {
+      id: 'r10',
+      dateStringISO: new Date().toISOString(),
+      courseId: 'c10',
+      strokes: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      putts: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+      roundVariety: RoundVariety.FULL_NINE,
+      generalNotes: '',
+    };
+    expect(component.disableSaveButton.result).toBe(false);
+    expect(component.disableSaveButton.reason).toBe('');
   });
 });
