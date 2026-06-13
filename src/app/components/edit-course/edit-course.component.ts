@@ -44,6 +44,7 @@ import {
   RoundVariety,
 } from '../../models/round';
 import { EighteenNumbers, NineNumbers } from '../../models/storage-object';
+import { GenderForScoring } from '../../models/user';
 import { CourseVarietySlicePipe } from '../../pipes/course-variety-slice.pipe';
 import { PipesModule } from '../../pipes/pipes.module';
 import { AppStateService } from '../../services/app-state.service';
@@ -107,7 +108,7 @@ export class EditCourseComponent implements OnInit {
   );
   public searchResults = signal<ApiCourse[]>([]);
   public selectedCourseFromSearch = signal<ApiCourse | null>(null);
-  public selectedGender = signal<'male' | 'female' | null>(null);
+  public selectedGender = signal<GenderForScoring | null>(null);
   public selectedTee = signal<TeeBox | null>(null);
   public isOnline = signal(navigator.onLine);
   public searchingForCourses = signal(false);
@@ -412,7 +413,7 @@ export class EditCourseComponent implements OnInit {
     );
   }
 
-  public setUserScoringGender(gender: 'male' | 'female'): void {
+  public setUserScoringGender(gender: GenderForScoring): void {
     this.selectedGender.set(gender);
   }
 

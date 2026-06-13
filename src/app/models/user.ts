@@ -12,8 +12,10 @@ export enum AppTheme {
 interface UserBaseData extends StorageObject {
   name: string;
   appFontScaling: number;
-  scoringGender?: 'male' | 'female';
+  scoringGender?: GenderForScoring;
 }
+
+export type GenderForScoring = 'male' | 'female'; // I support trans rights but golf does not :(
 
 export interface User extends UserBaseData {
   roundIds: string[];
