@@ -8,6 +8,7 @@
     "start": "ng serve",
     "build": "ng build",
     "prebuild": "node scripts/write-build-env.js",
+    "prebuild:prod": "node scripts/write-build-env.js",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

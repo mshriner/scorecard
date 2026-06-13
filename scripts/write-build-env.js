@@ -8,6 +8,9 @@ const envDir = join(rootDir, 'src', 'environments');
 const targetFile = join(envDir, 'environment.prod.ts');
 const secretsPath = join(rootDir, 'secrets', 'api-key.txt');
 
+const lifecycle = process.env.npm_lifecycle_event || '';
+const isProd = lifecycle === 'prebuild:prod' || lifecycle.endsWith(':prod');
+
 let apiKey = process.env.GOLF_COURSE_API_KEY;
 
 if (!apiKey && existsSync(secretsPath)) {
@@ -26,7 +29,7 @@ if (!apiKey) {
 }
 
 const fileContents = `export const environment = {
-  production: false,
+  production: ${isProd},
   golfCourseApiKey: ${JSON.stringify(apiKey)},
 };
 `;
@@ -34,5 +37,5 @@ const fileContents = `export const environment = {
 mkdirSync(envDir, { recursive: true });
 writeFileSync(targetFile, fileContents, 'utf8');
 console.log(
-  'Generated src/environments/environment.prod.ts from build env var.',
+  `Generated src/environments/environment.prod.ts from build env var (production=${isProd}).`,
 );
