@@ -1,4 +1,0 @@
-export const environment = {
-  production: false,
-  golfCourseApiKey: '${PUBLIC_GOLF_COURSE_API_KEY}',
-};
