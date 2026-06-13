@@ -4,43 +4,61 @@
 <form>
   @if (coursesToChooseFrom.length) {
     <div class="full-width-center">
-      <mat-form-field class="almost-full-width-input">
-        <mat-label>Select Course</mat-label>
-        <mat-select
-          #courseSelect
-          [(value)]="editingRound.courseId"
-          [disabled]="imported"
-          (selectionChange)="updateCurrentCourse($event.value)"
-        >
-          @for (course of coursesToChooseFrom; track course.id) {
-            <mat-option value="{{ course.id }}"
-              >{{ course.name }} (Par {{ course | par }})</mat-option
-            >
-          }
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field class="almost-full-width-input">
-        <mat-label>Select Holes Played</mat-label>
-        <mat-select
-          [(value)]="editingRound.roundVariety"
-          [disabled]="!editingRound.courseId || imported || isNineHoleCourse"
-          (selectionChange)="updateRoundVariety($event.value)"
-        >
-          @if (isNineHoleCourse) {
-            @for (variety of NINE_HOLE_ROUND_VARIETIES; track $index) {
-              <mat-option value="{{ variety }}">{{
-                variety | roundVariety
-              }}</mat-option>
+      <div
+        (click)="
+          imported &&
+            snackBarService.openTemporarySnackBar(
+              SNACKBAR_MESSAGES.IMPORTED_ROUND
+            )
+        "
+      >
+        <mat-form-field class="almost-full-width-input">
+          <mat-label>Select Course</mat-label>
+          <mat-select
+            #courseSelect
+            [(value)]="editingRound.courseId"
+            [disabled]="imported"
+            (selectionChange)="updateCurrentCourse($event.value)"
+          >
+            @for (course of coursesToChooseFrom; track course.id) {
+              <mat-option value="{{ course.id }}"
+                >{{ course.name }} (Par {{ course | par }})</mat-option
+              >
             }
-          } @else {
-            @for (variety of EIGHTEEN_HOLE_ROUND_VARIETIES; track $index) {
-              <mat-option value="{{ variety }}">{{
-                variety | roundVariety
-              }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div
+        (click)="
+          disableNumberOfHolesPlayed.result &&
+            snackBarService.openTemporarySnackBar(
+              disableNumberOfHolesPlayed.reason
+            )
+        "
+      >
+        <mat-form-field class="almost-full-width-input">
+          <mat-label>Select Holes Played</mat-label>
+          <mat-select
+            [(value)]="editingRound.roundVariety"
+            [disabled]="disableNumberOfHolesPlayed.result"
+            (selectionChange)="updateRoundVariety($event.value)"
+          >
+            @if (isNineHoleCourse) {
+              @for (variety of NINE_HOLE_ROUND_VARIETIES; track $index) {
+                <mat-option value="{{ variety }}">{{
+                  variety | roundVariety
+                }}</mat-option>
+              }
+            } @else {
+              @for (variety of EIGHTEEN_HOLE_ROUND_VARIETIES; track $index) {
+                <mat-option value="{{ variety }}">{{
+                  variety | roundVariety
+                }}</mat-option>
+              }
             }
-          }
-        </mat-select>
-      </mat-form-field>
+          </mat-select>
+        </mat-form-field>
+      </div>
       <mat-form-field class="almost-full-width-input">
         <mat-label>Change Date</mat-label>
         <input
@@ -56,10 +74,11 @@
       <mat-form-field class="almost-full-width-input">
         <mat-label>Add Notes For Your Round</mat-label>
         <textarea
+          id="notes-for-round-input"
           matInput
           cdkTextareaAutosize
           #autosize="cdkTextareaAutosize"
-          #notes
+          #notesForRoundInput
           maxlength="{{ ROUND_NOTES_MAX_LENGTH }}"
           [(ngModel)]="editingRound.generalNotes"
           [ngModelOptions]="{ standalone: true }"
@@ -70,7 +89,9 @@
           (input)="updateUnsavedData()"
         >
         </textarea>
-        <mat-hint align="end">{{ notes?.value?.length || 0 }} / 1000</mat-hint>
+        <mat-hint align="end"
+          >{{ notesForRoundInput?.value?.length || 0 }} / 1000</mat-hint
+        >
       </mat-form-field>
     </div>
   } @else {
@@ -490,24 +511,31 @@
       />
     }
     @if (coursesToChooseFrom.length) {
-      <button
-        matButton="filled"
-        (click)="saveRound()"
-        [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
+      <div
+        (click)="
+          disableSaveButton.result &&
+            snackBarService.openTemporarySnackBar(disableSaveButton.reason)
+        "
       >
-        <mat-icon>
+        <button
+          matButton="filled"
+          (click)="saveRound()"
+          [disabled]="disableSaveButton.result"
+        >
+          <mat-icon>
+            @if (roundIdToEdit && !imported) {
+              save_as
+            } @else {
+              save
+            }
+          </mat-icon>
           @if (roundIdToEdit && !imported) {
-            save_as
+            Update
           } @else {
-            save
+            Save
           }
-        </mat-icon>
-        @if (roundIdToEdit && !imported) {
-          Update
-        } @else {
-          Save
-        }
-      </button>
+        </button>
+      </div>
     } @else {
       <button mat-stroked-button (click)="addNewCourse()">
         <mat-icon>add</mat-icon>

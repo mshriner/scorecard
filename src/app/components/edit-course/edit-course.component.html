@@ -374,35 +374,53 @@
         accept="application/json"
       />
     }
-    <button
-      matButton="filled"
-      (click)="saveCourse()"
-      [disabled]="!appStateService.unsavedDataOnPage() || disableSaveButton"
+    <div
+      (click)="
+        disableSaveCourseButton.result &&
+          snackBarService.openTemporarySnackBar(
+            disableSaveCourseButton.reason
+          )
+      "
     >
-      <mat-icon>
+      <button
+        matButton="filled"
+        (click)="saveCourse()"
+        [disabled]="disableSaveCourseButton.result"
+      >
+        <mat-icon>
+          @if (courseIdToEdit && !imported) {
+            save_as
+          } @else {
+            save
+          }
+        </mat-icon>
         @if (courseIdToEdit && !imported) {
-          save_as
+          Update
         } @else {
-          save
+          Save
         }
-      </mat-icon>
-      @if (courseIdToEdit && !imported) {
-        Update
-      } @else {
-        Save
-      }
-    </button>
+      </button>
+    </div>
   </div>
   @if (courseIdToEdit && !imported) {
     <div class="full-width-center space-evenly">
-      <button
-        mat-stroked-button
-        (click)="shareCourse()"
-        [disabled]="isShareDisabled()"
+      <div
+        (click)="
+          disableSaveAndShareButtons.result &&
+            snackBarService.openTemporarySnackBar(
+              disableSaveAndShareButtons.reason
+            )
+        "
       >
-        <mat-icon>ios_share</mat-icon>
-        Share
-      </button>
+        <button
+          mat-stroked-button
+          (click)="shareCourse()"
+          [disabled]="disableSaveAndShareButtons.result"
+        >
+          <mat-icon>ios_share</mat-icon>
+          Share
+        </button>
+      </div>
     </div>
   }
 </ng-template>
