@@ -317,7 +317,10 @@ export class SharingService {
     ) {
       return null;
     }
-    if (!courseDTO?.numberOfHoles) {
+    if (
+      courseDTO?.numberOfHoles !== CourseVariety.NINE &&
+      courseDTO?.numberOfHoles !== CourseVariety.EIGHTEEN
+    ) {
       courseDTO.numberOfHoles =
         courseDTO?.par?.length === 9
           ? CourseVariety.NINE
