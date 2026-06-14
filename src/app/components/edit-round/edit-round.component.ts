@@ -1,6 +1,7 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -87,6 +88,7 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
 })
 export class EditRoundComponent implements OnInit {
   appStateService = inject(AppStateService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly _injector = inject(Injector);
   private readonly courseService = inject(CourseService);
   private readonly roundService = inject(RoundService);
@@ -581,11 +583,13 @@ export class EditRoundComponent implements OnInit {
                 this.updateUnsavedData();
                 setTimeout(() => {
                   this.courseSelectInput()?.writeValue(pickedCourse.id);
+                  this.changeDetector.markForCheck();
                 });
                 this.setRoundAndCourse(pickedCourse?.name, importedRound);
               } else {
                 this.setRoundAndCourse(originalCourseName, importedRound);
               }
+              this.changeDetector.markForCheck();
             });
         });
       }
@@ -599,6 +603,7 @@ export class EditRoundComponent implements OnInit {
         importedRound,
       );
     }
+    this.changeDetector.markForCheck();
     return true;
   }
 
