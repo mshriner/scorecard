@@ -535,6 +535,7 @@ export class EditCourseComponent implements OnInit {
           this.snackBarService.openTemporarySnackBar(
             'Failed to import the course.',
           );
+          this.changeDetection.markForCheck();
           return false;
         }
       },
