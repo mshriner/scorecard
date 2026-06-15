@@ -21,13 +21,14 @@ TL;DR - Add a small SpeechRecognitionService that wraps the Web Speech API, impl
    - Add unit tests for many phrasings and edge cases. _parallel with step 1._
 
 3. Add UI button & small affordance to `edit-round.component.html`.
-   - Small floating or inline microphone `mat-icon` button that toggles start/stop.
-   - Visual feedback: red/green mic, temporary transcript display, and small snackbar confirmations for applied intents.
+   - Small FAB `mat-icon` button that toggles start/stop.
+   - Visual feedback: red/green mic, temporary transcript display, and small snackbar confirmations for applied intents. (MAKE SURE TO USE ANGULAR MATERIAL VARIABLE NAMES RATHER THAN HARDCODED COLORS)
+   - Make showing this FAB togglable (on by default) in the settings menu (next to "new stroke input UI" and saved on the User object likewise)
    - Place near existing save/import controls so it's discoverable.
    - _depends on step 1._
 
 4. Hook service into `EditRoundComponent`.
-   - Inject `SpeechRecognitionService` using the existing `inject()` pattern.
+   - Inject `SpeechRecognitionService` using the existing `inject()` pattern.s
    - Add `toggleSpeechRecognition()` and `handleTranscript(text: string)` methods.
    - In `handleTranscript`, call `speechService.parseCommands(text)` and for each intent dispatch to appropriate local method (`setStrokes`, `setPutts`, `strokesPlusOne`, `strokesMinusOne`, `updateCurrentCourse` if course spoken, `dateChanged` for dates, `saveRound()` for "save round" intent).
    - Ensure calls respect `editingRound.roundVariety` and `isNineHoleCourse`.
