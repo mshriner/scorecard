@@ -511,6 +511,32 @@
       />
     }
     @if (coursesToChooseFrom.length) {
+      <!-- Microphone button for speech commands -->
+      @if (speechRecognitionService.isBrowserSupported()) {
+        <button
+          mat-icon-button
+          (click)="toggleSpeechRecognition()"
+          [attr.aria-pressed]="speechRecognitionService.isListening()"
+          [attr.aria-label]="
+            speechRecognitionService.isListening()
+              ? 'Stop speech recognition'
+              : 'Start speech recognition'
+          "
+          [class.speech-active]="speechRecognitionService.isListening()"
+          matTooltip="Speech commands (say 'par on hole 5, 2 putts')"
+          class="speech-button"
+        >
+          <mat-icon
+            [style.color]="
+              speechRecognitionService.isListening()
+                ? 'var(--color-warn)'
+                : 'inherit'
+            "
+          >
+            {{ speechRecognitionService.isListening() ? 'mic' : 'mic_none' }}
+          </mat-icon>
+        </button>
+      }
       <div
         (click)="
           disableSaveButton.result &&
