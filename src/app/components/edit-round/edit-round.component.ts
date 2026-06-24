@@ -59,6 +59,10 @@ import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
 import { NavigationMessageService } from '../../services/navigation-message.service';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
+import {
+  SpeechIntent,
+  SpeechRecognitionService,
+} from '../../services/speech-recognition.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 import { SelectCourseDialogComponent } from '../select-course-dialog/select-course-dialog.component';
@@ -80,6 +84,7 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
     MatDialogModule,
     MatRippleModule,
     NgTemplateOutlet,
+    MatTooltipModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './edit-round.component.html',
@@ -95,6 +100,7 @@ export class EditRoundComponent implements OnInit {
   private readonly sharingService = inject(SharingService);
   public readonly snackBarService = inject(SnackBarService);
   private readonly roundVarietyScoresPipe = inject(RoundVarietyScoresPipe);
+  private readonly speechRecognitionService = inject(SpeechRecognitionService);
 
   private readonly originalRound: Round;
   private readonly redirectToHome: boolean = false;
@@ -617,5 +623,136 @@ export class EditRoundComponent implements OnInit {
 
   public addNewCourse(): void {
     this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE);
+  }
+
+  /**
+   * Toggle speech recognition on/off
+   */
+  public toggleSpeechRecognition(): void {
+    if (this.speechRecognitionService.isListening()) {
+      this.speechRecognitionService.stopListening();
+    } else {
+      this.setupSpeechRecognition();
+      this.speechRecognitionService.startListening();
+    }
+  }
+
+  /**
+   * Setup speech recognition callbacks
+   */
+  private setupSpeechRecognition(): void {
+    this.speechRecognitionService.onResult((transcript: string) => {
+      this.handleSpeechTranscript(transcript);
+    });
+  }
+
+  /**
+   * Handle recognized speech transcript
+   */
+  private handleSpeechTranscript(transcript: string): void {
+    if (!transcript || transcript.trim().length === 0) {
+      return;
+    }
+
+    const intents = this.speechRecognitionService.parseCommands(transcript);
+    if (intents.length === 0) {
+      return;
+    }
+
+    const appliedActions: string[] = [];
+
+    for (const intent of intents) {
+      const action = this.applyIntent(intent);
+      if (action) {
+        appliedActions.push(action);
+      }
+    }
+
+    // Show feedback if any actions were applied
+    if (appliedActions.length > 0) {
+      const message = appliedActions.join('; ');
+      this.snackBarService.openTemporarySnackBar(
+        `Applied: ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}`,
+      );
+    }
+  }
+
+  /**
+   * Apply a single speech intent to the round
+   * Returns a human-readable description of the action taken, or null if no action
+   */
+  private applyIntent(intent: SpeechIntent): string | null {
+    // Validate hole number is within valid range for current round variety
+    if (intent.hole !== undefined) {
+      const maxHoles = this.editingRound.strokes.length;
+      if (intent.hole < 1 || intent.hole > maxHoles) {
+        return null;
+      }
+    }
+
+    const holeIndex = intent.hole !== undefined ? intent.hole - 1 : null;
+
+    switch (intent.type) {
+      case 'setStrokes': {
+        if (holeIndex === null || intent.value === undefined) {
+          return null;
+        }
+        // Convert score-to-par value to actual strokes
+        // intent.value represents score relative to par (0=par, 1=bogey, -1=birdie, etc.)
+        const parValue = this.currentCourse?.par[holeIndex];
+        if (!parValue) {
+          return null;
+        }
+        const strokes = parValue + intent.value;
+        this.setStrokes(holeIndex, strokes);
+        const scoreType =
+          intent.value === 0
+            ? 'Par'
+            : intent.value === -1
+              ? 'Birdie'
+              : intent.value === -2
+                ? 'Eagle'
+                : intent.value === 1
+                  ? 'Bogey'
+                  : intent.value === 2
+                    ? 'Double'
+                    : `${strokes}`;
+        return `Hole ${intent.hole} = ${scoreType}`;
+      }
+
+      case 'setPutts': {
+        if (holeIndex === null || intent.value === undefined) {
+          return null;
+        }
+        this.setPutts(holeIndex, intent.value);
+        return `Hole ${intent.hole} putts = ${intent.value}`;
+      }
+
+      case 'plusOneStroke': {
+        if (holeIndex === null) {
+          return null;
+        }
+        this.strokesPlusOne(holeIndex);
+        return `Hole ${intent.hole} + 1 stroke`;
+      }
+
+      case 'minusOneStroke': {
+        if (holeIndex === null) {
+          return null;
+        }
+        this.strokesMinusOne(holeIndex);
+        return `Hole ${intent.hole} - 1 stroke`;
+      }
+
+      case 'save': {
+        // Don't auto-save, just indicate it was recognized
+        return 'Save recognized (use button to confirm)';
+      }
+
+      case 'setCourse':
+      case 'unknown':
+      default:
+        return null;
+    }
   }
 }
