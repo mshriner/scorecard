@@ -329,8 +329,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
       holeResults.pars++;
     } else if (holeResultToPar === 1) {
       holeResults.bogeys++;
-    } else if (holeResultToPar >= 2) {
-      holeResults.doubleBogeysOrWorse++;
+    } else if (holeResultToPar === 2) {
+      holeResults.doubleBogeys++;
+    } else if (holeResultToPar >= 3) {
+      holeResults.tripleBogeysOrWorse++;
     }
 
     if (addHoleToAllCompletedRoundTotals) {

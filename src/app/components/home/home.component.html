@@ -430,8 +430,15 @@
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title />
               <mat-card-content class="padding-inline-8">
-                <sub> Doubles or Worse </sub>
-                <h3>{{ holeResultTotals().doubleBogeysOrWorse }}</h3>
+                <sub> Doubles </sub>
+                <h3>{{ holeResultTotals().doubleBogeys }}</h3>
+              </mat-card-content>
+            </mat-card>
+            <mat-card appearance="outlined" class="center-text">
+              <mat-card-title />
+              <mat-card-content class="padding-inline-8">
+                <sub> Triples or Worse </sub>
+                <h3>{{ holeResultTotals().tripleBogeysOrWorse }}</h3>
               </mat-card-content>
             </mat-card>
           </div>
@@ -451,7 +458,7 @@
                     {{
                       GRAPH_VARIETIES['score-on-par-3s'].yValueExtractor(
                         holeResultTotals()
-                      ) ?? 0 | number: '1.1-1'
+                      ) ?? 0 | number: '1.2-2'
                     }}
                   } @else {
                     --
@@ -478,7 +485,7 @@
                     {{
                       GRAPH_VARIETIES['score-on-par-4s'].yValueExtractor(
                         holeResultTotals()
-                      ) ?? 0 | number: '1.1-1'
+                      ) ?? 0 | number: '1.2-2'
                     }}
                   } @else {
                     --
@@ -508,7 +515,7 @@
                     {{
                       GRAPH_VARIETIES['score-on-par-5s'].yValueExtractor(
                         holeResultTotals()
-                      ) ?? 0 | number: '1.1-1'
+                      ) ?? 0 | number: '1.2-2'
                     }}
                   } @else {
                     --

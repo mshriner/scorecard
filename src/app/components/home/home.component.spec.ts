@@ -78,8 +78,8 @@ describe('HomeComponent', () => {
       id: 'r1',
       dateStringISO: new Date().toISOString(),
       courseId: 'c1',
-      strokes: [2, 3, 4, 5, 6], // eagle, birdie, par, bogey, double
-      putts: [1, 1, 2, 2, 2],
+      strokes: [2, 3, 4, 5, 6, 7], // eagle, birdie, par, bogey, double, triple
+      putts: [1, 1, 2, 2, 2, 2],
       roundVariety: 1,
       generalNotes: '',
     } as any;
@@ -87,7 +87,7 @@ describe('HomeComponent', () => {
       id: 'c1',
       name: 'Test Course',
       numberOfHoles: 5,
-      par: [4, 4, 4, 4, 4],
+      par: [4, 4, 4, 4, 4, 4],
     } as any;
     component.rounds.set([round]);
     component.filteredRounds.set([round]);
@@ -99,7 +99,8 @@ describe('HomeComponent', () => {
     expect(stats.birdies).toBe(1);
     expect(stats.pars).toBe(1);
     expect(stats.bogeys).toBe(1);
-    expect(stats.doubleBogeysOrWorse).toBe(1);
+    expect(stats.doubleBogeys).toBe(1);
+    expect(stats.tripleBogeysOrWorse).toBe(1);
   });
 
   it('should calculate inferred greens in regulation and scrambling', () => {

@@ -32,7 +32,8 @@ export interface HoleResults {
   birdies: number;
   pars: number;
   bogeys: number;
-  doubleBogeysOrWorse: number;
+  doubleBogeys: number;
+  tripleBogeysOrWorse: number;
   holesPlayed: number;
   holesPlayedWithPutts: number;
   putts: number;
@@ -72,7 +73,8 @@ export function createEmptyHoleResults(): HoleResults {
     birdies: 0,
     pars: 0,
     bogeys: 0,
-    doubleBogeysOrWorse: 0,
+    doubleBogeys: 0,
+    tripleBogeysOrWorse: 0,
 
     // total holes vs holes with putts
     holesPlayed: 0,
