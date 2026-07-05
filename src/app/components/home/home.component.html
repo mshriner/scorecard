@@ -1,4 +1,4 @@
-@if (rounds().length) {
+@if (statisticsService.rounds().length) {
   <div class="padding-inline-8">
     <mat-expansion-panel
       class="outlined"
@@ -31,8 +31,9 @@
                   All Courses
                 } @else {
                   {{
-                    courseMap().get(courseStatsFilter.value?.[0] || '')?.name ||
-                      ''
+                    statisticsService
+                      .courseMap()
+                      .get(courseStatsFilter.value?.[0] || '')?.name || ''
                   }}
                   @if ((courseStatsFilter.value?.length || 0) > 1) {
                     <span>
@@ -66,7 +67,9 @@
                   [value]="topping"
                   (click)="reevaluateAllSelectedStatus()"
                   (keydown)="reevaluateAllSelectedStatus()"
-                  >{{ courseMap().get(topping)?.name }}</mat-option
+                  >{{
+                    statisticsService.courseMap().get(topping)?.name
+                  }}</mat-option
                 >
               }
             </mat-select>
@@ -139,17 +142,21 @@
 
   <br />
 
-  @if (filteredRounds().length) {
+  @if (statisticsService.filteredRounds().length) {
     <div class="full-width-center">
       <mat-card appearance="outlined" class="center-text">
         <mat-card-content>
           <span>
             Showing
 
-            @if (filteredRounds().length === rounds().length) {
-              all rounds ({{ rounds().length }})
+            @if (
+              statisticsService.filteredRounds().length ===
+              statisticsService.rounds().length
+            ) {
+              all rounds ({{ statisticsService.rounds().length }})
             } @else {
-              {{ filteredRounds().length }} of {{ rounds().length }} rounds
+              {{ statisticsService.filteredRounds().length }} of
+              {{ statisticsService.rounds().length }} rounds
             }
           </span>
         </mat-card-content>
@@ -170,7 +177,7 @@
           matSort
           [matSortActive]="currentUser?.sortBy || ''"
           [matSortDirection]="currentUser?.sortDescending ? 'desc' : 'asc'"
-          [dataSource]="filteredRounds()"
+          [dataSource]="statisticsService.filteredRounds()"
           (matSortChange)="sortData($event)"
         >
           <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
@@ -191,7 +198,7 @@
               Course
             </mat-header-cell>
             <mat-cell *matCellDef="let round" class="center-text">
-              {{ courseMap().get(round.courseId)?.name }}
+              {{ statisticsService.courseMap().get(round.courseId)?.name }}
             </mat-cell>
           </ng-container>
           <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
@@ -205,7 +212,9 @@
             </mat-header-cell>
             <mat-cell *matCellDef="let round" class="center-text">
               {{ round | totalRoundScore }} ({{
-                round | scoreToPar: courseMap().get(round.courseId)
+                round
+                  | scoreToPar
+                    : statisticsService.courseMap().get(round.courseId)
               }})
             </mat-cell>
           </ng-container>
@@ -233,7 +242,8 @@
                 <br />
                 <sup>
                   @if (
-                    filteredRounds() | countValidRoundsToAverage: 9;
+                    statisticsService.filteredRounds()
+                      | countValidRoundsToAverage: 9;
                     as nineCount
                   ) {
                     @if (nineCount === 1) {
@@ -246,12 +256,15 @@
                   }
                 </sup>
                 <h3 class="average-result">
-                  {{ filteredRounds() | averageScore: 9 }} ({{
-                    filteredRounds() | averageScoreToPar: courseMap() : 9
+                  {{ statisticsService.filteredRounds() | averageScore: 9 }} ({{
+                    statisticsService.filteredRounds()
+                      | averageScoreToPar: statisticsService.courseMap() : 9
                   }})
                 </h3>
               </mat-card-content>
-              @if (holeResultTotals().completedNinesInAllRounds) {
+              @if (
+                statisticsService.holeResultTotals().completedNinesInAllRounds
+              ) {
                 <ng-container
                   *ngTemplateOutlet="
                     trendGraphButton;
@@ -272,7 +285,8 @@
                 <br />
                 <sup>
                   @if (
-                    (filteredRounds() | countValidRoundsToAverage: 18) / 2;
+                    (statisticsService.filteredRounds()
+                      | countValidRoundsToAverage: 18) / 2;
                     as eighteenCount
                   ) {
                     @if (eighteenCount === 1) {
@@ -285,12 +299,14 @@
                   }
                 </sup>
                 <h3 class="average-result">
-                  {{ filteredRounds() | averageScore: 18 }} ({{
-                    filteredRounds() | averageScoreToPar: courseMap() : 18
+                  {{ statisticsService.filteredRounds() | averageScore: 18 }}
+                  ({{
+                    statisticsService.filteredRounds()
+                      | averageScoreToPar: statisticsService.courseMap() : 18
                   }})
                 </h3>
               </mat-card-content>
-              @if (holeResultTotals().completed18HoleRounds) {
+              @if (statisticsService.holeResultTotals().completed18HoleRounds) {
                 <ng-container
                   *ngTemplateOutlet="
                     trendGraphButton;
@@ -314,10 +330,12 @@
                 <br />
                 <sup> Per 9 Holes </sup>
                 <h3 class="average-result">
-                  @if (holeResultTotals().holesPlayedWithPutts) {
+                  @if (
+                    statisticsService.holeResultTotals().holesPlayedWithPutts
+                  ) {
                     {{
                       GRAPH_VARIETIES['putts-all'].yValueExtractor(
-                        holeResultTotals()
+                        statisticsService.holeResultTotals()
                       ) ?? 0 | number: '1.1-1'
                     }}
                   } @else {
@@ -326,8 +344,8 @@
                 </h3>
               </mat-card-content>
               @if (
-                holeResultTotals().holesPlayedWithPutts &&
-                holeResultTotals().completedNinesInAllRounds
+                statisticsService.holeResultTotals().holesPlayedWithPutts &&
+                statisticsService.holeResultTotals().completedNinesInAllRounds
               ) {
                 <ng-container
                   *ngTemplateOutlet="
@@ -349,10 +367,13 @@
                 <br />
                 <sup> Full Rounds </sup>
                 <h3 class="average-result">
-                  @if (holeResultTotals().holesPlayedWithPuttsInFullRounds) {
+                  @if (
+                    statisticsService.holeResultTotals()
+                      .holesPlayedWithPuttsInFullRounds
+                  ) {
                     {{
                       GRAPH_VARIETIES['putts-18'].yValueExtractor(
-                        holeResultTotals()
+                        statisticsService.holeResultTotals()
                       ) ?? 0 | number: '1.1-1'
                     }}
                   } @else {
@@ -361,8 +382,9 @@
                 </h3>
               </mat-card-content>
               @if (
-                holeResultTotals().holesPlayedWithPuttsInFullRounds &&
-                holeResultTotals().completed18HoleRounds
+                statisticsService.holeResultTotals()
+                  .holesPlayedWithPuttsInFullRounds &&
+                statisticsService.holeResultTotals().completed18HoleRounds
               ) {
                 <ng-container
                   *ngTemplateOutlet="
@@ -381,7 +403,7 @@
               <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Holes Played </sub>
-                <h3>{{ holeResultTotals().holesPlayed }}</h3>
+                <h3>{{ statisticsService.holeResultTotals().holesPlayed }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
@@ -389,7 +411,10 @@
               <mat-card-content class="padding-inline-8">
                 <sub> Strokes Taken </sub>
                 <h3>
-                  {{ holeResultTotals().totalStrokesInAllCompletedRounds }}
+                  {{
+                    statisticsService.holeResultTotals()
+                      .totalStrokesInAllCompletedRounds
+                  }}
                 </h3>
               </mat-card-content>
             </mat-card>
@@ -400,21 +425,23 @@
               <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Eagles or Better </sub>
-                <h3>{{ holeResultTotals().eaglesOrBetter }}</h3>
+                <h3>
+                  {{ statisticsService.holeResultTotals().eaglesOrBetter }}
+                </h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Birdies </sub>
-                <h3>{{ holeResultTotals().birdies }}</h3>
+                <h3>{{ statisticsService.holeResultTotals().birdies }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Pars </sub>
-                <h3>{{ holeResultTotals().pars }}</h3>
+                <h3>{{ statisticsService.holeResultTotals().pars }}</h3>
               </mat-card-content>
             </mat-card>
           </div>
@@ -424,21 +451,23 @@
               <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Bogeys </sub>
-                <h3>{{ holeResultTotals().bogeys }}</h3>
+                <h3>{{ statisticsService.holeResultTotals().bogeys }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Doubles </sub>
-                <h3>{{ holeResultTotals().doubleBogeys }}</h3>
+                <h3>{{ statisticsService.holeResultTotals().doubleBogeys }}</h3>
               </mat-card-content>
             </mat-card>
             <mat-card appearance="outlined" class="center-text">
               <mat-card-title />
               <mat-card-content class="padding-inline-8">
                 <sub> Triples or Worse </sub>
-                <h3>{{ holeResultTotals().tripleBogeysOrWorse }}</h3>
+                <h3>
+                  {{ statisticsService.holeResultTotals().tripleBogeysOrWorse }}
+                </h3>
               </mat-card-content>
             </mat-card>
           </div>
@@ -454,10 +483,10 @@
               <mat-card-content class="padding-inline-8">
                 <sub> Par 3s </sub>
                 <h3>
-                  @if (holeResultTotals().par3sPlayed) {
+                  @if (statisticsService.holeResultTotals().par3sPlayed) {
                     {{
                       GRAPH_VARIETIES['score-on-par-3s'].yValueExtractor(
-                        holeResultTotals()
+                        statisticsService.holeResultTotals()
                       ) ?? 0 | number: '1.2-2'
                     }}
                   } @else {
@@ -465,7 +494,7 @@
                   }
                 </h3>
               </mat-card-content>
-              @if (holeResultTotals().par3sPlayed) {
+              @if (statisticsService.holeResultTotals().par3sPlayed) {
                 <ng-container
                   *ngTemplateOutlet="
                     trendGraphButton;
@@ -481,10 +510,10 @@
               <mat-card-content class="padding-inline-8">
                 <sub> Par 4s </sub>
                 <h3>
-                  @if (holeResultTotals().par4sPlayed) {
+                  @if (statisticsService.holeResultTotals().par4sPlayed) {
                     {{
                       GRAPH_VARIETIES['score-on-par-4s'].yValueExtractor(
-                        holeResultTotals()
+                        statisticsService.holeResultTotals()
                       ) ?? 0 | number: '1.2-2'
                     }}
                   } @else {
@@ -492,7 +521,7 @@
                   }
                 </h3>
               </mat-card-content>
-              @if (holeResultTotals().par4sPlayed) {
+              @if (statisticsService.holeResultTotals().par4sPlayed) {
                 <ng-container
                   *ngTemplateOutlet="
                     trendGraphButton;
@@ -511,10 +540,10 @@
               <mat-card-content class="padding-inline-8">
                 <sub> Par 5s </sub>
                 <h3>
-                  @if (holeResultTotals().par5sPlayed) {
+                  @if (statisticsService.holeResultTotals().par5sPlayed) {
                     {{
                       GRAPH_VARIETIES['score-on-par-5s'].yValueExtractor(
-                        holeResultTotals()
+                        statisticsService.holeResultTotals()
                       ) ?? 0 | number: '1.2-2'
                     }}
                   } @else {
@@ -522,7 +551,7 @@
                   }
                 </h3>
               </mat-card-content>
-              @if (holeResultTotals().par5sPlayed) {
+              @if (statisticsService.holeResultTotals().par5sPlayed) {
                 <ng-container
                   *ngTemplateOutlet="
                     trendGraphButton;
@@ -543,23 +572,32 @@
                 <br />
                 <sup> Regulation </sup>
                 <h3>
-                  @if (holeResultTotals().holesPlayedWithPutts) {
+                  @if (
+                    statisticsService.holeResultTotals().holesPlayedWithPutts
+                  ) {
                     {{
                       100 *
                         (GRAPH_VARIETIES[
                           'greens-in-regulation'
-                        ].yValueExtractor(holeResultTotals()) ?? 0)
-                        | number: '1.0-0'
+                        ].yValueExtractor(
+                          statisticsService.holeResultTotals()
+                        ) ?? 0) | number: '1.0-0'
                     }}%
                     <br />
-                    ({{ holeResultTotals().inferredGreensInRegulation }} /
-                    {{ holeResultTotals().holesPlayedWithPutts }})
+                    ({{
+                      statisticsService.holeResultTotals()
+                        .inferredGreensInRegulation
+                    }}
+                    /
+                    {{
+                      statisticsService.holeResultTotals().holesPlayedWithPutts
+                    }})
                   } @else {
                     --
                   }
                 </h3>
               </mat-card-content>
-              @if (holeResultTotals().holesPlayedWithPutts) {
+              @if (statisticsService.holeResultTotals().holesPlayedWithPutts) {
                 <ng-container
                   *ngTemplateOutlet="
                     trendGraphButton;
@@ -577,24 +615,35 @@
                 <br />
                 <sup> Success </sup>
                 <h3>
-                  @if (holeResultTotals().inferredHolesScramblingNeeded) {
+                  @if (
+                    statisticsService.holeResultTotals()
+                      .inferredHolesScramblingNeeded
+                  ) {
                     {{
                       100 *
                         (GRAPH_VARIETIES['scrambling'].yValueExtractor(
-                          holeResultTotals()
+                          statisticsService.holeResultTotals()
                         ) ?? 0) | number: '1.0-0'
                     }}%
                     <br />
                     ({{
-                      holeResultTotals().inferredHolesScramblingSuccessfully
+                      statisticsService.holeResultTotals()
+                        .inferredHolesScramblingSuccessfully
                     }}
-                    / {{ holeResultTotals().inferredHolesScramblingNeeded }})
+                    /
+                    {{
+                      statisticsService.holeResultTotals()
+                        .inferredHolesScramblingNeeded
+                    }})
                   } @else {
                     --
                   }
                 </h3>
               </mat-card-content>
-              @if (holeResultTotals().inferredHolesScramblingNeeded) {
+              @if (
+                statisticsService.holeResultTotals()
+                  .inferredHolesScramblingNeeded
+              ) {
                 <ng-container
                   *ngTemplateOutlet="
                     trendGraphButton;
@@ -615,14 +664,14 @@
 
           <mat-table
             class="round-results-table"
-            [dataSource]="coursesWithHoleResults()"
+            [dataSource]="statisticsService.coursesWithHoleResults()"
           >
             <ng-container matColumnDef="{{ BEST_ROUND_COURSE_NAME_COL }}">
               <mat-header-cell *matHeaderCellDef class="center-text">
                 Course
               </mat-header-cell>
               <mat-cell *matCellDef="let courseId" class="center-text">
-                {{ courseMap().get(courseId)?.name }}
+                {{ statisticsService.courseMap().get(courseId)?.name }}
               </mat-cell>
             </ng-container>
             <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
@@ -630,11 +679,12 @@
                 Score
               </mat-header-cell>
               <mat-cell *matCellDef="let courseId" class="center-text">
-                @let course = courseMap().get(courseId)!;
+                @let course = statisticsService.courseMap().get(courseId)!;
                 @let round =
                   {
-                    strokes:
-                      holeResultTotals().theoreticalBestRound.get(courseId)!,
+                    strokes: statisticsService
+                      .holeResultTotals()
+                      .theoreticalBestRound.get(courseId)!,
                     roundVariety:
                       FullRoundVarietyAtCourse[
                         course.numberOfHoles ?? CourseVariety.EIGHTEEN

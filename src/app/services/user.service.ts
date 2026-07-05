@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import {
   LocalFilters,
   LocalUserWithFilters,
@@ -7,9 +7,7 @@ import {
 } from '../models/user';
 import { LocalStorageService } from './local-storage.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class UserService {
   private readonly localStorageService = inject(LocalStorageService);
 

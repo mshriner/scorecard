@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import {
   Event,
   Navigation,
@@ -14,9 +14,7 @@ import { SnackBarService } from './snack-bar.service';
  * Service that allows saving a navigation message to sessionStorage and
  * displaying it after the next successful navigation via the SnackBarService.
  */
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class NavigationMessageService {
   private readonly router = inject(Router);
   private readonly snackBarService = inject(SnackBarService);

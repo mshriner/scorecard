@@ -72,7 +72,8 @@
         <mat-datepicker touchUi #picker3 />
       </mat-form-field>
       <mat-form-field class="almost-full-width-input">
-        <mat-label>Add Notes For Your Round</mat-label>
+        @let label = 'Add Notes For Your Round';
+        <mat-label>{{ label }}</mat-label>
         <textarea
           id="notes-for-round-input"
           matInput
@@ -83,6 +84,7 @@
           [(ngModel)]="editingRound.generalNotes"
           [ngModelOptions]="{ standalone: true }"
           placeholder="Ex. Nice approach on 3..."
+          aria-label="{{ label }}"
           (change)="updateUnsavedData()"
           (keyup)="updateUnsavedData()"
           (paste)="updateUnsavedData()"

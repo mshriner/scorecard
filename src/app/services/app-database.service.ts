@@ -1,17 +1,15 @@
-import { Injectable } from '@angular/core';
 import Dexie, { type EntityTable } from 'dexie';
 import { Course } from '../models/course';
 import { Round } from '../models/round';
 import { LocalUserWithFilters } from '../models/user';
+import { Service } from '@angular/core';
 
 export interface AppMetadata {
   key: string;
   value: string[] | string | null;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class AppDatabase extends Dexie {
   public users!: EntityTable<LocalUserWithFilters, 'id'>;
   public courses!: EntityTable<Course, 'id'>;

@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { LOCAL_STORAGE_KEYS } from '../models/constants';
 import { Course } from '../models/course';
 import { Round } from '../models/round';
@@ -10,9 +10,7 @@ const RESERVED_KEYS = new Set([
   LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
 ]);
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class LocalStorageService {
   private readonly db = inject(AppDatabase);
   private initialized = false;
