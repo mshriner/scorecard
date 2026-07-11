@@ -44,22 +44,31 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
+import { DecimalPipe } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import {
   DataToShare,
   RoundWithCourse,
   YesNoReason,
 } from '../../models/data-transfer';
+import {
+  createEmptyHoleResults,
+  GRAPH_VARIETIES,
+  HoleResults,
+} from '../../models/graph';
 import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
 import { NavigationMessageService } from '../../services/navigation-message.service';
 import { SharingService } from '../../services/sharing.service';
 import { SnackBarService } from '../../services/snack-bar.service';
+import { StatisticsService } from '../../services/statistics.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 import { SelectCourseDialogComponent } from '../select-course-dialog/select-course-dialog.component';
@@ -74,11 +83,14 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
     MatIconModule,
     MatInputModule,
     MatMenuModule,
+    MatDividerModule,
+    MatCardModule,
     PipesModule,
     MatSelectModule,
     MatDatepickerModule,
     TypedTemplateDirective,
     MatDialogModule,
+    DecimalPipe,
     MatRippleModule,
     NgTemplateOutlet,
   ],
@@ -91,6 +103,7 @@ export class EditRoundComponent implements OnInit {
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly _injector = inject(Injector);
   private readonly courseService = inject(CourseService);
+  private readonly statisticsService = inject(StatisticsService);
   private readonly roundService = inject(RoundService);
   private readonly router = inject(NavigationMessageService);
   private readonly dialog = inject(MatDialog);
@@ -110,6 +123,7 @@ export class EditRoundComponent implements OnInit {
   public readonly ROUND_NOTES_MAX_LENGTH = ROUND_NOTES_MAX_LENGTH;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
+  public readonly GRAPH_VARIETIES = GRAPH_VARIETIES;
   public readonly HOLE_COL = 'hole';
   public readonly STROKES_COL = 'par';
   public readonly PUTTS_COL = 'putts';
@@ -167,6 +181,7 @@ export class EditRoundComponent implements OnInit {
 
   notesTextarea: Signal<ElementRef<HTMLTextAreaElement> | undefined> =
     viewChild('notesForRoundInput');
+  roundStats: HoleResults = createEmptyHoleResults();
 
   @HostListener('document:keydown.enter', ['$event'])
   handleEnterKey(event: Event): void {
@@ -344,6 +359,7 @@ export class EditRoundComponent implements OnInit {
     this.appStateService.unsavedDataOnPage.set(
       !DataUtils.deepEqual(this.originalRound, this.editingRound),
     );
+    this.updateStats();
   }
 
   public get isNineHoleCourse(): boolean {
@@ -363,6 +379,16 @@ export class EditRoundComponent implements OnInit {
       this.editingRound.dateStringISO = event.value.toISOString();
     }
     this.updateUnsavedData();
+  }
+
+  public updateStats(): void {
+    const roundStatsProcessing = createEmptyHoleResults();
+    this.statisticsService.processHoles(
+      this.editingRound,
+      roundStatsProcessing,
+      this.currentCourse,
+    );
+    this.roundStats = roundStatsProcessing;
   }
 
   public get disableNumberOfHolesPlayed(): YesNoReason {

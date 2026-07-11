@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { catchError, from, map, Observable, of } from 'rxjs';
 import { PreformattedDialogComponent } from '../components/preformatted-dialog/preformatted-dialog.component';
@@ -26,9 +26,7 @@ import { User, UserProfileDTO } from '../models/user';
 import { DataUtils } from '../util/data-utils';
 import { SnackBarService } from './snack-bar.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class SharingService {
   public readonly CAN_SHARE_DATA = this.canBrowserShareData('test');
   public readonly CAN_SHARE_FILES = this.canBrowserShareFiles();
