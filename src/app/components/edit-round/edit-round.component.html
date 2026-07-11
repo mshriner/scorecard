@@ -223,6 +223,83 @@
 
     <br />
     <ng-container *ngTemplateOutlet="saveActions" />
+
+    <mat-divider class="divider-padding" />
+    <div
+      class="full-width-center space-evenly padding-inline-4 padding-bottom-12"
+    >
+      <h3>Round Stats</h3>
+    </div>
+    @if (currentCourse) {
+      @if (!roundStats.holesPlayedWithPutts) {
+        <div class="full-width-center">
+          <mat-card appearance="outlined" class="center-text">
+            <mat-card-content>
+              <span> Log putts to see stats </span>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      } @else {
+        <div class="full-width-center space-evenly padding-inline-4">
+          <mat-card appearance="outlined" class="center-text">
+            <mat-card-title />
+            <mat-card-content class="padding-inline-8">
+              <sub> Greens in </sub>
+              <br />
+              <sup> Regulation </sup>
+              <h3>
+                @if (roundStats.holesPlayedWithPutts) {
+                  {{
+                    100 *
+                      (GRAPH_VARIETIES['greens-in-regulation'].yValueExtractor(
+                        roundStats
+                      ) ?? 0) | number: '1.0-0'
+                  }}%
+                  <br />
+                  ({{ roundStats.inferredGreensInRegulation }}
+                  /
+                  {{ roundStats.holesPlayedWithPutts }})
+                } @else {
+                  --
+                }
+              </h3>
+            </mat-card-content>
+          </mat-card>
+          <mat-card appearance="outlined" class="center-text">
+            <mat-card-title />
+            <mat-card-content class="padding-inline-8">
+              <sub> Scrambling </sub>
+              <br />
+              <sup> Success </sup>
+              <h3>
+                @if (roundStats.inferredHolesScramblingNeeded) {
+                  {{
+                    100 *
+                      (GRAPH_VARIETIES['scrambling'].yValueExtractor(
+                        roundStats
+                      ) ?? 0) | number: '1.0-0'
+                  }}%
+                  <br />
+                  ({{ roundStats.inferredHolesScramblingSuccessfully }}
+                  /
+                  {{ roundStats.inferredHolesScramblingNeeded }})
+                } @else {
+                  --
+                }
+              </h3>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+    } @else {
+      <div class="full-width-center">
+        <mat-card appearance="outlined" class="center-text">
+          <mat-card-content>
+            <span> Select a course first </span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
   }
 </form>
 <br />

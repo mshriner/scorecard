@@ -55,8 +55,8 @@ export class StatisticsService {
   /**
    * @returns whether there is a course associated with this round (should always be true)
    */
-  public processHoles(round: Round, holeResults: HoleResults): boolean {
-    const course = this.courseMap().get(round.courseId);
+  public processHoles(round: Round, holeResults: HoleResults, courseOverride?: Course | null): boolean {
+    const course = courseOverride || this.courseMap().get(round.courseId);
     if (!course) {
       return false;
     }

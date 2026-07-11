@@ -9,6 +9,18 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 export class TotalRoundScorePipe implements PipeTransform {
   private readonly roundVarietyScores = inject(RoundVarietyScoresPipe);
 
+  /**
+   * Calculates the total score for the provided round.
+   *
+   * If a half round variety is not provided, this pipe returns a "Thru X"
+   * string when the round is not yet complete. Once all holes are completed,
+   * it returns the total stroke count.
+   *
+   * @param round The round data containing strokes and variety.
+   * @param halfToPreventThruFormat Optional variety used for calculating
+   *   half-round scores while avoiding the incomplete round formatting.
+   * @returns The round total score or a progress string if the round is incomplete.
+   */
   transform(
     round: RoundLike,
     halfToPreventThruFormat?: RoundVariety,

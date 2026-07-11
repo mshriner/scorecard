@@ -294,15 +294,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.currentUser.sortBy = ROUND_DATE_SORT_COL;
     }
     roundsToShow.sort((a, b) => {
-      const roundAScore = Number(this.roundScorePipe.transform(a));
-      const roundBScore = Number(this.roundScorePipe.transform(b));
-      const isRoundAComplete = Number.isFinite(roundAScore);
-      const isRoundBComplete = Number.isFinite(roundBScore);
-      if (!isRoundAComplete) {
-        return -1;
-      }
-      if (!isRoundBComplete) {
-        return 1;
+      const roundAScore = Number(this.roundScorePipe.transform(a, a.roundVariety));
+      const roundBScore = Number(this.roundScorePipe.transform(b, b.roundVariety));
+      const isRoundAComplete = Number.isFinite(this.roundScorePipe.transform(a));
+      const isRoundBComplete = Number.isFinite(this.roundScorePipe.transform(b));
+      if (isRoundAComplete !== isRoundBComplete) {
+        if (!isRoundAComplete) {
+          return -1;
+        }
+        if (!isRoundBComplete) {
+          return 1;
+        }
       }
       if (this.currentUser?.sortBy === this.ROUND_DATE_COL) {
         return this.currentUser?.sortDescending
