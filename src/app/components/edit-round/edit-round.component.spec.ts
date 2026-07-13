@@ -193,7 +193,7 @@ describe('EditRoundComponent', () => {
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     courseService.getCourse.mockReturnValue(course);
-    component.currentCourse = course;
+    component.currentCourse.set(course);
     component.editingRound = {
       id: 'r2',
       dateStringISO: new Date().toISOString(),
@@ -271,7 +271,7 @@ describe('EditRoundComponent', () => {
       name: 'Eighteen Hole',
       numberOfHoles: CourseVariety.EIGHTEEN,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    };
+    });
     expect(component.showSummaryRow(8)).toBe(true);
   });
 
@@ -281,7 +281,7 @@ describe('EditRoundComponent', () => {
       name: 'Nine Hole',
       numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
-    };
+    });
     expect(component.showSummaryRow(8)).toBe(false);
   });
 
