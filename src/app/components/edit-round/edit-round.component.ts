@@ -44,7 +44,6 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
-import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import {
   MatDatepickerInputEvent,
@@ -72,6 +71,7 @@ import { StatisticsService } from '../../services/statistics.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
 import { SelectCourseDialogComponent } from '../select-course-dialog/select-course-dialog.component';
+import { StatsComponent } from '../stats/stats.component';
 
 @Component({
   selector: 'app-edit-round',
@@ -90,9 +90,9 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
     MatDatepickerModule,
     TypedTemplateDirective,
     MatDialogModule,
-    DecimalPipe,
     MatRippleModule,
     NgTemplateOutlet,
+    StatsComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './edit-round.component.html',
@@ -115,7 +115,12 @@ export class EditRoundComponent implements OnInit {
   private readonly redirectToHome: boolean = false;
   public editingRound: Round;
   public coursesToChooseFrom: Course[];
-  public currentCourse: Course | null = null;
+  public readonly currentCourse = signal<Course | null>(null);
+  public readonly currentCourseMap = signal<Map<string, Course | null>>(
+    this.currentCourse()
+      ? new Map([[this.currentCourse()!.id, this.currentCourse()!]])
+      : new Map(),
+  );
   public roundIdToEdit: string;
   public imported = false;
   private needToSaveImportedCourse = false;
@@ -267,7 +272,7 @@ export class EditRoundComponent implements OnInit {
   }
 
   public updateCurrentCourse(newCourseId: string): void {
-    this.currentCourse = this.courseService.getCourse(newCourseId);
+    this.currentCourse.set(this.courseService.getCourse(newCourseId));
 
     if (this.isNineHoleCourse) {
       this.editingRound.roundVariety = RoundVariety.FULL_NINE;
@@ -363,7 +368,7 @@ export class EditRoundComponent implements OnInit {
   }
 
   public get isNineHoleCourse(): boolean {
-    return this.currentCourse?.numberOfHoles === CourseVariety.NINE;
+    return this.currentCourse()?.numberOfHoles === CourseVariety.NINE;
   }
 
   public showSummaryRow(index: number): boolean {
@@ -386,7 +391,7 @@ export class EditRoundComponent implements OnInit {
     this.statisticsService.processHoles(
       this.editingRound,
       roundStatsProcessing,
-      this.currentCourse,
+      this.currentCourse(),
     );
     this.roundStats = roundStatsProcessing;
   }
@@ -470,8 +475,8 @@ export class EditRoundComponent implements OnInit {
   }
 
   public saveRound(): void {
-    if (this.currentCourse && this.needToSaveImportedCourse) {
-      this.courseService.setCourse(this.currentCourse);
+    if (this.currentCourse() && this.needToSaveImportedCourse) {
+      this.courseService.setCourse(this.currentCourse()!);
       this.needToSaveImportedCourse = false;
     }
     this.roundService.saveRounds([this.editingRound]);
@@ -479,12 +484,12 @@ export class EditRoundComponent implements OnInit {
   }
 
   public shareRound(): void {
-    if (!this.roundIdToEdit || !this.currentCourse) {
+    if (!this.roundIdToEdit || !this.currentCourse()) {
       return;
     }
     this.sharingService
       .shareData({
-        data: { round: this.editingRound, course: this.currentCourse },
+        data: { round: this.editingRound, course: this.currentCourse()! },
         objectType: 'round',
       })
       .subscribe();
@@ -511,10 +516,10 @@ export class EditRoundComponent implements OnInit {
   ): void {
     this.editingRound = importedRound.round;
     this.roundIdToEdit = importedRound.round.id;
-    this.coursesToChooseFrom = [this.currentCourse!];
+    this.coursesToChooseFrom = [this.currentCourse()!];
     this.updateUnsavedData();
     setTimeout(() => {
-      this.courseSelectInput()?.writeValue(this.currentCourse?.id);
+      this.courseSelectInput()?.writeValue(this.currentCourse()?.id);
     });
     this.snackBarService.openTemporarySnackBar(
       `Round at "${courseName}" was imported successfully.`,
@@ -564,9 +569,9 @@ export class EditRoundComponent implements OnInit {
       importedRound.round.courseId,
     );
     if (existingCourse) {
-      this.currentCourse = existingCourse;
+      this.currentCourse.set(existingCourse);
     } else {
-      this.currentCourse = importedRound.course;
+      this.currentCourse.set(importedRound.course);
       this.needToSaveImportedCourse = true;
 
       // Filter available courses to those that exactly match the imported
@@ -602,8 +607,8 @@ export class EditRoundComponent implements OnInit {
               const pickedCourse =
                 this.courseService.getCourse(selectedCourseId);
               if (selectedCourseId && pickedCourse) {
-                this.currentCourse = pickedCourse;
-                this.coursesToChooseFrom = [this.currentCourse];
+                this.currentCourse.set(pickedCourse);
+                this.coursesToChooseFrom = [this.currentCourse()!];
                 importedRound.round.courseId = pickedCourse.id;
                 this.needToSaveImportedCourse = false;
                 this.updateUnsavedData();

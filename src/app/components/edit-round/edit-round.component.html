@@ -145,18 +145,18 @@
             @switch (column.columnDef) {
               @case (HOLE_COL) {
                 <b> Total </b>
-                @if (currentCourse) {
+                @if (currentCourse(); as course) {
                   <br />
-                  <div>Par {{ currentCourse | par: editingRound }}</div>
+                  <div>Par {{ course | par: editingRound }}</div>
                 }
               }
               @case (STROKES_COL) {
                 <b>
                   {{ editingRound | totalRoundScore }}
                 </b>
-                @if (currentCourse) {
+                @if (currentCourse(); as course) {
                   <br />
-                  <b> ({{ editingRound | scoreToPar: currentCourse }}) </b>
+                  <b> ({{ editingRound | scoreToPar: course }}) </b>
                 }
               }
               @case (PUTTS_COL) {
@@ -230,7 +230,7 @@
     >
       <h3>Round Stats</h3>
     </div>
-    @if (currentCourse) {
+    @if (currentCourse()) {
       @if (!roundStats.holesPlayedWithPutts) {
         <div class="full-width-center">
           <mat-card appearance="outlined" class="center-text">
@@ -240,56 +240,12 @@
           </mat-card>
         </div>
       } @else {
-        <div class="full-width-center space-evenly padding-inline-4">
-          <mat-card appearance="outlined" class="center-text">
-            <mat-card-title />
-            <mat-card-content class="padding-inline-8">
-              <sub> Greens in </sub>
-              <br />
-              <sup> Regulation </sup>
-              <h3>
-                @if (roundStats.holesPlayedWithPutts) {
-                  {{
-                    100 *
-                      (GRAPH_VARIETIES['greens-in-regulation'].yValueExtractor(
-                        roundStats
-                      ) ?? 0) | number: '1.0-0'
-                  }}%
-                  <br />
-                  ({{ roundStats.inferredGreensInRegulation }}
-                  /
-                  {{ roundStats.holesPlayedWithPutts }})
-                } @else {
-                  --
-                }
-              </h3>
-            </mat-card-content>
-          </mat-card>
-          <mat-card appearance="outlined" class="center-text">
-            <mat-card-title />
-            <mat-card-content class="padding-inline-8">
-              <sub> Scrambling </sub>
-              <br />
-              <sup> Success </sup>
-              <h3>
-                @if (roundStats.inferredHolesScramblingNeeded) {
-                  {{
-                    100 *
-                      (GRAPH_VARIETIES['scrambling'].yValueExtractor(
-                        roundStats
-                      ) ?? 0) | number: '1.0-0'
-                  }}%
-                  <br />
-                  ({{ roundStats.inferredHolesScramblingSuccessfully }}
-                  /
-                  {{ roundStats.inferredHolesScramblingNeeded }})
-                } @else {
-                  --
-                }
-              </h3>
-            </mat-card-content>
-          </mat-card>
-        </div>
+        <app-stats
+          [filteredRounds]="[editingRound]"
+          [courseMap]="currentCourseMap()"
+          [holeResultTotals]="roundStats"
+          mode="in-round"
+        />
       }
     } @else {
       <div class="full-width-center">
@@ -332,9 +288,9 @@
   @switch (column.columnDef) {
     @case (HOLE_COL) {
       <b>{{ holeIndex + 1 }}</b>
-      @if (currentCourse?.par?.length) {
+      @if (currentCourse()?.par?.length) {
         <br />
-        Par {{ currentCourse!.par[holeIndex] }}
+        Par {{ currentCourse()!.par[holeIndex] }}
       }
     }
     @case (STROKES_COL) {
@@ -359,14 +315,14 @@
             newUIMenuFeatures && menuOpen.set('strokes-' + holeIndex + 1)
           "
         >
-          @if (currentCourse?.par?.[holeIndex]) {
+          @if (currentCourse()?.par?.[holeIndex]) {
             <ng-container
               *ngTemplateOutlet="
                 scoreGraphic;
                 context: {
                   scoreToPar:
                     (editingRound.strokes[holeIndex] || 0) -
-                    currentCourse!.par[holeIndex],
+                    currentCourse()!.par[holeIndex],
                   score: editingRound.strokes[holeIndex],
                 }
               "
@@ -396,13 +352,13 @@
             >
               <div class="par-value-selector">
                 <div class="par-value-box">
-                  @if (currentCourse?.par?.[holeIndex]) {
+                  @if (currentCourse()?.par?.[holeIndex]) {
                     <ng-container
                       *ngTemplateOutlet="
                         scoreGraphic;
                         context: {
                           scoreToPar:
-                            (strokes || 0) - currentCourse!.par[holeIndex],
+                            (strokes || 0) - currentCourse()!.par[holeIndex],
                           score: strokes,
                         }
                       "
@@ -411,13 +367,14 @@
                     {{ strokes }}
                   }
                 </div>
-                @if (currentCourse?.par?.[holeIndex]) {
-                  <div class="word-for-score-to-par">
-                    {{
-                      strokes || 0
-                        | wordForScoreToPar: currentCourse!.par[holeIndex]
-                    }}
-                  </div>
+                @if (currentCourse(); as course) {
+                  @if (course.par[holeIndex]) {
+                    <div class="word-for-score-to-par">
+                      {{
+                        strokes || 0 | wordForScoreToPar: course.par[holeIndex]
+                      }}
+                    </div>
+                  }
                 }
               </div>
             </button>
@@ -547,19 +504,19 @@
       } @else {
         In
       }
-      @if (currentCourse) {
+      @if (currentCourse(); as course) {
         <br />
         <div>
           Par
-          {{ currentCourse | par: editingRound : outOrIn }}
+          {{ course | par: editingRound : outOrIn }}
         </div>
       }
     }
     @case (STROKES_SUMMARY_COL) {
       {{ editingRound | totalRoundScore: outOrIn }}
-      @if (currentCourse) {
+      @if (currentCourse(); as course) {
         <br />
-        ({{ editingRound | scoreToPar: currentCourse : outOrIn }})
+        ({{ editingRound | scoreToPar: course : outOrIn }})
       }
     }
     @case (PUTTS_SUMMARY_COL) {
