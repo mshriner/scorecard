@@ -55,7 +55,11 @@ export class StatisticsService {
   /**
    * @returns whether there is a course associated with this round (should always be true)
    */
-  public processHoles(round: Round, holeResults: HoleResults, courseOverride?: Course | null): boolean {
+  public processHoles(
+    round: Round,
+    holeResults: HoleResults,
+    courseOverride?: Course | null,
+  ): boolean {
     const course = courseOverride || this.courseMap().get(round.courseId);
     if (!course) {
       return false;
@@ -143,6 +147,15 @@ export class StatisticsService {
         if (strokes <= parOnHole) {
           holeResults.inferredHolesScramblingSuccessfully++;
         }
+      }
+      if (putts === 0) {
+        holeResults.zeroPuttHoles++;
+      } else if (putts === 1) {
+        holeResults.onePuttHoles++;
+      } else if (putts === 2) {
+        holeResults.twoPuttHoles++;
+      } else {
+        holeResults.threePlusPuttHoles++;
       }
       if (round.roundVariety === RoundVariety.EIGHTEEN) {
         holeResults.holesPlayedWithPuttsInFullRounds++;

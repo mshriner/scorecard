@@ -129,7 +129,7 @@ describe('EditRoundComponent', () => {
 
     expect(component.editingRound.id).toBe('round-id');
     expect(component.imported).toBe(true);
-    expect(component.currentCourse?.name).toBe('Imported Course');
+    expect(component.currentCourse()?.name).toBe('Imported Course');
     expect(snackBarService.openTemporarySnackBar).toHaveBeenCalledWith(
       'Round at "Imported Course" was imported successfully.',
     );
@@ -171,7 +171,7 @@ describe('EditRoundComponent', () => {
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     courseService.getCourse.mockReturnValue(course);
-    component.currentCourse = course;
+    component.currentCourse.set(course);
     component.editingRound = {
       id: 'r1',
       dateStringISO: new Date().toISOString(),
@@ -193,7 +193,7 @@ describe('EditRoundComponent', () => {
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     courseService.getCourse.mockReturnValue(course);
-    component.currentCourse = course;
+    component.currentCourse.set(course);
     component.editingRound = {
       id: 'r2',
       dateStringISO: new Date().toISOString(),
@@ -266,22 +266,22 @@ describe('EditRoundComponent', () => {
   });
 
   it('should return true for showSummaryRow at index 8 for 18-hole course', () => {
-    component.currentCourse = {
+    component.currentCourse.set({
       id: 'c5',
       name: 'Eighteen Hole',
       numberOfHoles: CourseVariety.EIGHTEEN,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    };
+    });
     expect(component.showSummaryRow(8)).toBe(true);
   });
 
   it('should return false for showSummaryRow at index 8 for 9-hole course', () => {
-    component.currentCourse = {
+    component.currentCourse.set({
       id: 'c6',
       name: 'Nine Hole',
       numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
-    };
+    });
     expect(component.showSummaryRow(8)).toBe(false);
   });
 

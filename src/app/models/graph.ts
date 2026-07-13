@@ -18,39 +18,58 @@ export interface PerformanceGraphDataPoint {
 
 export type PerformanceGraphMetric =
   | 'greens-in-regulation'
-  | 'scrambling'
+  | 'scrambling-success'
   | 'putts-all'
   | 'putts-18'
   | 'score-to-par-all'
   | 'score-to-par-18'
   | 'score-on-par-3s'
   | 'score-on-par-4s'
-  | 'score-on-par-5s';
+  | 'score-on-par-5s'
+  | 'zero-putt-holes'
+  | 'one-putt-holes'
+  | 'two-putt-holes'
+  | 'three-plus-putt-holes';
 
 export interface HoleResults {
+  // score breakdown by result relative to par
   eaglesOrBetter: number;
   birdies: number;
   pars: number;
   bogeys: number;
   doubleBogeys: number;
   tripleBogeysOrWorse: number;
+
+  // hole and putt volume totals
   holesPlayed: number;
   holesPlayedWithPutts: number;
   putts: number;
   holesPlayedWithPuttsInFullRounds: number;
   puttsInFullRounds: number;
+
+  // putt breakdown by number of putts
+  zeroPuttHoles: number;
+  onePuttHoles: number;
+  twoPuttHoles: number;
+  threePlusPuttHoles: number;
+
+  // completed round aggregates
   completedNinesInAllRounds: number;
   completed18HoleRounds: number;
   totalStrokesInAllCompletedRounds: number;
   totalStrokesInCompleted18HoleRounds: number;
   totalScoreToParInAllCompletedRounds: number;
   totalScoreToParInCompleted18HoleRounds: number;
+
+  // performance by hole par value
   par3sPlayed: number;
   totalStrokesOnPar3s: number;
   par4sPlayed: number;
   totalStrokesOnPar4s: number;
   par5sPlayed: number;
   totalStrokesOnPar5s: number;
+
+  // theoretical and inferred performance metrics
   theoreticalBestRound: Map<string, BestRound>;
   inferredGreensInRegulation: number;
   inferredHolesScramblingSuccessfully: number;
@@ -62,13 +81,14 @@ export type GraphYValueExtractor = (results: HoleResults) => number | null;
 export interface GraphDetails {
   yAxisLabel: string;
   yValueExtractor: GraphYValueExtractor;
+  filterRoundsWithoutPutts?: boolean;
   percent?: boolean;
   scoreToPar?: boolean;
 }
 
 export function createEmptyHoleResults(): HoleResults {
   return {
-    // splits by result to par
+    // score breakdown by result relative to par
     eaglesOrBetter: 0,
     birdies: 0,
     pars: 0,
@@ -76,14 +96,28 @@ export function createEmptyHoleResults(): HoleResults {
     doubleBogeys: 0,
     tripleBogeysOrWorse: 0,
 
-    // total holes vs holes with putts
+    // hole and putt volume totals
     holesPlayed: 0,
     holesPlayedWithPutts: 0,
     putts: 0,
     holesPlayedWithPuttsInFullRounds: 0,
     puttsInFullRounds: 0,
 
-    // splits by hole par
+    // putt breakdown by number of putts
+    zeroPuttHoles: 0,
+    onePuttHoles: 0,
+    twoPuttHoles: 0,
+    threePlusPuttHoles: 0,
+
+    // completed round aggregates
+    completedNinesInAllRounds: 0,
+    completed18HoleRounds: 0,
+    totalStrokesInAllCompletedRounds: 0,
+    totalStrokesInCompleted18HoleRounds: 0,
+    totalScoreToParInAllCompletedRounds: 0,
+    totalScoreToParInCompleted18HoleRounds: 0,
+
+    // performance by hole par value
     par3sPlayed: 0,
     totalStrokesOnPar3s: 0,
     par4sPlayed: 0,
@@ -91,21 +125,11 @@ export function createEmptyHoleResults(): HoleResults {
     par5sPlayed: 0,
     totalStrokesOnPar5s: 0,
 
-    // theoretical best round
+    // theoretical and inferred performance metrics
     theoreticalBestRound: new Map(),
-
-    // inferred stats (putts needed)
     inferredGreensInRegulation: 0,
     inferredHolesScramblingSuccessfully: 0,
     inferredHolesScramblingNeeded: 0,
-
-    // stats for completed rounds
-    completedNinesInAllRounds: 0,
-    completed18HoleRounds: 0,
-    totalStrokesInAllCompletedRounds: 0,
-    totalStrokesInCompleted18HoleRounds: 0,
-    totalScoreToParInAllCompletedRounds: 0,
-    totalScoreToParInCompleted18HoleRounds: 0,
   };
 }
 
@@ -123,7 +147,7 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
       );
     },
   },
-  scrambling: {
+  'scrambling-success': {
     yAxisLabel: 'Scrambling Success',
     percent: true,
     yValueExtractor: (holeResults) => {
@@ -212,6 +236,46 @@ export const GRAPH_VARIETIES: Record<PerformanceGraphMetric, GraphDetails> = {
         holeResults.totalScoreToParInCompleted18HoleRounds /
         holeResults.completed18HoleRounds
       );
+    },
+  },
+  'zero-putt-holes': {
+    yAxisLabel: '0-Putt Holes',
+    filterRoundsWithoutPutts: true,
+    yValueExtractor: (holeResults) => {
+      if (!holeResults.holesPlayedWithPutts) {
+        return null;
+      }
+      return holeResults.zeroPuttHoles;
+    },
+  },
+  'one-putt-holes': {
+    yAxisLabel: '1-Putt Holes',
+    filterRoundsWithoutPutts: true,
+    yValueExtractor: (holeResults) => {
+      if (!holeResults.holesPlayedWithPutts) {
+        return null;
+      }
+      return holeResults.onePuttHoles;
+    },
+  },
+  'two-putt-holes': {
+    yAxisLabel: '2-Putt Holes',
+    filterRoundsWithoutPutts: true,
+    yValueExtractor: (holeResults) => {
+      if (!holeResults.holesPlayedWithPutts) {
+        return null;
+      }
+      return holeResults.twoPuttHoles;
+    },
+  },
+  'three-plus-putt-holes': {
+    yAxisLabel: '3+ Putt Holes',
+    filterRoundsWithoutPutts: true,
+    yValueExtractor: (holeResults) => {
+      if (!holeResults.holesPlayedWithPutts) {
+        return null;
+      }
+      return holeResults.threePlusPuttHoles;
     },
   },
 };

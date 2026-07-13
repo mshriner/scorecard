@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -33,17 +33,9 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
 import { CourseVariety } from '../../models/course';
-import {
-  createEmptyHoleResults,
-  GRAPH_VARIETIES,
-  HoleResults,
-  PerformanceGraphData,
-  PerformanceGraphDataPoint,
-  PerformanceGraphMetric,
-} from '../../models/graph';
+import { GRAPH_VARIETIES } from '../../models/graph';
 import {
   BestRound,
   compareRoundsByDateDescending,
@@ -65,7 +57,7 @@ import { RoundService } from '../../services/round.service';
 import { StatisticsService } from '../../services/statistics.service';
 import { DataUtils } from '../../util/data-utils';
 import { BestRoundDialogComponent } from '../best-round-dialog/best-round-dialog.component';
-import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/performance-graph-dialog.component';
+import { StatsComponent } from '../stats/stats.component';
 
 @Component({
   selector: 'app-home',
@@ -89,9 +81,8 @@ import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/per
     MatCheckboxModule,
     MatDividerModule,
     MatDialogModule,
-    TypedTemplateDirective,
+    StatsComponent,
     DatePipe,
-    DecimalPipe,
     NgTemplateOutlet,
   ],
   providers: [provideNativeDateAdapter()],
@@ -113,9 +104,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
   public readonly CourseVariety = CourseVariety;
   public readonly GRAPH_VARIETIES = GRAPH_VARIETIES;
-  public TREND_GRAPH_PARAMS!: {
-    which: PerformanceGraphMetric;
-  };
 
   public datePickerFilterOutBefore = (d: Date | null): boolean => {
     if (!this.currentUser?.earliestDateISO || !d) {
@@ -294,10 +282,18 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.currentUser.sortBy = ROUND_DATE_SORT_COL;
     }
     roundsToShow.sort((a, b) => {
-      const roundAScore = Number(this.roundScorePipe.transform(a, a.roundVariety));
-      const roundBScore = Number(this.roundScorePipe.transform(b, b.roundVariety));
-      const isRoundAComplete = Number.isFinite(this.roundScorePipe.transform(a));
-      const isRoundBComplete = Number.isFinite(this.roundScorePipe.transform(b));
+      const roundAScore = Number(
+        this.roundScorePipe.transform(a, a.roundVariety),
+      );
+      const roundBScore = Number(
+        this.roundScorePipe.transform(b, b.roundVariety),
+      );
+      const isRoundAComplete = Number.isFinite(
+        this.roundScorePipe.transform(a),
+      );
+      const isRoundBComplete = Number.isFinite(
+        this.roundScorePipe.transform(b),
+      );
       if (isRoundAComplete !== isRoundBComplete) {
         if (!isRoundAComplete) {
           return -1;
@@ -402,39 +398,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       .theoreticalBestRound.get(courseId)!;
     this.dialog.open(BestRoundDialogComponent, {
       data: bestRound,
-    });
-  }
-
-  public openTrendGraphDialog(which: PerformanceGraphMetric): void {
-    const graphDetails = GRAPH_VARIETIES[which];
-    const data: PerformanceGraphData = {
-      yAxisLabel: graphDetails.yAxisLabel,
-      percent: graphDetails.percent,
-      scoreToPar: graphDetails.scoreToPar,
-      sortedDataPoints: this.statisticsService
-        .filteredRounds()
-        .map((round) => {
-          const holeResults: HoleResults = createEmptyHoleResults();
-          const dataPoint: PerformanceGraphDataPoint = {
-            yValue: null,
-            roundId: round.id,
-            date: new Date(round.dateStringISO),
-            roundVariety: round.roundVariety,
-          };
-          const addYValue = this.statisticsService.processHoles(
-            round,
-            holeResults,
-          );
-          if (addYValue) {
-            dataPoint.yValue = graphDetails.yValueExtractor(holeResults);
-          }
-          return dataPoint;
-        })
-        .filter((round) => round.yValue !== null)
-        .sort((a, b) => a.date.getTime() - b.date.getTime()),
-    };
-    this.dialog.open(PerformanceGraphDialogComponent, {
-      data: data,
     });
   }
 }
