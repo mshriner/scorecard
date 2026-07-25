@@ -78,9 +78,7 @@ export class SharingService {
         map(() => true),
         catchError((e) => {
           // The data could not be or was not shared.
-          if (e.name === 'AbortError') {
-            this.snackBarService.openTemporarySnackBar('Sharing was cancelled');
-          } else {
+          if (e.name !== 'AbortError') {
             console.error(e);
             this.dialog
               .open(PreformattedDialogComponent, {
