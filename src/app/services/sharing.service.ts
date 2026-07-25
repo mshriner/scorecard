@@ -46,6 +46,9 @@ export class SharingService {
 
   public shareData(dataToShare: DataToShare): Observable<boolean> {
     if (!this.CAN_SHARE_DATA || !this.CAN_SHARE_FILES) {
+      this.snackBarService.openTemporarySnackBar(
+        'Your browser does not support sharing at this time.',
+      );
       return of(false);
     }
 
@@ -75,9 +78,7 @@ export class SharingService {
         map(() => true),
         catchError((e) => {
           // The data could not be or was not shared.
-          if (e.name === 'AbortError') {
-            this.snackBarService.openTemporarySnackBar('Sharing was cancelled');
-          } else {
+          if (e.name !== 'AbortError') {
             console.error(e);
             this.dialog
               .open(PreformattedDialogComponent, {

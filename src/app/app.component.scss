@@ -13,9 +13,32 @@ mat-toolbar {
   z-index: 101; // table sticky headers are 100
 }
 
-.edit-profile {
+.profile-header {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.profile-title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.profile-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  width: max-content;
+  max-width: 80px;
+  flex-shrink: 0;
+}
+
+.profile-button {
   vertical-align: middle;
-  margin-top: -4px;
 }
 
 .spacer {
