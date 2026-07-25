@@ -46,6 +46,9 @@ export class SharingService {
 
   public shareData(dataToShare: DataToShare): Observable<boolean> {
     if (!this.CAN_SHARE_DATA || !this.CAN_SHARE_FILES) {
+      this.snackBarService.openTemporarySnackBar(
+        'Your browser does not support sharing at this time.',
+      );
       return of(false);
     }
 

@@ -1,11 +1,27 @@
 <mat-sidenav-container class="nav-container">
   <mat-sidenav #sidenav class="sidenav padding-inline-8">
     @if (currentUser) {
-      <div style="margin-bottom: 16px; margin-top: 8px">
-        Profile: {{ currentUser.name }}
-        <button mat-icon-button (click)="editProfile()" class="edit-profile">
-          <mat-icon>edit</mat-icon>
-        </button>
+      <div class="profile-header">
+        <span class="profile-title">Profile: {{ currentUser.name }}</span>
+
+        <div class="profile-actions">
+          <button
+            mat-icon-button
+            (click)="editProfile()"
+            aria-label="Edit profile name"
+            class="profile-button"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="profile-button"
+            aria-label="Export profile"
+            (click)="shareUserProfile(currentUser)"
+          >
+            <mat-icon>ios_share</mat-icon>
+          </button>
+        </div>
       </div>
 
       <mat-divider />
