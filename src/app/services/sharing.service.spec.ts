@@ -6,7 +6,13 @@ import {
   RoundWithCourse,
   UserWithRoundsAndCourses,
 } from '../models/data-transfer';
-import { Round, RoundVariety, RoundWithCourseDTO } from '../models/round';
+import {
+  Round,
+  ROUND_MAXIMUM_PROPERTIES_EXAMPLE,
+  ROUND_MINIMUM_PROPERTIES_EXAMPLE,
+  RoundVariety,
+  RoundWithCourseDTO,
+} from '../models/round';
 import { UserProfileDTO } from '../models/user';
 import { DataUtils } from '../util/data-utils';
 import { SharingService } from './sharing.service';
@@ -34,6 +40,63 @@ describe('SharingService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('should open the export dialog when navigator.share is unavailable', () => {
+    const roundData: DataToShare = {
+      objectType: 'round',
+      data: {
+        round: {
+          id: 'round1',
+          dateStringISO: '2024-01-01T00:00:00Z',
+          courseId: 'course1',
+          strokes: new Array(18).fill(4),
+          putts: new Array(18).fill(2),
+          roundVariety: RoundVariety.EIGHTEEN,
+          generalNotes: 'Test round',
+        },
+        course: {
+          id: 'course1',
+          name: 'Test Course',
+          par: new Array(18).fill(4),
+          numberOfHoles: CourseVariety.EIGHTEEN,
+        },
+      } as any,
+    };
+
+    const originalShare = navigator.share;
+    const dialogOpenSpy = vi.spyOn(service['dialog'], 'open').mockReturnValue({
+      afterClosed: () => ({ subscribe: vi.fn() }),
+    } as any);
+
+    Object.defineProperty(window.navigator, 'share', {
+      value: undefined,
+      configurable: true,
+      writable: true,
+    });
+
+    try {
+      const result$ = service.shareData(roundData);
+      result$.subscribe((result) => {
+        expect(result).toBe(false);
+        expect(dialogOpenSpy).toHaveBeenCalledWith(
+          expect.any(Function),
+          expect.objectContaining({
+            data: expect.objectContaining({
+              dialogTitle: 'Copy Data',
+              fileTitle: expect.stringContaining('round-on-'),
+              content: expect.stringContaining('"objectType":"round"'),
+            }),
+          }),
+        );
+      });
+    } finally {
+      Object.defineProperty(window.navigator, 'share', {
+        value: originalShare,
+        configurable: true,
+        writable: true,
+      });
+    }
   });
 
   it('should reject an imported CourseDTO object with par.length !== 9 or 18', () => {
@@ -255,6 +318,78 @@ describe('SharingService', () => {
     expect(result).toBeNull();
   });
 
+  it('should reject parseRound when a minimum round property is missing', () => {
+    const incompleteRoundDTO = {
+      ...ROUND_MINIMUM_PROPERTIES_EXAMPLE,
+      // Remove a property that exists in the minimum example
+    } as Partial<Round>;
+    delete incompleteRoundDTO.putts;
+
+    const result = (service as any).parseRound(
+      incompleteRoundDTO as RoundWithCourseDTO,
+      false,
+    );
+
+    expect(result).toBeNull();
+  });
+
+  it('should accept parseRound when only maximum-only round properties are missing', () => {
+    const maximumOnlyMissingRoundDTO = {
+      ...ROUND_MAXIMUM_PROPERTIES_EXAMPLE,
+      // Remove properties that are present only on the maximum example
+    } as Partial<Round>;
+    delete maximumOnlyMissingRoundDTO.matchPlay?.opponentStrokes;
+    delete maximumOnlyMissingRoundDTO.matchPlay?.showOpponentScores;
+
+    const result = (service as any).parseRound(
+      maximumOnlyMissingRoundDTO as RoundWithCourseDTO,
+      false,
+    );
+
+    expect(result).not.toBeNull();
+    expect(result?.id).toBe(ROUND_MAXIMUM_PROPERTIES_EXAMPLE.id);
+    expect(result?.courseId).toBe(ROUND_MAXIMUM_PROPERTIES_EXAMPLE.courseId);
+    expect(result?.roundVariety).toBe(
+      ROUND_MAXIMUM_PROPERTIES_EXAMPLE.roundVariety,
+    );
+    expect(result?.generalNotes).toBe(
+      ROUND_MAXIMUM_PROPERTIES_EXAMPLE.generalNotes,
+    );
+    expect(result?.opponentStrokes).toBeUndefined();
+    expect(result?.showOpponentScores).toBeUndefined();
+  });
+
+  it('should accept an imported RoundWithCourseDTO when only maximum-only round properties are missing', () => {
+    const rawRoundWithCourseDTO: RoundWithCourseDTO = {
+      id: 'round-missing-optional',
+      dateStringISO: '2023-01-03T00:00:00Z',
+      courseId: 'course1',
+      strokes: new Array(18).fill(4),
+      putts: new Array(18).fill(1),
+      roundVariety: RoundVariety.EIGHTEEN,
+      generalNotes: 'Optional properties omitted',
+      // Maximum-only properties intentionally omitted
+      courseDTO: {
+        id: 'course1',
+        name: 'Test Course',
+        par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
+        objectType: 'course',
+      } as any,
+      objectType: 'round',
+    } as any;
+
+    const result = service.convertDTOToDomain(rawRoundWithCourseDTO);
+    expect(result).not.toBeNull();
+    expect(result!.objectType).toBe('round');
+    const roundWithCourse: RoundWithCourse = result!.data as RoundWithCourse;
+    const round: Round = roundWithCourse.round;
+    expect(round.id).toBe('uuid-test');
+    expect(round.courseId).toBe('course1');
+    expect(round.roundVariety).toBe(RoundVariety.EIGHTEEN);
+    expect(round.matchPlay?.opponentStrokes).toBeUndefined();
+    expect(round.matchPlay?.showOpponentScores).toBeUndefined();
+  });
+
   it('should create Round if only generalNotes is missing in the RoundWithCourseDTO itself', () => {
     // Missing required field in roundDTO (e.g., generalNotes)
     const rawRoundWithCourseDTO: RoundWithCourseDTO = {
@@ -416,7 +551,6 @@ describe('SharingService', () => {
           id: 'c1',
           name: 'Course',
           par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
-          appFontScaling: 1,
         },
       ],
     };
@@ -455,7 +589,6 @@ describe('SharingService', () => {
           id: 'c1',
           name: 'Course',
           par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
-          appFontScaling: 1,
         },
       ],
     };

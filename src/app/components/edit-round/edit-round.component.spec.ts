@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { assert, Mocked } from 'vitest';
+import { assert, describe, expect, it, Mocked, vi } from 'vitest';
 import { SNACKBAR_MESSAGES } from '../../models/constants';
 import { Course, CourseVariety } from '../../models/course';
 import { Round, RoundVariety } from '../../models/round';
@@ -287,6 +287,53 @@ describe('EditRoundComponent', () => {
 
   it('should return true from returnTrue()', () => {
     expect(component.returnTrue()).toBe(true);
+  });
+
+  it('should show stroke markers and match indicators for net score comparison', () => {
+    component.editingRound = {
+      id: 'r-match-indicator',
+      dateStringISO: new Date().toISOString(),
+      courseId: 'c-match',
+      strokes: [4, 5, 3, 0, 0, 0, 0, 0, 0],
+      putts: [1, 2, 1, 0, 0, 0, 0, 0, 0],
+      roundVariety: RoundVariety.EIGHTEEN,
+      generalNotes: '',
+      matchPlay: {
+        opponentStrokes: [5, 4, 4, 0, 0, 0, 0, 0, 0],
+        opponentAdvantage: [-1, 0, 1, 0, 0, 0, 0, 0, 0],
+        opponentName: 'Opponent',
+        showOpponentScores: true,
+      },
+    };
+
+    expect(component.getStrokeCountForHole(0)).toBe(1);
+    expect(component.getStrokeCountForHole(2)).toBe(1);
+    expect(component.getMatchIndicator(0)).toBe('right');
+    expect(component.getMatchIndicator(1)).toBe('left');
+    expect(component.getMatchIndicator(2)).toBe('=');
+  });
+
+  it('should mark which player gets strokes and which player wins each hole', () => {
+    component.editingRound = {
+      id: 'r-match',
+      dateStringISO: new Date().toISOString(),
+      courseId: 'c-match',
+      strokes: [4, 5, 3, 0, 0, 0, 0, 0, 0],
+      putts: [1, 2, 1, 0, 0, 0, 0, 0, 0],
+      roundVariety: RoundVariety.EIGHTEEN,
+      generalNotes: '',
+      matchPlay: {
+        opponentStrokes: [5, 4, 4, 0, 0, 0, 0, 0, 0],
+        opponentAdvantage: [-1, 0, 1, 0, 0, 0, 0, 0, 0],
+        opponentName: 'Opponent',
+        showOpponentScores: true,
+      },
+    };
+
+    expect(component.getMatchIndicator(0)).toBe('right');
+    expect(component.getMatchIndicator(1)).toBe('left');
+    expect(component.getMatchIndicator(2)).toBe('=');
+    expect(component.getMatchStatusText()).toBe('AS');
   });
 
   it('should update date on dateChanged()', () => {

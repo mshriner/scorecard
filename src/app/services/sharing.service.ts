@@ -17,7 +17,8 @@ import {
 } from '../models/data-transfer';
 import {
   Round,
-  ROUND_EXAMPLE,
+  ROUND_MAXIMUM_PROPERTIES_EXAMPLE,
+  ROUND_MINIMUM_PROPERTIES_EXAMPLE,
   ROUND_NOTES_MAX_LENGTH,
   RoundDTO,
   RoundWithCourseDTO,
@@ -45,13 +46,6 @@ export class SharingService {
   }
 
   public shareData(dataToShare: DataToShare): Observable<boolean> {
-    if (!this.CAN_SHARE_DATA || !this.CAN_SHARE_FILES) {
-      this.snackBarService.openTemporarySnackBar(
-        'Your browser does not support sharing at this time.',
-      );
-      return of(false);
-    }
-
     try {
       const exportedItem: ExportedItem | null =
         this.convertDomainToDTO(dataToShare);
@@ -64,6 +58,11 @@ export class SharingService {
       }
 
       const shareFileName = this.getShareFileName(dataToShare);
+
+      if (!navigator.share) {
+        this.openExportDialog(exportedItem, shareFileName);
+        return of(false);
+      }
 
       const toShare = {
         title: `Exported ${shareFileName}`,
@@ -80,16 +79,7 @@ export class SharingService {
           // The data could not be or was not shared.
           if (e.name !== 'AbortError') {
             console.error(e);
-            this.dialog
-              .open(PreformattedDialogComponent, {
-                data: {
-                  dialogTitle: 'Copy Data',
-                  fileTitle: shareFileName,
-                  content: JSON.stringify(exportedItem),
-                },
-              })
-              .afterClosed()
-              .subscribe();
+            this.openExportDialog(exportedItem, shareFileName);
           }
           return of(false);
         }),
@@ -99,6 +89,19 @@ export class SharingService {
       this.snackBarService.openTemporarySnackBar(`${e}`);
       return of(false);
     }
+  }
+
+  private openExportDialog(exportedItem: ExportedItem, shareFileName: string) {
+    this.dialog
+      .open(PreformattedDialogComponent, {
+        data: {
+          dialogTitle: 'Copy Data',
+          fileTitle: shareFileName,
+          content: JSON.stringify(exportedItem),
+        },
+      })
+      .afterClosed()
+      .subscribe();
   }
 
   private getShareFileName(dataToShare: DataToShare) {
@@ -280,15 +283,23 @@ export class SharingService {
     addImportedMessage = true,
   ): Round | null {
     const importedRound = {} as Round;
+    const importedRoundRecord = importedRound as unknown as Record<
+      string,
+      unknown
+    >;
     let valid = true;
     if (!roundDTO.generalNotes?.length) {
       roundDTO.generalNotes = '';
     }
-    Object.keys(ROUND_EXAMPLE).forEach((key) => {
-      if (roundDTO[key] !== undefined) {
-        importedRound[key] = roundDTO[key];
-      } else {
-        valid = false;
+    Object.keys(ROUND_MAXIMUM_PROPERTIES_EXAMPLE).forEach((key) => {
+      const roundDTORecord = roundDTO as unknown as Record<string, unknown>;
+      const minimumRoundRecord =
+        ROUND_MINIMUM_PROPERTIES_EXAMPLE as unknown as Record<string, unknown>;
+      const roundValue = roundDTORecord[key];
+      if (roundValue !== undefined) {
+        importedRoundRecord[key] = roundValue;
+      } else if (minimumRoundRecord[key] !== undefined) {
+        valid = false; // If a required property is missing, mark as invalid
       }
     });
     if (!valid) {
@@ -309,6 +320,10 @@ export class SharingService {
     addImportedMessage = true,
   ): Course | null {
     const importedCourse = {} as Course;
+    const importedCourseRecord = importedCourse as unknown as Record<
+      string,
+      unknown
+    >;
     let valid = true;
     if (
       (courseDTO?.par?.length !== 18 && courseDTO?.par?.length !== 9) ||
@@ -326,8 +341,10 @@ export class SharingService {
           : CourseVariety.EIGHTEEN;
     }
     Object.keys(COURSE_EXAMPLE).forEach((key) => {
-      if (courseDTO[key] !== undefined) {
-        importedCourse[key] = courseDTO[key];
+      const courseDTORecord = courseDTO as unknown as Record<string, unknown>;
+      const courseValue = courseDTORecord[key];
+      if (courseValue !== undefined) {
+        importedCourseRecord[key] = courseValue;
       } else {
         valid = false;
       }

@@ -76,7 +76,7 @@ export class AppComponent implements OnInit {
   private readonly snackBarService = inject(SnackBarService);
   private readonly serviceWorker = inject(SwUpdate);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly changeDetection = inject(ChangeDetectorRef);
+  readonly changeDetection = inject(ChangeDetectorRef);
   private readonly userService = inject(UserService);
   private readonly roundService = inject(RoundService);
   private readonly courseService = inject(CourseService);
@@ -336,13 +336,15 @@ export class AppComponent implements OnInit {
         const sanitizedName = newProfileName?.trim();
         if (sanitizedName?.length && this.currentUser) {
           this.currentUser.name = sanitizedName;
-          this.userService.setCurrentUser(this.currentUser);
-          this.appStateService.currentUser.set(
-            this.userService.getCurrentUser(),
-          );
+          this.updateCurrentUser(this.currentUser);
           this.changeDetection.markForCheck();
         }
       });
+  }
+
+  public updateCurrentUser(user: LocalUserWithFilters): void {
+    this.userService.setCurrentUser(user);
+    this.appStateService.currentUser.set(this.userService.getCurrentUser());
   }
 
   public shareUserProfile(userToEdit: LocalUserWithFilters): void {

@@ -119,7 +119,7 @@ export class EditCourseComponent implements OnInit {
   public readonly HOLE_COL = 'hole';
   public readonly PAR_COL = 'par';
   public readonly HOLE_SUMMARY_COL = 'holeSummary';
-  public readonly PAR_SUMMARY_COL = 'parSummary';
+  public readonly PAR_SUMMARY_COL = 'strokesSummary';
   public readonly COURSE_TABLE_COLUMNS = [
     {
       columnDef: this.HOLE_COL,
