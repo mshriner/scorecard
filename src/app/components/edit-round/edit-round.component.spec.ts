@@ -302,7 +302,7 @@ describe('EditRoundComponent', () => {
         opponentStrokes: [5, 4, 4, 0, 0, 0, 0, 0, 0],
         opponentAdvantage: [-1, 0, 1, 0, 0, 0, 0, 0, 0],
         opponentName: 'Opponent',
-        showOpponentScores: true,
+        isMatchPlay: true,
       },
     };
 
@@ -326,7 +326,7 @@ describe('EditRoundComponent', () => {
         opponentStrokes: [5, 4, 4, 0, 0, 0, 0, 0, 0],
         opponentAdvantage: [-1, 0, 1, 0, 0, 0, 0, 0, 0],
         opponentName: 'Opponent',
-        showOpponentScores: true,
+        isMatchPlay: true,
       },
     };
 

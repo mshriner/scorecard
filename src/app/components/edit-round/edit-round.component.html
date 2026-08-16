@@ -72,7 +72,7 @@
       <div class="almost-full-width-input padding-top-8 padding-bottom-8">
         <mat-card appearance="outlined" class="center-text">
           <mat-checkbox
-            [(ngModel)]="showOpponentScores"
+            [(ngModel)]="isMatchPlay"
             [ngModelOptions]="{ standalone: true }"
             (change)="updateUnsavedData()"
           >
@@ -174,7 +174,7 @@
           >
             @switch (column.columnDef) {
               @case (HOLE_COL) {
-                @if (showOpponentScores()) {
+                @if (isMatchPlay()) {
                   <b>{{ getMatchStatusText() }}</b>
                 } @else {
                   <b> Total </b>
@@ -430,16 +430,21 @@
   @switch (column.columnDef) {
     @case (HOLE_COL) {
       <div class="hole-number-with-strokes">
-        <span
-          ><b>{{ holeIndex + 1 }}</b></span
-        >
-        @if (getStrokeCountForHole(holeIndex)) {
-          <span class="stroke-given-markers">
-            @for (stroke of getStrokeMarkersForHole(holeIndex); track stroke) {
-              <span>✕</span>
+        <span>
+          <b>
+            {{ holeIndex + 1 }}
+            @if (isMatchPlay() && getStrokeCountForHole(holeIndex)) {
+              <span class="stroke-given-markers">
+                @for (
+                  stroke of getStrokeMarkersForHole(holeIndex);
+                  track stroke
+                ) {
+                  <span>✕</span>
+                }
+              </span>
             }
-          </span>
-        }
+          </b>
+        </span>
       </div>
       @if (currentCourse()?.par?.length) {
         <br />
@@ -447,20 +452,19 @@
       }
     }
     @case (MATCH_INDICATOR_COL) {
-      @switch (getMatchIndicator(holeIndex)) {
-        @case ('left') {
-          <mat-icon
-            class="match-indicator-icon"
-            fontIcon="keyboard_double_arrow_left"
-          ></mat-icon>
+      <span class="pre large-font">
+        @switch (getMatchIndicator(holeIndex)) {
+          @case ('left') {
+            &larr;
+          }
+          @case ('right') {
+            &rarr;
+          }
+          @default {
+            <span class="halved-hole"> = </span>
+          }
         }
-        @case ('right') {
-          <mat-icon
-            class="match-indicator-icon"
-            fontIcon="keyboard_double_arrow_right"
-          ></mat-icon>
-        }
-      }
+      </span>
     }
     @case (OPPONENT_STROKES_COL) {
       <ng-container

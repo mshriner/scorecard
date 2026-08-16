@@ -40,6 +40,7 @@ import {
 } from '../../models/course';
 import {
   EMPTY_EIGHTEEN_NUMBERS,
+  MatchPlayDetails,
   Round,
   ROUND_NOTES_MAX_LENGTH,
   RoundVariety,
@@ -138,7 +139,7 @@ export class EditRoundComponent implements OnInit {
   public roundIdToEdit: string;
   public imported = false;
   private needToSaveImportedCourse = false;
-  readonly showOpponentScores = signal(false);
+  readonly isMatchPlay = signal(false);
   public readonly SNACKBAR_MESSAGES = SNACKBAR_MESSAGES;
   public readonly ROUND_NOTES_MAX_LENGTH = ROUND_NOTES_MAX_LENGTH;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
@@ -155,7 +156,7 @@ export class EditRoundComponent implements OnInit {
   public readonly MATCH_INDICATOR_SUMMARY_COL = 'matchIndicatorSummary';
   public readonly PUTTS_SUMMARY_COL = 'puttsSummary';
   readonly roundTableColumns = computed(() => {
-    if (this.showOpponentScores()) {
+    if (this.isMatchPlay()) {
       return this.ROUND_TABLE_COLUMNS_OPPONENT_MODE_ON;
     }
     return this.ROUND_TABLE_COLUMNS_OPPONENT_MODE_OFF;
@@ -197,13 +198,13 @@ export class EditRoundComponent implements OnInit {
     },
   ];
   readonly roundTableColumnIds = computed(() => {
-    if (this.showOpponentScores()) {
+    if (this.isMatchPlay()) {
       return this.ROUND_TABLE_COLUMN_IDS_OPPONENT_MODE_ON;
     }
     return this.ROUND_TABLE_COLUMN_IDS_OPPONENT_MODE_OFF;
   });
   readonly roundTableSummaryColumnIds = computed(() => {
-    if (this.showOpponentScores()) {
+    if (this.isMatchPlay()) {
       return this.ROUND_TABLE_SUMMARY_COLUMN_IDS_OPPONENT_MODE_ON;
     }
     return this.ROUND_TABLE_SUMMARY_COLUMN_IDS_OPPONENT_MODE_OFF;
@@ -293,15 +294,14 @@ export class EditRoundComponent implements OnInit {
     this.roundIdToEdit = navState?.[NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT];
 
     effect(() => {
-      this.showOpponentScores();
+      this.isMatchPlay();
       if (!this.editingRound) {
         return;
       }
       if (!this.editingRound.matchPlay) {
         this.editingRound.matchPlay = {};
       }
-      this.editingRound.matchPlay.showOpponentScores =
-        this.showOpponentScores();
+      this.editingRound.matchPlay.isMatchPlay = this.isMatchPlay();
       this.editingRound.matchPlay.opponentStrokes ??= structuredClone(
         EMPTY_EIGHTEEN_NUMBERS,
       );
@@ -324,9 +324,7 @@ export class EditRoundComponent implements OnInit {
       }
 
       this.editingRound = structuredClone(retrieved);
-      this.showOpponentScores.set(
-        !!this.editingRound.matchPlay?.showOpponentScores,
-      );
+      this.isMatchPlay.set(!!this.editingRound.matchPlay?.isMatchPlay);
       this.appStateService.setPageTitle(
         `Editing ${datePipe.transform(retrieved.dateStringISO)}`,
       );
@@ -342,7 +340,7 @@ export class EditRoundComponent implements OnInit {
         opponentStrokes: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
         opponentAdvantage: structuredClone(EIGHTEEN_NUMBERS_ZEROED),
         opponentName: 'Opponent',
-        showOpponentScores: false,
+        isMatchPlay: false,
       },
       strokes: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
       putts: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
@@ -559,8 +557,8 @@ export class EditRoundComponent implements OnInit {
         continue;
       }
 
-      const playerNet = playerScore - (advantage < 0 ? 1 : 0);
-      const opponentNet = opponentScore - (advantage > 0 ? 1 : 0);
+      const playerNet = playerScore;
+      const opponentNet = opponentScore - (advantage || 0);
 
       if (playerNet < opponentNet) {
         playerWins++;
@@ -737,6 +735,7 @@ export class EditRoundComponent implements OnInit {
     this.editingRound = importedRound.round;
     this.roundIdToEdit = importedRound.round.id;
     this.coursesToChooseFrom = [this.currentCourse()!];
+    this.isMatchPlay.set(!!this.editingRound.matchPlay?.isMatchPlay);
     this.updateUnsavedData();
     setTimeout(() => {
       this.courseSelectInput()?.writeValue(this.currentCourse()?.id);
@@ -882,7 +881,7 @@ export class EditRoundComponent implements OnInit {
         width: '42rem',
       })
       .afterClosed()
-      .subscribe((updatedMatchPlay) => {
+      .subscribe((updatedMatchPlay: MatchPlayDetails) => {
         if (!updatedMatchPlay) {
           return;
         }
@@ -894,8 +893,8 @@ export class EditRoundComponent implements OnInit {
         this.editingRound.matchPlay.opponentAdvantage =
           updatedMatchPlay.opponentAdvantage ??
           this.editingRound.matchPlay.opponentAdvantage;
-        this.editingRound.matchPlay.showOpponentScores = true;
-        this.showOpponentScores.set(true);
+        this.editingRound.matchPlay.isMatchPlay = true;
+        this.isMatchPlay.set(true);
         this.updateUnsavedData();
         this.changeDetector.detectChanges();
       });

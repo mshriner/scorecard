@@ -339,7 +339,7 @@ describe('SharingService', () => {
       // Remove properties that are present only on the maximum example
     } as Partial<Round>;
     delete maximumOnlyMissingRoundDTO.matchPlay?.opponentStrokes;
-    delete maximumOnlyMissingRoundDTO.matchPlay?.showOpponentScores;
+    delete maximumOnlyMissingRoundDTO.matchPlay?.isMatchPlay;
 
     const result = (service as any).parseRound(
       maximumOnlyMissingRoundDTO as RoundWithCourseDTO,
@@ -356,7 +356,7 @@ describe('SharingService', () => {
       ROUND_MAXIMUM_PROPERTIES_EXAMPLE.generalNotes,
     );
     expect(result?.opponentStrokes).toBeUndefined();
-    expect(result?.showOpponentScores).toBeUndefined();
+    expect(result?.isMatchPlay).toBeUndefined();
   });
 
   it('should accept an imported RoundWithCourseDTO when only maximum-only round properties are missing', () => {
@@ -387,7 +387,7 @@ describe('SharingService', () => {
     expect(round.courseId).toBe('course1');
     expect(round.roundVariety).toBe(RoundVariety.EIGHTEEN);
     expect(round.matchPlay?.opponentStrokes).toBeUndefined();
-    expect(round.matchPlay?.showOpponentScores).toBeUndefined();
+    expect(round.matchPlay?.isMatchPlay).toBeUndefined();
   });
 
   it('should create Round if only generalNotes is missing in the RoundWithCourseDTO itself', () => {

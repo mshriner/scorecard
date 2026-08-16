@@ -10,7 +10,7 @@ export interface RoundLike {
 }
 
 export type MatchPlayDetails = {
-  showOpponentScores?: boolean;
+  isMatchPlay?: boolean;
   opponentStrokes?: NineNumbersOrNulls | EighteenNumbersOrNulls;
   opponentName?: string;
 
@@ -80,7 +80,7 @@ export const ROUND_MAXIMUM_PROPERTIES_EXAMPLE: Round = {
       1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1,
     ],
     opponentName: 'opponent',
-    showOpponentScores: true,
+    isMatchPlay: true,
   },
 };
 

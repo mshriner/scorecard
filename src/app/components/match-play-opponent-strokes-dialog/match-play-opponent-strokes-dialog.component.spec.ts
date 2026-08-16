@@ -15,7 +15,7 @@ describe('MatchPlayOpponentStrokesDialogComponent', () => {
       matchPlay: {
         opponentName: 'Alex',
         opponentAdvantage: Array.from({ length: 18 }, () => 0) as any,
-        showOpponentScores: true,
+        isMatchPlay: true,
       },
     };
     await TestBed.configureTestingModule({
@@ -51,7 +51,7 @@ describe('MatchPlayOpponentStrokesDialogComponent', () => {
     expect(component.dialogRef.close).toHaveBeenCalledWith({
       opponentName: 'Riley',
       opponentAdvantage: expect.arrayContaining([-1, -2, ...Array(16).fill(0)]),
-      showOpponentScores: true,
+      isMatchPlay: true,
     });
   });
 });

@@ -111,15 +111,15 @@ export class MatchPlayOpponentStrokesDialogComponent {
   }
 
   public get handicapDifferenceText(): string {
-    const difference = this.opponentAdvantage.filter(
-      (value) => value !== 0,
-    ).length;
+    const difference = this.opponentAdvantage
+      .filter((value) => value !== 0)
+      .reduce((acc, value) => acc + value, 0);
 
     if (difference === 0) {
-      return 'Handicap difference: Even';
+      return 'Even';
     }
 
-    return `Handicap difference: ${difference}`;
+    return `${difference}`;
   }
 
   public readonly getStrokesColumnHeader = computed(() => {
@@ -135,7 +135,7 @@ export class MatchPlayOpponentStrokesDialogComponent {
   public toggleHole(index: number): void {
     const currentValue = this.opponentAdvantage[index] ?? 0;
     if (currentValue === 0) {
-      this.opponentAdvantage[index] = this.userHandicapIsHigher() ? 1 : -1;
+      this.opponentAdvantage[index] = 1;
     } else {
       this.opponentAdvantage[index] = 0;
     }
@@ -180,13 +180,11 @@ export class MatchPlayOpponentStrokesDialogComponent {
     const result: MatchPlayDetails = {
       opponentName: this.opponentName.trim() || 'Opponent',
       opponentAdvantage: structuredClone(
-        this.userHandicapIsHigher()
-          ? (this.opponentAdvantage.map((v) => -1 * v + 0) as
-              | NineNumbers
-              | EighteenNumbers)
-          : this.opponentAdvantage,
+        this.opponentAdvantage.map(
+          (v) => (this.userHandicapIsHigher() ? -1 : 1) * Math.abs(v) + 0, // converts -0 to 0 if needed
+        ) as NineNumbers | EighteenNumbers,
       ),
-      showOpponentScores: this.round.matchPlay?.showOpponentScores ?? false,
+      isMatchPlay: this.round.matchPlay?.isMatchPlay ?? false,
     };
     this.dialogRef.close(result);
   }

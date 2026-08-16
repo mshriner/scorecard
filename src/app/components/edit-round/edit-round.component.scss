@@ -52,22 +52,23 @@ th {
 .match-indicator-header {
   padding: 0 !important;
   overflow: visible !important;
+  width: 0;
 }
-
-// .match-indicator-icon,
-// .match-indicator-equal {
-//   display: block;
-//   width: 0;
-//   margin: 0 auto;
-//   position: relative;
-//   left: 50%;
-//   transform: translateX(-50%);
-//   font-size: 1rem;
-//   line-height: 1;
-// }
 
 .match-indicator-spacer {
   display: block;
   width: 0;
   height: 1rem;
+}
+
+.large-font {
+  font-size: xxx-large;
+}
+
+.halved-hole {
+  opacity: 0.5;
+}
+
+.pre {
+  font-family: monospace;
 }
