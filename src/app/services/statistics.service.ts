@@ -85,13 +85,19 @@ export class StatisticsService {
   private calculateRoundCompletion(round: Round): RoundCompletion {
     const strokes = round?.strokes ?? [];
     const firstNine =
+      round?.roundVariety !== RoundVariety.BACK_NINE &&
       strokes.slice(0, 9).length === 9
         ? strokes.slice(0, 9)
         : NINE_NUMBERS_ZEROED;
-    const secondNine =
-      strokes.slice(9, 18).length === 9
-        ? strokes.slice(9, 18)
-        : NINE_NUMBERS_ZEROED;
+    let secondNine: (number | null)[] = NINE_NUMBERS_ZEROED;
+    if (
+      round?.roundVariety === RoundVariety.BACK_NINE &&
+      strokes.length === 9
+    ) {
+      secondNine = strokes.slice(0, 9);
+    } else if (strokes.slice(9, 18).length === 9) {
+      secondNine = strokes.slice(9, 18);
+    }
 
     const firstNineComplete = !firstNine.some((stroke) => !stroke);
     const secondNineComplete = !secondNine.some((stroke) => !stroke);

@@ -1,0 +1,18 @@
+.match-play-editor {
+  display: flex;
+  flex-direction: column;
+  min-width: min(100%, 36rem);
+
+  table {
+    width: 100%;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.handicap-toggle {
+  display: flex;
+  flex-direction: column;
+}

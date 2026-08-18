@@ -1,23 +1,39 @@
 import { Course, COURSE_EXAMPLE, CourseDTO, CourseVariety } from './course';
 import { ExportedItem } from './data-transfer';
-import {
-  EighteenNumbersOrNulls,
-  NineNumbersOrNulls,
-  StorageObject,
-} from './storage-object';
+import { EighteenNumbersOrNulls, NineNumbersOrNulls } from './storage-object';
 
 export interface RoundLike {
   strokes: NineNumbersOrNulls | EighteenNumbersOrNulls;
   roundVariety: RoundVariety;
   courseId?: string;
+  matchPlay?: MatchPlayDetails;
 }
 
-export interface Round extends RoundLike, StorageObject {
+export type MatchPlayDetails = {
+  isMatchPlay?: boolean;
+  opponentStrokes?: NineNumbersOrNulls | EighteenNumbersOrNulls;
+  opponentName?: string;
+
+  /** Opponent advantage in match play is reflected in the difference in
+   * handicaps between you and your opponent. For example, if you have a
+   * handicap of 5 and your opponent has a handicap of 10, then you must
+   * give your opponent a stroke on the 5 hardest holes during the round.
+   * This array represents the holes on which you must give your opponent
+   * a stroke. If your handicap is lower than your opponent's, then the
+   * values in this array will be positive because the opponent will be
+   * receiving strokes off their score as advantage. If your handicap is higher
+   * than your opponent's, then the values in this array will be negative.
+   */
+  opponentAdvantage?: NineNumbersOrNulls | EighteenNumbersOrNulls;
+};
+
+export type Round = RoundLike & {
+  id: string;
   dateStringISO: string;
   courseId: string;
   putts: NineNumbersOrNulls | EighteenNumbersOrNulls;
   generalNotes: string;
-}
+};
 
 export interface BestRound extends RoundLike {
   course: Course;
@@ -50,7 +66,29 @@ export const DisplayRoundVariety: Record<RoundVariety, string> = {
   FULL_NINE: 'Full round (9 holes)',
 };
 
-export const ROUND_EXAMPLE: Round = {
+export const ROUND_MAXIMUM_PROPERTIES_EXAMPLE: Round = {
+  id: 'id',
+  dateStringISO: new Date().toISOString(),
+  courseId: COURSE_EXAMPLE.id,
+  strokes: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+  putts: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  roundVariety: RoundVariety.EIGHTEEN,
+  generalNotes: 'note',
+  matchPlay: {
+    opponentStrokes: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+    opponentAdvantage: [
+      1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1,
+    ],
+    opponentName: 'opponent',
+    isMatchPlay: true,
+  },
+};
+
+/**
+ * Imported JSON objects will be considered invalid if they are missing any of the properties of this ROUND_EXAMPLE object.
+ * Optional properties should not be added to this object, as they will be considered required for the purposes of validating imported JSON objects.
+ */
+export const ROUND_MINIMUM_PROPERTIES_EXAMPLE: Round = {
   id: 'id',
   dateStringISO: new Date().toISOString(),
   courseId: COURSE_EXAMPLE.id,

@@ -58,14 +58,17 @@ export class UserService {
       sortBy: ROUND_DATE_SORT_COL,
       sortDescending: true,
       homeTabIndex: 0,
-      newStrokesUI: true,
     };
 
     // Only set default properties if they are not already present in newUser
     const userToSave: LocalUserWithFilters = { ...newUser };
-    for (const [key, value] of Object.entries(defaultPropertiesForNewUser)) {
-      if (userToSave[key] === undefined || userToSave[key] === null) {
-        userToSave[key] = value;
+    const record = userToSave as unknown as Record<string, unknown>;
+    for (const key of Object.keys(defaultPropertiesForNewUser) as Array<
+      keyof LocalFilters
+    >) {
+      const value = defaultPropertiesForNewUser[key];
+      if (record[String(key)] === undefined || record[String(key)] === null) {
+        record[String(key)] = value;
       }
     }
 

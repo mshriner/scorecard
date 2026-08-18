@@ -41,10 +41,10 @@ export class BestRoundDialogComponent {
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly HOLE_COL = 'hole';
-  public readonly STROKES_COL = 'par';
+  public readonly STROKES_COL = 'strokes';
   public readonly DATE_RECORDED_COL = 'dateRecorded';
   public readonly HOLE_SUMMARY_COL = 'holeSummary';
-  public readonly STROKES_SUMMARY_COL = 'parSummary';
+  public readonly STROKES_SUMMARY_COL = 'strokesSummary';
   public readonly EMPTY_COL = 'dateRecordedEmpty';
   public readonly ROUND_TABLE_COLUMNS: ColumnDef[] = [
     {

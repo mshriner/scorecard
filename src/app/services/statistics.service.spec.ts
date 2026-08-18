@@ -1,7 +1,7 @@
-import { TestBed } from '@angular/core/testing';
-
 import { provideZonelessChangeDetection } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+import { RoundVariety } from '../models/round';
 import { CourseService } from './course.service';
 import { StatisticsService } from './statistics.service';
 
@@ -123,5 +123,115 @@ describe('StatisticsService', () => {
     expect(stats.inferredGreensInRegulation).toBeGreaterThanOrEqual(0);
     expect(stats.inferredHolesScramblingNeeded).toBeGreaterThanOrEqual(0);
     expect(stats.inferredHolesScramblingSuccessfully).toBeGreaterThanOrEqual(0);
+  });
+
+  // --- NEW TESTS FOR calculateRoundCompletion ---
+  describe('calculateRoundCompletion (private method)', () => {
+    it('should return all false for a null or undefined round', () => {
+      const result = (service as any).calculateRoundCompletion(null);
+      expect(result).toEqual({
+        firstNineComplete: false,
+        secondNineComplete: false,
+        eighteenHolesComplete: false,
+      });
+    });
+
+    it('should return all false for a round with missing or empty strokes', () => {
+      const round = { strokes: undefined } as any;
+      const result = (service as any).calculateRoundCompletion(round);
+      expect(result).toEqual({
+        firstNineComplete: false,
+        secondNineComplete: false,
+        eighteenHolesComplete: false,
+      });
+    });
+
+    it('should correctly identify a fully completed 18-hole round', () => {
+      const round = {
+        strokes: [4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+      } as any;
+      const result = (service as any).calculateRoundCompletion(round);
+      expect(result).toEqual({
+        firstNineComplete: true,
+        secondNineComplete: true,
+        eighteenHolesComplete: true,
+      });
+    });
+
+    it('should identify only the first nine as complete if back nine is missing', () => {
+      const round = {
+        strokes: [4, 4, 4, 4, 4, 4, 4, 4, 4],
+        roundVariety: null, // Simulating anything other than BACK_NINE
+      } as any;
+      const result = (service as any).calculateRoundCompletion(round);
+      expect(result).toEqual({
+        firstNineComplete: true,
+        secondNineComplete: false,
+        eighteenHolesComplete: false,
+      });
+    });
+
+    it('should mark first nine as incomplete if it contains 0 or falsy strokes', () => {
+      const round = {
+        strokes: [4, 4, 4, 0, 4, 4, 4, 4, 4],
+      } as any;
+      const result = (service as any).calculateRoundCompletion(round);
+      expect(result).toEqual({
+        firstNineComplete: false,
+        secondNineComplete: false,
+        eighteenHolesComplete: false,
+      });
+    });
+
+    it('should identify only the second nine as complete for a BACK_NINE variety with exactly 9 strokes', () => {
+      const round = {
+        strokes: [4, 4, 4, 4, 4, 4, 4, 4, 4],
+        roundVariety: RoundVariety.BACK_NINE,
+      } as any;
+      const result = (service as any).calculateRoundCompletion(round);
+      expect(result).toEqual({
+        firstNineComplete: false,
+        secondNineComplete: true,
+        eighteenHolesComplete: false,
+      });
+    });
+
+    it('should mark second nine as incomplete for a BACK_NINE variety if it contains 0 or falsy strokes', () => {
+      const round = {
+        strokes: [4, 4, 4, 4, null, 4, 4, 4, 4],
+        roundVariety: RoundVariety.BACK_NINE,
+      } as any;
+      const result = (service as any).calculateRoundCompletion(round);
+      expect(result).toEqual({
+        firstNineComplete: false,
+        secondNineComplete: false,
+        eighteenHolesComplete: false,
+      });
+    });
+
+    it('should identify only the second nine as complete if strokes 9-17 are populated but 0-8 are missing/falsy', () => {
+      const round = {
+        // First 9 is incomplete (has 0s), Back 9 is complete
+        strokes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+      } as any;
+      const result = (service as any).calculateRoundCompletion(round);
+      expect(result).toEqual({
+        firstNineComplete: false,
+        secondNineComplete: true,
+        eighteenHolesComplete: false,
+      });
+    });
+
+    it('should return all false if 18 strokes are provided but both nines contain falsy values', () => {
+      const round = {
+        strokes: [4, 4, 4, 0, 4, 4, 4, 4, 4, 3, 3, 3, 3, 0, 3, 3, 3, 3],
+      } as any;
+      const result = (service as any).calculateRoundCompletion(round);
+      expect(result).toEqual({
+        firstNineComplete: false,
+        secondNineComplete: false,
+        eighteenHolesComplete: false,
+      });
+    });
   });
 });

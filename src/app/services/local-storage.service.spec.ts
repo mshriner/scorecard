@@ -1,7 +1,16 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  Mocked,
+  vi,
+} from 'vitest';
 import { LOCAL_STORAGE_KEYS } from '../models/constants';
+import { assertStorageSafe } from '../models/storage-object';
 import { LocalUserWithFilters } from '../models/user';
 import { AppDatabase } from './app-database.service';
 import { LocalStorageService } from './local-storage.service';
@@ -179,6 +188,31 @@ describe('LocalStorageService', () => {
     expect(service.setUser(user)).toBe(true);
     expect(mockDb.users.put).toHaveBeenCalledWith({ ...user, id: user.id });
     expect(service.getUser(user.id)).toEqual(user);
+  });
+
+  it('should reject non-serializable values before saving to Dexie', async () => {
+    await initializeService();
+
+    expect(() =>
+      assertStorageSafe({
+        id: 'bad-round',
+        notAllowed: () => 'nope',
+      }),
+    ).toThrow(TypeError);
+
+    expect(
+      service.setRound({
+        id: 'round-1',
+        dateStringISO: new Date().toISOString(),
+        courseId: 'course-1',
+        strokes: [4, 4, 4, 4, 4, 4, 4, 4, 4],
+        putts: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+        roundVariety: 'EIGHTEEN' as any,
+        generalNotes: 'note',
+        // @ts-expect-error intentional invalid value for storage-safety test
+        buggyValue: () => 'bad',
+      }),
+    ).toBe(false);
   });
 
   it('should remove an item and delete the record from the DB', async () => {

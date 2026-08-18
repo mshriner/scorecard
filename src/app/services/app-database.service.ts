@@ -1,19 +1,25 @@
+import { Service } from '@angular/core';
 import Dexie, { type EntityTable } from 'dexie';
 import { Course } from '../models/course';
 import { Round } from '../models/round';
+import { StorageObject } from '../models/storage-object';
 import { LocalUserWithFilters } from '../models/user';
-import { Service } from '@angular/core';
 
 export interface AppMetadata {
   key: string;
   value: string[] | string | null;
 }
 
+type StorageContainer<
+  T extends StorageObject,
+  K extends keyof T = keyof T,
+> = EntityTable<T, K>;
+
 @Service()
 export class AppDatabase extends Dexie {
-  public users!: EntityTable<LocalUserWithFilters, 'id'>;
-  public courses!: EntityTable<Course, 'id'>;
-  public rounds!: EntityTable<Round, 'id'>;
+  public users!: StorageContainer<LocalUserWithFilters, 'id'>;
+  public courses!: StorageContainer<Course, 'id'>;
+  public rounds!: StorageContainer<Round, 'id'>;
   public metadata!: EntityTable<AppMetadata, 'key'>;
 
   constructor() {

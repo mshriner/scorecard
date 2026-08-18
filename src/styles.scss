@@ -73,7 +73,8 @@ body {
 
 .hole-par-adjustment {
   text-wrap: nowrap;
-  padding: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   display: flex;
   justify-content: center;
 }
@@ -129,7 +130,7 @@ td.thick-top-border {
   border-top-width: 2px;
 }
 
-mat-form-field.almost-full-width-input {
+.almost-full-width-input {
   width: 90vw;
   max-width: 500px;
 }
@@ -158,6 +159,10 @@ mat-dialog-actions {
 
 .padding-inline-16 {
   padding-inline: 16px !important;
+}
+
+.padding-top-8 {
+  padding-top: 8px;
 }
 
 .padding-bottom-8 {
