@@ -574,25 +574,6 @@ export class EditRoundComponent implements OnInit {
     return `${Math.abs(margin)} ${margin > 0 ? 'UP' : 'DN'}`;
   }
 
-  private getNetHoleScore(
-    player: 'you' | 'opponent',
-    holeIndex: number,
-    opponentAdvantage?: NineNumbersOrNulls | EighteenNumbersOrNulls,
-  ): number | null {
-    const playerScore =
-      player === 'you'
-        ? this.editingRound.strokes[holeIndex]
-        : this.editingRound.matchPlay?.opponentStrokes?.[holeIndex];
-
-    if (playerScore == null) {
-      return null;
-    }
-
-    const advantage = opponentAdvantage?.[holeIndex] ?? 0;
-    const receivesStroke = player === 'you' ? advantage < 0 : advantage > 0;
-    return playerScore - (receivesStroke ? 1 : 0);
-  }
-
   public returnTrue(): boolean {
     return true;
   }
