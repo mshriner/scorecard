@@ -175,7 +175,7 @@
             @switch (column.columnDef) {
               @case (HOLE_COL) {
                 @if (isMatchPlay()) {
-                  <b>{{ getMatchStatusText() }}</b>
+                  <b>{{ editingRound | matchPlayStatus }}</b>
                 } @else {
                   <b> Total </b>
                   @if (currentCourse(); as course) {
@@ -188,19 +188,27 @@
                 <span class="match-indicator-spacer"></span>
               }
               @case (OPPONENT_STROKES_COL) {
-                <b>
-                  {{ editingRound | totalRoundScore: undefined : true }}
+                <b
+                  [innerHTML]="
+                    editingRound
+                      | totalRoundScore: undefined : true
+                      | formatThru
+                  "
+                >
                 </b>
                 @if (currentCourse(); as course) {
                   <br />
                   <b>
-                    ({{ editingRound | scoreToPar: course : undefined : true }})
+                    ({{
+                      editingRound
+                        | scoreToPar: course : undefined : true
+                        | formatThru
+                    }})
                   </b>
                 }
               }
               @case (YOUR_STROKES_COL) {
-                <b>
-                  {{ editingRound | totalRoundScore }}
+                <b [innerHTML]="editingRound | totalRoundScore | formatThru">
                 </b>
                 @if (currentCourse(); as course) {
                   <br />
@@ -585,14 +593,20 @@
       }
     }
     @case (OPPONENT_STROKES_SUMMARY_COL) {
-      {{ editingRound | totalRoundScore: outOrIn : true }}
+      <span
+        [innerHTML]="
+          editingRound | totalRoundScore: outOrIn : true | formatThru
+        "
+      >
+      </span>
       @if (currentCourse(); as course) {
         <br />
         ({{ editingRound | scoreToPar: course : outOrIn : true }})
       }
     }
     @case (YOUR_STROKES_SUMMARY_COL) {
-      {{ editingRound | totalRoundScore: outOrIn }}
+      <span [innerHTML]="editingRound | totalRoundScore: outOrIn | formatThru">
+      </span>
       @if (currentCourse(); as course) {
         <br />
         ({{ editingRound | scoreToPar: course : outOrIn }})

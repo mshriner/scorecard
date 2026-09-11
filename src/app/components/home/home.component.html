@@ -211,11 +211,18 @@
               Score
             </mat-header-cell>
             <mat-cell *matCellDef="let round" class="center-text">
-              {{ round | totalRoundScore }} ({{
-                round
-                  | scoreToPar
-                    : statisticsService.courseMap().get(round.courseId)
-              }})
+              <span>
+                <span [innerHTML]="round | totalRoundScore | formatThru"></span>
+                @if (round?.matchPlay?.isMatchPlay) {
+                  <span class="no-wrap"> ({{ round | matchPlayStatus }}) </span>
+                } @else {
+                  ({{
+                    round
+                      | scoreToPar
+                        : statisticsService.courseMap().get(round.courseId)
+                  }})
+                }
+              </span>
             </mat-cell>
           </ng-container>
           <mat-header-row
@@ -273,9 +280,13 @@
                         course.numberOfHoles ?? CourseVariety.EIGHTEEN
                       ],
                   };
-                {{ round.strokes | totalRoundScore }} ({{
-                  round.strokes | scoreToPar: course
-                }})
+                <span>
+                  <span
+                    [innerHTML]="round.strokes | totalRoundScore | formatThru"
+                  >
+                  </span>
+                  ({{ round.strokes | scoreToPar: course }})
+                </span>
               </mat-cell>
             </ng-container>
             <mat-header-row

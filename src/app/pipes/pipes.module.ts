@@ -7,6 +7,8 @@ import {
 } from './average-score.pipe';
 import { CourseVarietySlicePipe } from './course-variety-slice.pipe';
 import { CourseVarietyPipe } from './course-variety.pipe';
+import { FormatThruPipe } from './format-thru-pipe';
+import { MatchPlayStatusPipe } from './match-play-status.pipe';
 import { ParPipe } from './par.pipe';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 import { RoundVarietyPipe } from './round-variety.pipe';
@@ -21,6 +23,8 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     CourseVarietyPipe,
     RoundVarietyPipe,
     CourseVarietySlicePipe,
+    FormatThruPipe,
+    MatchPlayStatusPipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
     WordForScoreToParPipe,
@@ -37,6 +41,8 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     CourseVarietyPipe,
     RoundVarietyPipe,
     CourseVarietySlicePipe,
+    FormatThruPipe,
+    MatchPlayStatusPipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
     WordForScoreToParPipe,
@@ -53,6 +59,8 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     CourseVarietyPipe,
     RoundVarietyPipe,
     CourseVarietySlicePipe,
+    FormatThruPipe,
+    MatchPlayStatusPipe,
     RoundVarietyScoresPipe,
     ScoreToParPipe,
     WordForScoreToParPipe,
