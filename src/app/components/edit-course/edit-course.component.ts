@@ -110,7 +110,14 @@ export class EditCourseComponent implements OnInit {
   );
   public searchResults = signal<ApiCourse[]>([]);
   public selectedCourseFromSearch = signal<ApiCourse | null>(null);
+  public loadingSelectedCourse = signal(false);
   public selectedGender = signal<GenderForScoring | null>(null);
+  public availableTees = computed(() => {
+    const tees = this.selectedCourseFromSearch()?.tees;
+    const gender = this.selectedGender();
+    const genderTees = gender ? tees?.[gender] : undefined;
+    return Array.isArray(genderTees) ? genderTees : [];
+  });
   public selectedTee = signal<TeeBox | null>(null);
   public isOnline = signal(navigator.onLine);
   public searchingForCourses = signal(false);
@@ -322,12 +329,7 @@ export class EditCourseComponent implements OnInit {
               }
 
               // Check if any tee set has 9 or 18 holes
-              return Object.values(tees).some((genderTees: TeeBox[]) =>
-                genderTees?.some(
-                  (tee: TeeBox) =>
-                    tee.number_of_holes === 9 || tee.number_of_holes === 18,
-                ),
-              );
+              return Object.values(tees).some((genderTees: TeeBox[]) => !!tees);
             },
           );
 
@@ -349,6 +351,32 @@ export class EditCourseComponent implements OnInit {
           );
         },
       });
+  }
+
+  public selectCourse(course: ApiCourse): void {
+    this.selectedCourseFromSearch.set(course);
+    this.selectedTee.set(null);
+    this.loadingSelectedCourse.set(true);
+    this.golfCourseApiService.getCourseById(course.id!).subscribe({
+      next: (fullCourse) => {
+        const courseDetails =
+          (fullCourse as ApiCourse & { course?: ApiCourse }).course ??
+          fullCourse;
+        this.selectedCourseFromSearch.set({
+          ...course,
+          ...courseDetails,
+          tees: courseDetails.tees,
+        });
+        this.loadingSelectedCourse.set(false);
+      },
+      error: (err) => {
+        this.loadingSelectedCourse.set(false);
+        console.error('Course details error:', err);
+        this.snackBarService.openTemporarySnackBar(
+          'Error loading course details. Please try again.',
+        );
+      },
+    });
   }
 
   public finalizeCourse(): void {
@@ -395,6 +423,7 @@ export class EditCourseComponent implements OnInit {
     this.searchQuery.set('');
     this.searchResults.set([]);
     this.selectedCourseFromSearch.set(null);
+    this.loadingSelectedCourse.set(false);
     this.selectedTee.set(null);
   }
 

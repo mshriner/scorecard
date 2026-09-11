@@ -218,7 +218,7 @@
         @if (searchResults().length > 0) {
           <mat-radio-group
             [value]="selectedCourseFromSearch()"
-            (change)="selectedCourseFromSearch.set($event.value)"
+            (change)="selectCourse($event.value)"
             required
             class="course-search-choices"
           >
@@ -242,7 +242,10 @@
           <ng-container
             *ngTemplateOutlet="
               nextButton;
-              context: { condition: selectedCourseFromSearch() }
+              context: {
+                condition:
+                  selectedCourseFromSearch() && !loadingSelectedCourse(),
+              }
             "
           />
         } @else {
@@ -274,17 +277,16 @@
       </mat-step>
       <mat-step>
         <ng-template matStepLabel>Select Tees</ng-template>
-        @if (selectedCourseFromSearch() && selectedGender()) {
+        @if (loadingSelectedCourse()) {
+          <mat-spinner class="icon-size"></mat-spinner>
+        } @else if (availableTees().length > 0) {
           <mat-radio-group
             [value]="selectedTee()"
             (change)="selectedTee.set($event.value)"
             required
             class="tees-select"
           >
-            @for (
-              tee of selectedCourseFromSearch()!.tees![selectedGender()!];
-              track tee.tee_name
-            ) {
+            @for (tee of availableTees(); track tee.tee_name) {
               <mat-radio-button [value]="tee">
                 {{ tee.tee_name }} - Par {{ tee.par_total }} -
                 {{ tee.total_yards }} yards
