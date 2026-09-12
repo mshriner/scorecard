@@ -1,5 +1,12 @@
 @use '../../../mixins.scss' as mixins;
 
+.flex-score {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  column-gap: 4px;
+}
+
 .select-all {
   padding: 5px 5px;
   mat-checkbox > div {

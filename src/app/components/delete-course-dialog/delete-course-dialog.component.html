@@ -23,7 +23,11 @@
       <mat-header-cell *matHeaderCellDef>Score</mat-header-cell>
       <mat-cell *matCellDef="let round">
         <span>
-          <span [innerHTML]="round | totalRoundScore | formatThru"> </span>
+          <span
+            class="no-wrap"
+            [innerHTML]="round | totalRoundScore | formatThru"
+          >
+          </span>
           ({{ round | scoreToPar: options.course }})
         </span>
       </mat-cell>

@@ -189,6 +189,7 @@
               }
               @case (OPPONENT_STROKES_COL) {
                 <b
+                  class="no-wrap"
                   [innerHTML]="
                     editingRound
                       | totalRoundScore: undefined : true
@@ -208,7 +209,10 @@
                 }
               }
               @case (YOUR_STROKES_COL) {
-                <b [innerHTML]="editingRound | totalRoundScore | formatThru">
+                <b
+                  class="no-wrap"
+                  [innerHTML]="editingRound | totalRoundScore | formatThru"
+                >
                 </b>
                 @if (currentCourse(); as course) {
                   <br />
@@ -594,6 +598,7 @@
     }
     @case (OPPONENT_STROKES_SUMMARY_COL) {
       <span
+        class="no-wrap"
         [innerHTML]="
           editingRound | totalRoundScore: outOrIn : true | formatThru
         "
@@ -605,7 +610,10 @@
       }
     }
     @case (YOUR_STROKES_SUMMARY_COL) {
-      <span [innerHTML]="editingRound | totalRoundScore: outOrIn | formatThru">
+      <span
+        class="no-wrap"
+        [innerHTML]="editingRound | totalRoundScore: outOrIn | formatThru"
+      >
       </span>
       @if (currentCourse(); as course) {
         <br />
