@@ -7,13 +7,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { CourseTees } from './courseTees';
 import { CourseLocation } from './courseLocation';
 
-export interface Course {
-  /**
-   * Opaque 8-character course identifier. Always lowercase on output; accepted case-insensitively on input.
-   */
+/**
+ * The condensed form of a course returned by search. It carries the same identifying and location fields as `Course`, but summarises the tee boxes as a count per grouping rather than embedding each tee box and its holes. Fetch `/v1/courses/{id}` for the full tee box data.
+ */
+export interface CourseSummary {
   id?: string;
   club_name?: string;
   course_name?: string;
@@ -22,5 +21,8 @@ export interface Course {
    */
   scorecard_url?: string;
   location?: CourseLocation;
-  tees?: CourseTees;
+  /**
+   * The number of tee boxes in each grouping.
+   */
+  tees?: { [key: string]: number };
 }

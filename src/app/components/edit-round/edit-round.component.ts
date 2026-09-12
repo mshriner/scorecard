@@ -531,49 +531,6 @@ export class EditRoundComponent implements OnInit {
     return '=';
   }
 
-  public getMatchStatusText(): string {
-    const selectedStrokes = this.roundVarietyScoresPipe.transform(
-      this.editingRound.strokes,
-      this.editingRound.roundVariety,
-    );
-    const selectedOpponentStrokes = this.roundVarietyScoresPipe.transform(
-      this.editingRound.matchPlay?.opponentStrokes || EMPTY_EIGHTEEN_NUMBERS,
-      this.editingRound.roundVariety,
-    );
-    const selectedOpponentAdvantage = this.roundVarietyScoresPipe.transform(
-      this.editingRound.matchPlay?.opponentAdvantage || EIGHTEEN_NUMBERS_ZEROED,
-      this.editingRound.roundVariety,
-    );
-
-    let playerWins = 0;
-    let opponentWins = 0;
-
-    for (let holeIndex = 0; holeIndex < selectedStrokes.length; holeIndex++) {
-      const playerScore = selectedStrokes[holeIndex];
-      const opponentScore = selectedOpponentStrokes[holeIndex];
-      const advantage = selectedOpponentAdvantage[holeIndex] ?? 0;
-
-      if (playerScore == null || opponentScore == null) {
-        continue;
-      }
-
-      const playerNet = playerScore;
-      const opponentNet = opponentScore - (advantage || 0);
-
-      if (playerNet < opponentNet) {
-        playerWins++;
-      } else if (opponentNet < playerNet) {
-        opponentWins++;
-      }
-    }
-
-    const margin = playerWins - opponentWins;
-    if (margin === 0) {
-      return 'AS';
-    }
-    return `${Math.abs(margin)} ${margin > 0 ? 'UP' : 'DN'}`;
-  }
-
   public returnTrue(): boolean {
     return true;
   }
