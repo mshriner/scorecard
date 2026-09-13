@@ -211,20 +211,33 @@
               Score
             </mat-header-cell>
             <mat-cell *matCellDef="let round" class="center-text">
-              <span class="flex-score">
-                <span
-                  class="no-wrap"
-                  [innerHTML]="round | totalRoundScore | formatThru"
-                ></span>
+              @let roundProgress = round | totalRoundScore | formatThru;
+              @let roundFinished = roundProgress | isRoundFinished;
+              <span>
                 @if (round?.matchPlay?.isMatchPlay) {
-                  <span class="no-wrap"> ({{ round | matchPlayStatus }}) </span>
-                } @else {
+                  <span>
+                    {{ round | matchPlayStatus }}
+                    @if (!roundFinished) {
+                      <span class="no-wrap" [innerHTML]="roundProgress"></span>
+                    } @else {
+                      /
+                    }
+                  </span>
+                }
+                <span
+                  [class.match-play-finished-score]="
+                    round?.matchPlay?.isMatchPlay && roundFinished
+                  "
+                >
+                  @if (!round?.matchPlay?.isMatchPlay || roundFinished) {
+                    <span class="no-wrap" [innerHTML]="roundProgress"></span>
+                  }
                   ({{
                     round
                       | scoreToPar
                         : statisticsService.courseMap().get(round.courseId)
                   }})
-                }
+                </span>
               </span>
             </mat-cell>
           </ng-container>

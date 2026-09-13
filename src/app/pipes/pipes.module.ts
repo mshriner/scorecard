@@ -8,6 +8,7 @@ import {
 import { CourseVarietySlicePipe } from './course-variety-slice.pipe';
 import { CourseVarietyPipe } from './course-variety.pipe';
 import { FormatThruPipe } from './format-thru-pipe';
+import { IsRoundFinishedPipe } from './is-round-finished-pipe';
 import { MatchPlayStatusPipe } from './match-play-status.pipe';
 import { ParPipe } from './par.pipe';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
@@ -33,6 +34,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScorePipe,
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
+    IsRoundFinishedPipe,
     FormatTextSizePipe,
     FormatAppThemePipe,
   ],
@@ -51,6 +53,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScorePipe,
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
+    IsRoundFinishedPipe,
     FormatTextSizePipe,
     FormatAppThemePipe,
   ],
@@ -69,6 +72,7 @@ import { TotalRoundScorePipe } from './total-round-score.pipe';
     AverageScorePipe,
     AverageScoreToParPipe,
     CountValidRoundsToAveragePipe,
+    IsRoundFinishedPipe,
     FormatTextSizePipe,
     FormatAppThemePipe,
     DecimalPipe,

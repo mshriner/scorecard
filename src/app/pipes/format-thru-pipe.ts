@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'formatThru',
 })
 export class FormatThruPipe implements PipeTransform {
-  transform(value: unknown, ...args: unknown[]): unknown {
+  transform(value: number | string): number | string {
     if (typeof value !== 'string') {
       return value;
     }
