@@ -173,12 +173,7 @@
     <br />
     <ng-container *ngTemplateOutlet="saveActions" />
   } @else if (showStepper()) {
-    <mat-stepper
-      #searchStepper
-      orientation="vertical"
-      linear
-      (selectionChange)="onStepperSelectionChange($event)"
-    >
+    <mat-stepper #courseStepper orientation="vertical" linear>
       <mat-step>
         <ng-template matStepLabel>Search for Course</ng-template>
         <mat-form-field>
@@ -217,37 +212,44 @@
         <ng-template matStepLabel>Select Course</ng-template>
         @if (searchResults().length > 0) {
           <mat-radio-group
-            [value]="selectedCourseFromSearch()"
+            [value]="selectedCourseFromSearch()?.id"
             (change)="selectCourse($event.value)"
             required
             class="course-search-choices"
           >
             @for (course of searchResults(); track course.id) {
-              <mat-radio-button [value]="course">
+              @let courseDetails = searchResultsById().get(course.id);
+              <mat-radio-button [value]="course.id">
                 <div class="course-name">
-                  {{ course.club_name || 'Unknown Club' }}
-                  @if (course.course_name !== course.club_name) {
+                  {{ courseDetails?.club_name || 'Unknown Club' }}
+                  @if (
+                    courseDetails?.course_name !== courseDetails?.club_name
+                  ) {
                     -
-                    {{ course.course_name || 'Unknown Course' }}
+                    {{ courseDetails?.course_name || 'Unknown Course' }}
                   }
                 </div>
-                @if (course.location?.city && course.location.state) {
+                @if (
+                  courseDetails?.location?.city && courseDetails.location.state
+                ) {
                   <div class="course-location">
-                    {{ course.location!.city }}, {{ course.location!.state }}
+                    {{ courseDetails.location!.city }},
+                    {{ courseDetails.location!.state }}
                   </div>
                 }
               </mat-radio-button>
             }
           </mat-radio-group>
-          <ng-container
-            *ngTemplateOutlet="
-              nextButton;
-              context: {
-                condition:
-                  selectedCourseFromSearch() && !loadingSelectedCourse(),
-              }
-            "
-          />
+          @if (loadingSelectedCourse()) {
+            <mat-spinner class="icon-size"></mat-spinner>
+          } @else if (selectedCourseFromSearch()) {
+            <div class="align-right">
+              <button mat-stroked-button (click)="openCourseDetailsStepper()">
+                <mat-icon>redo</mat-icon>
+                Next
+              </button>
+            </div>
+          }
         } @else {
           <p>No courses found. Go back to search.</p>
         }
@@ -268,18 +270,18 @@
           <mat-radio-button value="male">Male</mat-radio-button>
           <mat-radio-button value="female">Female</mat-radio-button>
         </mat-radio-group>
-        <ng-container
-          *ngTemplateOutlet="
-            nextButton;
-            context: { condition: selectedGender() }
-          "
-        />
+        @if (selectedGender()) {
+          <div class="align-right">
+            <button mat-stroked-button matStepperNext>
+              <mat-icon>redo</mat-icon>
+              Next
+            </button>
+          </div>
+        }
       </mat-step>
       <mat-step>
         <ng-template matStepLabel>Select Tees</ng-template>
-        @if (loadingSelectedCourse()) {
-          <mat-spinner class="icon-size"></mat-spinner>
-        } @else if (availableTees().length > 0) {
+        @if (availableTees().length > 0) {
           <mat-radio-group
             [value]="selectedTee()"
             (change)="selectedTee.set($event.value)"
@@ -293,29 +295,18 @@
               </mat-radio-button>
             }
           </mat-radio-group>
-          <ng-container
-            *ngTemplateOutlet="
-              nextButton;
-              context: { condition: selectedTee() }
-            "
-          />
+          @if (selectedTee()) {
+            <div class="align-right">
+              <button mat-stroked-button (click)="finalizeCourse()">
+                <mat-icon>check</mat-icon>
+                Use Course
+              </button>
+            </div>
+          }
         } @else {
-          <p>Please select a course and gender first.</p>
+          <p>No tees are available for this course and gender.</p>
         }
       </mat-step>
-      <mat-step [editable]="false">
-        <ng-template matStepLabel>Finalize Course</ng-template>
-      </mat-step>
-      <ng-template #nextButton let-condition="condition">
-        @if (condition) {
-          <div class="align-right">
-            <button mat-stroked-button matStepperNext [disabled]="!condition">
-              <mat-icon>redo</mat-icon>
-              Next
-            </button>
-          </div>
-        }
-      </ng-template>
     </mat-stepper>
     <div class="full-width-center space-evenly">
       <button mat-stroked-button (click)="closeStepper()">
