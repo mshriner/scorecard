@@ -7,6 +7,11 @@
   column-gap: 4px;
 }
 
+.match-play-finished-score {
+  display: inline-block;
+  white-space: nowrap;
+}
+
 .select-all {
   padding: 5px 5px;
   mat-checkbox > div {
@@ -19,11 +24,11 @@
 }
 
 .mat-column-courseName {
-  flex: 0 0 50%;
+  flex: 0 0 45%;
 }
 
 .mat-column-roundScore {
-  flex: 0 0 25%;
+  flex: 0 0 30%;
 }
 
 .mat-column-courseName-best {
