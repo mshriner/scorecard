@@ -6,7 +6,6 @@
       "name": "VS Debug",
       "type": "editor-browser",
       "request": "attach",
-      "preLaunchTask": "npm: start",
       "url": "http://localhost:4200/",
       "webRoot": "${workspaceFolder}"
     },

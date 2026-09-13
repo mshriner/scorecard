@@ -124,8 +124,8 @@ export class MatchPlayOpponentStrokesDialogComponent {
 
   public readonly getStrokesColumnHeader = computed(() => {
     return this.userHandicapIsHigher()
-      ? 'Advantage Received'
-      : 'Advantage Given';
+      ? 'Advantage <br/> Received'
+      : 'Advantage <br/> Given';
   });
 
   public isHoleSelected(index: number): boolean {

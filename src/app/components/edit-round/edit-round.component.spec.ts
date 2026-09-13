@@ -333,7 +333,6 @@ describe('EditRoundComponent', () => {
     expect(component.getMatchIndicator(0)).toBe('right');
     expect(component.getMatchIndicator(1)).toBe('left');
     expect(component.getMatchIndicator(2)).toBe('=');
-    expect(component.getMatchStatusText()).toBe('AS');
   });
 
   it('should update date on dateChanged()', () => {

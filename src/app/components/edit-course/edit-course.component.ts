@@ -94,7 +94,7 @@ export class EditCourseComponent implements OnInit {
   private readonly courseVarietySlicePipe = inject(CourseVarietySlicePipe);
   private readonly golfCourseApiService = inject(GolfCourseApiService);
 
-  stepper = viewChild(MatStepper);
+  courseStepper = viewChild<MatStepper>('courseStepper');
   searchQueryInput: Signal<ElementRef<HTMLInputElement> | undefined> =
     viewChild('searchQueryInput');
   private readonly originalCourse: Course;
@@ -109,11 +109,29 @@ export class EditCourseComponent implements OnInit {
     this.searchQuery().trim().replaceAll(/\s+/g, '+'),
   );
   public searchResults = signal<ApiCourse[]>([]);
+  public searchResultsById = computed(() => {
+    const coursesById = new Map<ApiCourse['id'], ApiCourse>();
+    for (const course of this.searchResults()) {
+      if (course.id !== undefined && course.id !== null) {
+        coursesById.set(course.id, course);
+      }
+    }
+    return coursesById;
+  });
   public selectedCourseFromSearch = signal<ApiCourse | null>(null);
+  public loadingSelectedCourse = signal(false);
   public selectedGender = signal<GenderForScoring | null>(null);
+  public availableTees = computed(() => {
+    const tees = this.selectedCourseFromSearch()?.tees;
+    const gender = this.selectedGender();
+    const genderTees = gender ? tees?.[gender] : undefined;
+    return Array.isArray(genderTees) ? genderTees : [];
+  });
   public selectedTee = signal<TeeBox | null>(null);
   public isOnline = signal(navigator.onLine);
   public searchingForCourses = signal(false);
+  public loadedCourseDetailsId: ApiCourse['id'] | null = null;
+  private courseDetailsRequestId = 0;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
   public readonly HOLE_COL = 'hole';
@@ -322,12 +340,7 @@ export class EditCourseComponent implements OnInit {
               }
 
               // Check if any tee set has 9 or 18 holes
-              return Object.values(tees).some((genderTees: TeeBox[]) =>
-                genderTees?.some(
-                  (tee: TeeBox) =>
-                    tee.number_of_holes === 9 || tee.number_of_holes === 18,
-                ),
-              );
+              return Object.values(tees).some((genderTees: TeeBox[]) => !!tees);
             },
           );
 
@@ -338,7 +351,7 @@ export class EditCourseComponent implements OnInit {
             );
           } else {
             // Progress to course selection step
-            this.stepper()?.next();
+            this.courseStepper()?.next();
           }
         },
         error: (err) => {
@@ -349,6 +362,25 @@ export class EditCourseComponent implements OnInit {
           );
         },
       });
+  }
+
+  public selectCourse(courseId: ApiCourse['id']): void {
+    const course = this.searchResultsById().get(courseId);
+    if (!course || courseId === undefined || courseId === null) {
+      return;
+    }
+    if (this.selectedCourseFromSearch()?.id === courseId) {
+      return;
+    }
+
+    this.selectedCourseFromSearch.set(course);
+    this.selectedTee.set(null);
+    this.selectedGender.set(
+      this.appStateService.currentUser()?.scoringGender || null,
+    );
+    this.loadedCourseDetailsId = null;
+    this.loadingSelectedCourse.set(false);
+    this.courseDetailsRequestId++;
   }
 
   public finalizeCourse(): void {
@@ -384,18 +416,61 @@ export class EditCourseComponent implements OnInit {
     this.showStepper.set(false);
   }
 
-  public onStepperSelectionChange(event: any): void {
-    if (event.selectedIndex === 4) {
-      this.finalizeCourse();
-    }
-  }
-
   public closeStepper(): void {
     this.showStepper.set(false);
     this.searchQuery.set('');
     this.searchResults.set([]);
     this.selectedCourseFromSearch.set(null);
+    this.loadedCourseDetailsId = null;
+    this.courseDetailsRequestId++;
+    this.loadingSelectedCourse.set(false);
     this.selectedTee.set(null);
+  }
+
+  public openCourseDetailsStepper(): void {
+    const course = this.selectedCourseFromSearch();
+    const courseId = course?.id;
+    if (courseId === undefined || courseId === null) {
+      return;
+    }
+    if (this.loadedCourseDetailsId === courseId) {
+      this.courseStepper()?.next();
+      return;
+    }
+    if (this.loadingSelectedCourse()) {
+      return;
+    }
+
+    this.loadingSelectedCourse.set(true);
+    const requestId = ++this.courseDetailsRequestId;
+    this.golfCourseApiService.getCourseById(courseId).subscribe({
+      next: (fullCourse) => {
+        if (requestId !== this.courseDetailsRequestId) {
+          return;
+        }
+        const courseDetails =
+          (fullCourse as ApiCourse & { course?: ApiCourse }).course ??
+          fullCourse;
+        this.selectedCourseFromSearch.set({
+          ...course,
+          ...courseDetails,
+          tees: courseDetails.tees,
+        });
+        this.loadedCourseDetailsId = courseId;
+        this.loadingSelectedCourse.set(false);
+        this.courseStepper()?.next();
+      },
+      error: (err) => {
+        if (requestId !== this.courseDetailsRequestId) {
+          return;
+        }
+        this.loadingSelectedCourse.set(false);
+        console.error('Course details error:', err);
+        this.snackBarService.openTemporarySnackBar(
+          'Error loading course details. Please try again.',
+        );
+      },
+    });
   }
 
   public startSearch(): void {

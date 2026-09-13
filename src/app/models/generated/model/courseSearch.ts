@@ -7,8 +7,8 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { Course } from './course';
+import { CourseSummary } from './courseSummary';
 
 export interface CourseSearch {
-  courses?: Array<Course>;
+  courses?: Array<CourseSummary>;
 }
