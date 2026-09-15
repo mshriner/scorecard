@@ -298,17 +298,7 @@ export class EditRoundComponent implements OnInit {
       if (!this.editingRound) {
         return;
       }
-      if (!this.editingRound.matchPlay) {
-        this.editingRound.matchPlay = {};
-      }
-      this.editingRound.matchPlay.isMatchPlay = this.isMatchPlay();
-      this.editingRound.matchPlay.opponentStrokes ??= structuredClone(
-        EMPTY_EIGHTEEN_NUMBERS,
-      );
-      this.editingRound.matchPlay.opponentAdvantage ??= structuredClone(
-        EIGHTEEN_NUMBERS_ZEROED,
-      );
-      this.editingRound.matchPlay.opponentName ??= 'Opponent';
+      this.setMatchPlayPropertiesIfMissing();
       untracked(() => {
         this.updateUnsavedData();
       });
@@ -325,6 +315,7 @@ export class EditRoundComponent implements OnInit {
 
       this.editingRound = structuredClone(retrieved);
       this.isMatchPlay.set(!!this.editingRound.matchPlay?.isMatchPlay);
+      this.setMatchPlayPropertiesIfMissing();
       this.appStateService.setPageTitle(
         `Editing ${datePipe.transform(retrieved.dateStringISO)}`,
       );
@@ -361,6 +352,20 @@ export class EditRoundComponent implements OnInit {
     }
 
     setTimeout(() => this.updateUnsavedData());
+  }
+
+  private setMatchPlayPropertiesIfMissing() {
+    if (!this.editingRound.matchPlay) {
+      this.editingRound.matchPlay = {};
+    }
+    this.editingRound.matchPlay.isMatchPlay = this.isMatchPlay();
+    this.editingRound.matchPlay.opponentStrokes ??= structuredClone(
+      EMPTY_EIGHTEEN_NUMBERS
+    );
+    this.editingRound.matchPlay.opponentAdvantage ??= structuredClone(
+      EIGHTEEN_NUMBERS_ZEROED
+    );
+    this.editingRound.matchPlay.opponentName ??= 'Opponent';
   }
 
   ngOnInit(): void {
