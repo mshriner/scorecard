@@ -23,10 +23,20 @@ export class MatchPlayStatusPipe implements PipeTransform {
 
     let playerWins = 0;
     let opponentWins = 0;
+    let playerHolesNotPlayed = 0;
+    let opponentHolesNotPlayed = 0;
 
     for (let holeIndex = 0; holeIndex < selectedStrokes.length; holeIndex++) {
       const playerScore = selectedStrokes[holeIndex];
       const opponentScore = selectedOpponentStrokes[holeIndex];
+
+      if (!playerScore) {
+        playerHolesNotPlayed++;
+      }
+      if (!opponentScore) {
+        opponentHolesNotPlayed++;
+      }
+
       const advantage = selectedOpponentAdvantage[holeIndex] ?? 0;
 
       if (playerScore == null || opponentScore == null) {
@@ -45,6 +55,9 @@ export class MatchPlayStatusPipe implements PipeTransform {
 
     const margin = playerWins - opponentWins;
     if (margin === 0) {
+      if (playerHolesNotPlayed === 0 && opponentHolesNotPlayed === 0) {
+        return '½-½';
+      }
       return 'AS';
     }
     return `${Math.abs(margin)} ${margin > 0 ? 'UP' : 'DN'}`;
