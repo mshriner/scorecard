@@ -111,6 +111,13 @@ describe('EditRoundComponent', () => {
     };
     component.isMatchPlay.set(true);
 
+    (component as any).handleSpeechTranscript('opponent birdie on hole 2');
+    expect(component.editingRound.matchPlay?.opponentStrokes?.[1]).toBe(3);
+
+    (component as any).handleSpeechTranscript('opponent 2 on 2');
+    expect(component.editingRound.matchPlay?.opponentStrokes?.[1]).toBe(2);
+    expect(component.editingRound.strokes[1]).toBeNull();
+
     (component as any).handleSpeechTranscript('opponent four on hole five');
 
     expect(component.editingRound.matchPlay?.opponentStrokes?.[4]).toBe(4);

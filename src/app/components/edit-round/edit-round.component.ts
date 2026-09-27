@@ -965,7 +965,11 @@ export class EditRoundComponent implements OnInit, OnDestroy {
 
     if (
       !this.currentCourse() &&
-      intents.some((intent) => intent.type === 'setScoreToPar')
+      intents.some(
+        (intent) =>
+          intent.type === 'setScoreToPar' ||
+          (intent.type === 'setOpponentScoreToPar' && this.isMatchPlay()),
+      )
     ) {
       this.exitVoiceMode();
       this.snackBarService.openTemporarySnackBar(
@@ -1024,7 +1028,11 @@ export class EditRoundComponent implements OnInit, OnDestroy {
     if (intent.type === 'setOpponentStrokeSequence') {
       return this.applyOpponentStrokeSequence(intent.values ?? []);
     }
-    if (intent.type === 'setOpponentStrokes' && !this.isMatchPlay()) {
+    if (
+      (intent.type === 'setOpponentStrokes' ||
+        intent.type === 'setOpponentScoreToPar') &&
+      !this.isMatchPlay()
+    ) {
       this.snackBarService.openTemporarySnackBar(
         'Enable Match Play to record opponent strokes.',
       );
@@ -1090,6 +1098,18 @@ export class EditRoundComponent implements OnInit, OnDestroy {
         }
         this.setOpponentStrokes(holeIndex, intent.value);
         return `Opponent hole ${intent.hole} strokes = ${intent.value}`;
+      }
+
+      case 'setOpponentScoreToPar': {
+        if (intent.value === undefined) {
+          return null;
+        }
+        const parValue = this.currentCourse()?.par[holeIndex];
+        if (parValue === undefined || parValue === null || parValue <= 0) {
+          return null;
+        }
+        this.setOpponentStrokes(holeIndex, parValue + intent.value);
+        return `Opponent hole ${intent.hole} score updated`;
       }
 
       case 'plusOneStroke': {

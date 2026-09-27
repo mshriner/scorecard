@@ -10,6 +10,7 @@ export interface SpeechIntent {
     | 'setPutts'
     | 'setStrokeSequence'
     | 'setOpponentStrokes'
+    | 'setOpponentScoreToPar'
     | 'setOpponentStrokeSequence'
     | 'plusOneStroke'
     | 'minusOneStroke';
@@ -337,21 +338,6 @@ export class SpeechRecognitionService {
     text: string,
     previousHole?: number,
   ): SpeechIntent | null {
-    const opponentHoleFirst = text.match(
-      /^opponent(?:'s)?(?:\s+strokes?)?\s+hole\s+(\d{1,2})\s+(?:is\s+|was\s+)?(\d{1,2})$/,
-    );
-    const opponentScoreFirst = text.match(
-      /^opponent(?:'s)?(?:\s+strokes?)?\s+(\d{1,2})\s+on\s+hole\s+(\d{1,2})$/,
-    );
-    if (opponentHoleFirst || opponentScoreFirst) {
-      const rawValue = opponentHoleFirst?.[2] ?? opponentScoreFirst?.[1];
-      if (rawValue === undefined) return null;
-      const hole = Number(opponentHoleFirst?.[1] ?? opponentScoreFirst?.[2]);
-      const value = Number(rawValue);
-      if (hole < 1 || hole > 18 || value < 1 || value > 20) return null;
-      return { type: 'setOpponentStrokes', hole, value, originalText: text };
-    }
-
     const scoreWords = [
       'double bogey',
       'double',
@@ -362,6 +348,58 @@ export class SpeechRecognitionService {
       'even',
       'level',
     ];
+    const scoreValues: Record<string, number> = {
+      'double bogey': 2,
+      double: 2,
+      bogey: 1,
+      birdie: -1,
+      eagle: -2,
+      par: 0,
+      even: 0,
+      level: 0,
+    };
+    const opponentPrefix = ["opponent's ", 'opponent '].find((prefix) =>
+      text.startsWith(prefix),
+    );
+    if (opponentPrefix) {
+      const opponentScoreText = text.slice(opponentPrefix.length);
+      const opponentScore = scoreWords.find(
+        (word) =>
+          opponentScoreText === word ||
+          opponentScoreText.startsWith(`${word} `),
+      );
+      if (opponentScore) {
+        const holeText = opponentScoreText.slice(opponentScore.length).trim();
+        const holeMatch = holeText.match(/^(?:on )?(?:hole )?(\d{1,2})$/);
+        if (holeMatch) {
+          const hole = Number(holeMatch[1]);
+          if (hole >= 1 && hole <= 18) {
+            return {
+              type: 'setOpponentScoreToPar',
+              hole,
+              value: scoreValues[opponentScore],
+              originalText: text,
+            };
+          }
+        }
+      }
+    }
+
+    const opponentHoleFirst = text.match(
+      /^opponent(?:'s)?(?:\s+strokes?)?\s+hole\s+(\d{1,2})\s+(?:is\s+|was\s+)?(\d{1,2})$/,
+    );
+    const opponentScoreFirst = text.match(
+      /^opponent(?:'s)?(?:\s+strokes?)?\s+(\d{1,2})\s+on\s+(?:hole\s+)?(\d{1,2})$/,
+    );
+    if (opponentHoleFirst || opponentScoreFirst) {
+      const rawValue = opponentHoleFirst?.[2] ?? opponentScoreFirst?.[1];
+      if (rawValue === undefined) return null;
+      const hole = Number(opponentHoleFirst?.[1] ?? opponentScoreFirst?.[2]);
+      const value = Number(rawValue);
+      if (hole < 1 || hole > 18 || value < 1 || value > 20) return null;
+      return { type: 'setOpponentStrokes', hole, value, originalText: text };
+    }
+
     const score = scoreWords.find(
       (word) => text === word || text.startsWith(`${word} `),
     );
@@ -370,16 +408,6 @@ export class SpeechRecognitionService {
       const holeMatch = holeText.match(/^(?:on )?(?:hole )?(\d{1,2})$/);
       const hole = holeMatch ? Number(holeMatch[1]) : previousHole;
       if (!hole || hole < 1 || hole > 18) return null;
-      const scoreValues: Record<string, number> = {
-        'double bogey': 2,
-        double: 2,
-        bogey: 1,
-        birdie: -1,
-        eagle: -2,
-        par: 0,
-        even: 0,
-        level: 0,
-      };
       if (holeText && !holeMatch) return null;
       const value = scoreValues[score];
       return { type: 'setScoreToPar', hole, value, originalText: text };

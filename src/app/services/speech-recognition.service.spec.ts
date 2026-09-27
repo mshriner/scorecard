@@ -227,6 +227,26 @@ describe('SpeechRecognitionService', () => {
         ]);
       });
 
+      it('should parse an opponent score relative to par', () => {
+        expect(service.parseCommands('opponent birdie on hole 2')).toEqual([
+          expect.objectContaining({
+            type: 'setOpponentScoreToPar',
+            hole: 2,
+            value: -1,
+          }),
+        ]);
+      });
+
+      it('should parse a bare numeric hole in an opponent stroke command', () => {
+        expect(service.parseCommands('opponent 2 on 2')).toEqual([
+          expect.objectContaining({
+            type: 'setOpponentStrokes',
+            hole: 2,
+            value: 2,
+          }),
+        ]);
+      });
+
       it('should parse opponent stroke counts as a sequence', () => {
         expect(service.parseCommands('opponent strokes 5, 4, 4')).toEqual([
           expect.objectContaining({
