@@ -84,7 +84,7 @@ th {
 .speech-fab-stack {
   position: fixed;
   left: 16px;
-  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(68px + env(safe-area-inset-bottom, 0px));
   z-index: 102;
   display: flex;
   flex-direction: column-reverse;

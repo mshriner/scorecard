@@ -132,6 +132,16 @@ describe('EditRoundComponent', () => {
     );
   });
 
+  it('should prompt to select a course for par-relative speech', () => {
+    component.currentCourse.set(null);
+
+    (component as any).handleSpeechTranscript('birdie on hole 5');
+
+    expect(snackBarService.openTemporarySnackBar).toHaveBeenCalledWith(
+      SNACKBAR_MESSAGES.SELECT_COURSE_FIRST,
+    );
+  });
+
   it('should import a round successfully', async () => {
     const mockCourse: Course = {
       id: 'course-id',

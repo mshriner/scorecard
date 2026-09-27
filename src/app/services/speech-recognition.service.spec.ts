@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SpeechRecognitionService } from './speech-recognition.service';
 
 describe('SpeechRecognitionService', () => {
@@ -8,6 +8,10 @@ describe('SpeechRecognitionService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({});
     service = TestBed.inject(SpeechRecognitionService);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('should be created', () => {
@@ -120,6 +124,26 @@ describe('SpeechRecognitionService', () => {
             }),
           ]),
         );
+      });
+
+      it.each(['2 pets', '2 pots'])(
+        'should normalize "%s" to putts',
+        (text) => {
+          expect(service.parseCommands(text, 5)).toEqual([
+            expect.objectContaining({
+              type: 'setPutts',
+              hole: 5,
+              value: 2,
+            }),
+          ]);
+        },
+      );
+
+      it('should normalize a putt transcription variant in a combined command', () => {
+        expect(service.parseCommands('par on hole 5, 2 pots')).toEqual([
+          expect.objectContaining({ type: 'setScoreToPar', hole: 5 }),
+          expect.objectContaining({ type: 'setPutts', hole: 5, value: 2 }),
+        ]);
       });
 
       it('should not apply standalone putts without a previous hole', () => {
@@ -279,6 +303,36 @@ describe('SpeechRecognitionService', () => {
 
     it('should expose transcript signal', () => {
       expect(service.transcript()).toBeDefined();
+    });
+
+    it('restarts if voice mode is re-entered before stop finishes', () => {
+      vi.useFakeTimers();
+      const recognition = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        onstart: undefined as (() => void) | undefined,
+        onend: undefined as (() => void) | undefined,
+        onresult: undefined as any,
+        onerror: undefined as any,
+      };
+      (service as any).recognition = recognition;
+      (service as any).setupRecognitionHandlers();
+
+      service.startListening();
+      recognition.onstart?.();
+      service.stopListening();
+      service.startListening();
+
+      expect(recognition.start).toHaveBeenCalledTimes(1);
+      recognition.onend?.();
+      vi.runOnlyPendingTimers();
+
+      expect(recognition.start).toHaveBeenCalledTimes(2);
+
+      recognition.onerror?.({
+        error: 'not-allowed',
+      } as SpeechRecognitionErrorEvent);
+      expect(service.permissionDenied()).toBe(true);
     });
   });
 });

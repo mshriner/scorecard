@@ -31,11 +31,15 @@ export class SpeechRecognitionService {
   public readonly isListening = signal(false);
   public readonly transcript = signal('');
   public readonly isBrowserSupported = signal(!!this.recognition);
+  public readonly permissionDenied = signal(false);
 
   private resultCallbacks: ((text: string) => void)[] = [];
   private errorCallbacks: ((error: string) => void)[] = [];
   private interimTranscript = '';
   private listeningRequested = false;
+  private recognitionState: 'idle' | 'starting' | 'listening' | 'stopping' =
+    'idle';
+  private restartTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
     if (this.recognition) {
@@ -84,9 +88,14 @@ export class SpeechRecognitionService {
     if (!this.recognition) return;
 
     this.recognition.onstart = () => {
+      this.recognitionState = 'listening';
+      this.permissionDenied.set(false);
       this.isListening.set(true);
       this.interimTranscript = '';
       this.transcript.set('');
+      if (!this.listeningRequested) {
+        this.stopListening();
+      }
     };
 
     this.recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -108,6 +117,9 @@ export class SpeechRecognitionService {
 
     this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech Recognition Error:', event.error);
+      if (event.error === 'not-allowed') {
+        this.permissionDenied.set(true);
+      }
       this.errorCallbacks.forEach((callback) => callback(event.error));
       if (
         [
@@ -122,10 +134,16 @@ export class SpeechRecognitionService {
     };
 
     this.recognition.onend = () => {
+      this.recognitionState = 'idle';
       this.isListening.set(false);
       this.interimTranscript = '';
       if (this.listeningRequested) {
-        setTimeout(() => this.startListening());
+        this.restartTimer = setTimeout(() => {
+          this.restartTimer = undefined;
+          if (this.listeningRequested && this.recognitionState === 'idle') {
+            this.startListening();
+          }
+        });
       } else {
         this.transcript.set('');
       }
@@ -142,14 +160,21 @@ export class SpeechRecognitionService {
     }
 
     this.listeningRequested = true;
-    if (!this.isListening()) {
-      try {
-        this.recognition.start();
-      } catch (error) {
-        const name = (error as Error)?.name || 'unknown';
-        this.listeningRequested = false;
-        this.errorCallbacks.forEach((callback) => callback(name));
+    if (this.recognitionState !== 'idle') {
+      return;
+    }
+
+    this.recognitionState = 'starting';
+    try {
+      this.recognition.start();
+    } catch (error) {
+      const name = (error as Error)?.name || 'unknown';
+      if (name === 'NotAllowedError' || name === 'SecurityError') {
+        this.permissionDenied.set(true);
       }
+      this.recognitionState = 'idle';
+      this.listeningRequested = false;
+      this.errorCallbacks.forEach((callback) => callback(name));
     }
   }
 
@@ -158,13 +183,23 @@ export class SpeechRecognitionService {
    */
   public stopListening(): void {
     this.listeningRequested = false;
-    if (this.recognition) {
+    if (this.restartTimer) {
+      clearTimeout(this.restartTimer);
+      this.restartTimer = undefined;
+    }
+    if (this.recognition && this.recognitionState !== 'idle') {
+      this.recognitionState = 'stopping';
       try {
         this.recognition.stop();
       } catch {
+        this.recognitionState = 'idle';
         this.isListening.set(false);
       }
     }
+  }
+
+  public clearPermissionDenied(): void {
+    this.permissionDenied.set(false);
   }
 
   /**
@@ -236,7 +271,8 @@ export class SpeechRecognitionService {
               'twenty',
             ].indexOf(word),
           ),
-      );
+      )
+      .replace(/\b(\d{1,2})\s+(?:pets?|pots?)\b/g, '$1 putts');
 
     const opponentPrefixes = [
       "opponent's strokes ",

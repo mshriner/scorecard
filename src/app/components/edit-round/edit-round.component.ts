@@ -869,6 +869,10 @@ export class EditRoundComponent implements OnInit, OnDestroy {
       );
       return;
     }
+    if (this.speechRecognitionService.permissionDenied()) {
+      this.showSpeechPermissionHelp();
+      return;
+    }
     this.lastSpeechHole = undefined;
     this.voiceMode.set(true);
     this.speechRecognitionService.startListening();
@@ -877,6 +881,43 @@ export class EditRoundComponent implements OnInit, OnDestroy {
   public exitVoiceMode(): void {
     this.speechRecognitionService.stopListening();
     this.voiceMode.set(false);
+  }
+
+  private showSpeechPermissionHelp(): void {
+    const userAgent = navigator.userAgent;
+    const isIOS =
+      /iPhone|iPad|iPod/i.test(userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isSafari =
+      /Safari/i.test(userAgent) &&
+      !/Chrome|CriOS|Chromium|Android/i.test(userAgent);
+    let message =
+      "Open this site's browser permissions from the address bar and allow microphone and speech recognition access. Return here after changing access.";
+    if (isSafari) {
+      message =
+        'In Safari, open Safari > Settings for This Website and set Microphone to Ask or Allow. If speech recognition is blocked by macOS, open System Settings > Privacy & Security > Speech Recognition and allow Safari. Return here after changing access.';
+    }
+    if (isIOS) {
+      message =
+        "In iPhone or iPad Settings, open Privacy & Security > Speech Recognition and allow Safari. Also check Settings > Apps > Safari > Microphone, and this site's Website Settings > Microphone. Return here after changing access.";
+    }
+
+    this.dialog
+      .open(AreYouSureDialogComponent, {
+        data: {
+          title: 'Speech recognition access is blocked',
+          message,
+          confirmButtonText: 'Try again',
+          nonConfirmButtonText: 'Not now',
+        },
+      })
+      .afterClosed()
+      .subscribe((retry) => {
+        if (retry) {
+          this.speechRecognitionService.clearPermissionDenied();
+          this.toggleSpeechRecognition();
+        }
+      });
   }
 
   /**
@@ -890,7 +931,10 @@ export class EditRoundComponent implements OnInit, OnDestroy {
     );
     this.speechErrorCleanup = this.speechRecognitionService.onError((error) => {
       const messages: Record<string, string> = {
-        'not-allowed': 'Allow microphone access to use speech commands.',
+        'not-allowed':
+          'Speech recognition access was denied. Tap the microphone again for permission settings help.',
+        NotAllowedError:
+          'Speech recognition access was denied. Tap the microphone again for permission settings help.',
         'service-not-allowed': 'The browser speech service is unavailable.',
         'audio-capture': 'No microphone is available.',
         network: 'Speech recognition needs a network connection.',
@@ -917,6 +961,16 @@ export class EditRoundComponent implements OnInit, OnDestroy {
     );
     if (intents.length === 0) {
       return;
+    }
+
+    if (
+      !this.currentCourse() &&
+      intents.some((intent) => intent.type === 'setScoreToPar')
+    ) {
+      this.exitVoiceMode();
+      this.snackBarService.openTemporarySnackBar(
+        SNACKBAR_MESSAGES.SELECT_COURSE_FIRST,
+      );
     }
 
     const appliedActions: string[] = [];
