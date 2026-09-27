@@ -148,26 +148,10 @@
       </span>
       @if (isOnEditRoundScreen && currentUser) {
         <span class="toolbar-padding"></span>
-        <button mat-icon-button [matMenuTriggerFor]="strokesInputMethodMenu">
+        <button mat-icon-button [matMenuTriggerFor]="optionsMenu">
           <mat-icon>settings</mat-icon>
         </button>
-        <mat-menu
-          #strokesInputMethodMenu
-          xPosition="before"
-          yPosition="below"
-          stay-open
-        >
-          <button
-            mat-menu-item
-            (click)="
-              $event.stopPropagation();
-              currentUser.newStrokesUI = !currentUser.newStrokesUI
-            "
-          >
-            <mat-slide-toggle [checked]="!!currentUser.newStrokesUI">
-              New strokes input UI
-            </mat-slide-toggle>
-          </button>
+        <mat-menu #optionsMenu xPosition="before" yPosition="below" stay-open>
           <button
             mat-menu-item
             (click)="
