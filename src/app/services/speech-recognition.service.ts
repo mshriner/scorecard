@@ -6,15 +6,16 @@ import { Injectable, signal } from '@angular/core';
 export interface SpeechIntent {
   type:
     | 'setStrokes'
+    | 'setScoreToPar'
     | 'setPutts'
+    | 'setStrokeSequence'
+    | 'setOpponentStrokes'
+    | 'setOpponentStrokeSequence'
     | 'plusOneStroke'
-    | 'minusOneStroke'
-    | 'setCourse'
-    | 'save'
-    | 'unknown';
+    | 'minusOneStroke';
   hole?: number;
   value?: number;
-  courseId?: string;
+  values?: number[];
   originalText?: string;
 }
 
@@ -32,7 +33,9 @@ export class SpeechRecognitionService {
   public readonly isBrowserSupported = signal(!!this.recognition);
 
   private resultCallbacks: ((text: string) => void)[] = [];
+  private errorCallbacks: ((error: string) => void)[] = [];
   private interimTranscript = '';
+  private listeningRequested = false;
 
   constructor() {
     if (this.recognition) {
@@ -56,11 +59,15 @@ export class SpeechRecognitionService {
       return null;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = this.getBrowserLocale();
-    return recognition;
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = this.getBrowserLocale();
+      return recognition;
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -89,9 +96,8 @@ export class SpeechRecognitionService {
         const transcript = event.results[i][0].transcript;
 
         if (event.results[i].isFinal) {
-          // Final result - dispatch to callbacks
           this.dispatchResult(transcript);
-          this.transcript.set('');
+          this.transcript.set(transcript.trim());
         } else {
           // Interim result
           this.interimTranscript += transcript + ' ';
@@ -102,13 +108,27 @@ export class SpeechRecognitionService {
 
     this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech Recognition Error:', event.error);
-      this.transcript.set(`Error: ${event.error}`);
+      this.errorCallbacks.forEach((callback) => callback(event.error));
+      if (
+        [
+          'not-allowed',
+          'service-not-allowed',
+          'audio-capture',
+          'network',
+        ].includes(event.error)
+      ) {
+        this.listeningRequested = false;
+      }
     };
 
     this.recognition.onend = () => {
       this.isListening.set(false);
       this.interimTranscript = '';
-      this.transcript.set('');
+      if (this.listeningRequested) {
+        setTimeout(() => this.startListening());
+      } else {
+        this.transcript.set('');
+      }
     };
   }
 
@@ -121,8 +141,15 @@ export class SpeechRecognitionService {
       return;
     }
 
+    this.listeningRequested = true;
     if (!this.isListening()) {
-      this.recognition.start();
+      try {
+        this.recognition.start();
+      } catch (error) {
+        const name = (error as Error)?.name || 'unknown';
+        this.listeningRequested = false;
+        this.errorCallbacks.forEach((callback) => callback(name));
+      }
     }
   }
 
@@ -130,16 +157,35 @@ export class SpeechRecognitionService {
    * Stop listening for speech input
    */
   public stopListening(): void {
-    if (this.recognition && this.isListening()) {
-      this.recognition.stop();
+    this.listeningRequested = false;
+    if (this.recognition) {
+      try {
+        this.recognition.stop();
+      } catch {
+        this.isListening.set(false);
+      }
     }
   }
 
   /**
    * Register a callback to be invoked when a final speech result is recognized
    */
-  public onResult(callback: (text: string) => void): void {
+  public onResult(callback: (text: string) => void): () => void {
     this.resultCallbacks.push(callback);
+    return () => {
+      this.resultCallbacks = this.resultCallbacks.filter(
+        (registeredCallback) => registeredCallback !== callback,
+      );
+    };
+  }
+
+  public onError(callback: (error: string) => void): () => void {
+    this.errorCallbacks.push(callback);
+    return () => {
+      this.errorCallbacks = this.errorCallbacks.filter(
+        (registeredCallback) => registeredCallback !== callback,
+      );
+    };
   }
 
   /**
@@ -153,26 +199,95 @@ export class SpeechRecognitionService {
    * Parse raw speech text into structured intents
    * Supports multiple commands separated by commas, periods, "and", or "then"
    */
-  public parseCommands(text: string): SpeechIntent[] {
+  public parseCommands(text: string, previousHole?: number): SpeechIntent[] {
     if (!text || typeof text !== 'string') {
       return [];
     }
 
-    // Normalize text
-    const normalized = text.toLowerCase().trim();
+    const normalized = text
+      .toLowerCase()
+      .trim()
+      .replace(/\bwhole\b/g, 'hole')
+      .replace(
+        /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b/g,
+        (word) =>
+          String(
+            [
+              'zero',
+              'one',
+              'two',
+              'three',
+              'four',
+              'five',
+              'six',
+              'seven',
+              'eight',
+              'nine',
+              'ten',
+              'eleven',
+              'twelve',
+              'thirteen',
+              'fourteen',
+              'fifteen',
+              'sixteen',
+              'seventeen',
+              'eighteen',
+              'nineteen',
+              'twenty',
+            ].indexOf(word),
+          ),
+      );
 
-    // Split by common delimiters and parse each segment
+    const opponentPrefixes = [
+      "opponent's strokes ",
+      "opponent's scores ",
+      "opponent's stroke ",
+      "opponent's score ",
+      'opponent strokes ',
+      'opponent scores ',
+      'opponent stroke ',
+      'opponent score ',
+      'opponent ',
+      "opponent's ",
+    ];
+    const opponentPrefix = opponentPrefixes.find((prefix) =>
+      normalized.startsWith(prefix),
+    );
+    const sequenceText = opponentPrefix
+      ? normalized.slice(opponentPrefix.length)
+      : normalized;
+    const sequenceValues = this.parseNumberSequence(sequenceText);
+    if (sequenceValues) {
+      if (sequenceValues.every((value) => value >= 1 && value <= 20)) {
+        return [
+          {
+            type: opponentPrefix
+              ? 'setOpponentStrokeSequence'
+              : 'setStrokeSequence',
+            values: sequenceValues,
+            originalText: normalized,
+          },
+        ];
+      }
+      return [];
+    }
+
     const segments = normalized
-      .split(/[,\.\n]|\s+and\s+|\s+then\s+/i)
+      .replace(/\b(?:and|then)\b/g, ',')
+      .split(/[,.\n]/)
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
 
     const intents: SpeechIntent[] = [];
+    let currentHole = previousHole;
 
     for (const segment of segments) {
-      const intent = this.parseSegment(segment);
-      if (intent.type !== 'unknown') {
+      const intent = this.parseSegment(segment, currentHole);
+      if (intent) {
         intents.push(intent);
+        if (intent.hole !== undefined) {
+          currentHole = intent.hole;
+        }
       }
     }
 
@@ -182,175 +297,117 @@ export class SpeechRecognitionService {
   /**
    * Parse a single speech segment into an intent
    */
-  private parseSegment(text: string): SpeechIntent {
-    const intent: SpeechIntent = {
-      type: 'unknown',
-      originalText: text,
-    };
-
-    // Patterns for setting strokes (par, birdie, bogey, eagle, double bogey, etc.)
-    const strokePatterns = [
-      {
-        pattern: /(?:par|white|level|even)(?:\s+on)?(?:\s+hole\s+)?(\d{1,2})?/i,
-        getValue: () => 0,
-      },
-      {
-        pattern: /(?:birdie)(?:\s+on)?(?:\s+hole\s+)?(\d{1,2})?/i,
-        getValue: () => -1,
-      },
-      {
-        pattern: /(?:eagle)(?:\s+on)?(?:\s+hole\s+)?(\d{1,2})?/i,
-        getValue: () => -2,
-      },
-      {
-        pattern:
-          /(?:double\s+bogey|double)(?:\s+on)?(?:\s+hole\s+)?(\d{1,2})?/i,
-        getValue: () => 2,
-      },
-      {
-        pattern: /(?:bogey)(?:\s+on)?(?:\s+hole\s+)?(\d{1,2})?/i,
-        getValue: () => 1,
-      },
-    ];
-
-    // Try stroke patterns first
-    for (const { pattern, getValue } of strokePatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        const holeNum = this.extractHoleNumber(text, match);
-        if (holeNum !== null) {
-          intent.type = 'setStrokes';
-          intent.hole = holeNum;
-          intent.value = getValue();
-          return intent;
-        }
-      }
-    }
-
-    // Pattern: "(\d+) putts? (on hole (\d{1,2}))?" or "hole (\d{1,2}) (\d+) putts?"
-    // Try "hole X has/has Y putts" pattern first
-    const holeHasPuttsMatch = text.match(
-      /hole\s+(\d{1,2})\s+(?:has\s+)?(\d+)\s+putts?/i,
-    );
-    if (holeHasPuttsMatch) {
-      const holeNum = parseInt(holeHasPuttsMatch[1], 10);
-      const puttsValue = parseInt(holeHasPuttsMatch[2], 10);
-      intent.type = 'setPutts';
-      intent.hole = holeNum;
-      intent.value = puttsValue;
-      return intent;
-    }
-
-    // Try "X putts on/for hole Y" or just "X putts" pattern
-    const puttsMatch = text.match(
-      /(\d+)\s+putts?(?:\s+on\s+hole\s+(\d{1,2}))?(?:\s+for\s+hole\s+(\d{1,2}))?/i,
-    );
-
-    if (puttsMatch) {
-      const puttsValue = parseInt(puttsMatch[1], 10);
-      let holeNum: number | null = puttsMatch[2]
-        ? parseInt(puttsMatch[2], 10)
-        : puttsMatch[3]
-          ? parseInt(puttsMatch[3], 10)
-          : null;
-
-      // If no hole extracted from regex, try to find it in the text
-      if (holeNum === null) {
-        holeNum = this.extractHoleNumber(text);
-      }
-
-      // Allow putts without explicit hole number (for multi-intent parsing context)
-      intent.type = 'setPutts';
-      intent.value = puttsValue;
-      if (holeNum !== null) {
-        intent.hole = holeNum;
-      }
-      return intent;
-    }
-
-    // Pattern: "hole (\d+) (is )?(\d+)" -> set strokes to specific number
-    const holeStrokesMatch = text.match(/hole\s+(\d{1,2})\s+(?:is\s+)?(\d+)/i);
-    if (holeStrokesMatch) {
-      const holeNum = parseInt(holeStrokesMatch[1], 10);
-      const strokeValue = parseInt(holeStrokesMatch[2], 10);
-      intent.type = 'setStrokes';
-      intent.hole = holeNum;
-      intent.value = strokeValue;
-      return intent;
-    }
-
-    // Pattern: "add one stroke on hole X" or "plus one on hole X"
-    const addStrokeMatch = text.match(
-      /(?:add|plus|increase)\s+(?:one\s+)?stroke(?:s)?\s+(?:on\s+)?hole\s+(\d{1,2})/i,
-    );
-    if (addStrokeMatch) {
-      intent.type = 'plusOneStroke';
-      intent.hole = parseInt(addStrokeMatch[1], 10);
-      return intent;
-    }
-
-    // Pattern: "minus one on hole X" or "subtract one stroke on hole X"
-    const minusStrokeMatch = text.match(
-      /(?:minus|subtract|remove|decrease)\s+(?:one\s+)?stroke(?:s)?\s+(?:on\s+)?hole\s+(\d{1,2})|(?:minus|subtract|remove|decrease)\s+(?:one\s+)?(?:on\s+)?hole\s+(\d{1,2})/i,
-    );
-    if (minusStrokeMatch) {
-      const holeNum = minusStrokeMatch[1] || minusStrokeMatch[2];
-      if (holeNum) {
-        intent.type = 'minusOneStroke';
-        intent.hole = parseInt(holeNum, 10);
-        return intent;
-      }
-    }
-
-    // Pattern: "save" or "save round"
-    if (text.match(/(?:save|submit|done|finish|complete)(?:\s+round)?/i)) {
-      intent.type = 'save';
-      return intent;
-    }
-
-    return intent;
-  }
-
-  /**
-   * Extract hole number from text
-   * Looks for patterns like "hole 5" or just "5" if it's a standalone number
-   */
-  private extractHoleNumber(
+  private parseSegment(
     text: string,
-    match?: RegExpMatchArray,
-  ): number | null {
-    // First, try to find "hole X" pattern in the full text
-    const holeMatch = text.match(/hole\s+(\d{1,2})/i);
-    if (holeMatch) {
-      const num = parseInt(holeMatch[1], 10);
-      if (num >= 1 && num <= 18) {
-        return num;
-      }
+    previousHole?: number,
+  ): SpeechIntent | null {
+    const opponentHoleFirst = text.match(
+      /^opponent(?:'s)?(?:\s+strokes?)?\s+hole\s+(\d{1,2})\s+(?:is\s+|was\s+)?(\d{1,2})$/,
+    );
+    const opponentScoreFirst = text.match(
+      /^opponent(?:'s)?(?:\s+strokes?)?\s+(\d{1,2})\s+on\s+hole\s+(\d{1,2})$/,
+    );
+    if (opponentHoleFirst || opponentScoreFirst) {
+      const rawValue = opponentHoleFirst?.[2] ?? opponentScoreFirst?.[1];
+      if (rawValue === undefined) return null;
+      const hole = Number(opponentHoleFirst?.[1] ?? opponentScoreFirst?.[2]);
+      const value = Number(rawValue);
+      if (hole < 1 || hole > 18 || value < 1 || value > 20) return null;
+      return { type: 'setOpponentStrokes', hole, value, originalText: text };
     }
 
-    // If a match was provided, check its groups
-    if (match && match.length > 1 && match[1]) {
-      const num = parseInt(match[1], 10);
-      if (num >= 1 && num <= 18) {
-        return num;
-      }
+    const scoreWords = [
+      'double bogey',
+      'double',
+      'bogey',
+      'birdie',
+      'eagle',
+      'par',
+      'even',
+      'level',
+    ];
+    const score = scoreWords.find(
+      (word) => text === word || text.startsWith(`${word} `),
+    );
+    if (score) {
+      const holeText = text.slice(score.length).trim();
+      const holeMatch = holeText.match(/^(?:on )?(?:hole )?(\d{1,2})$/);
+      const hole = holeMatch ? Number(holeMatch[1]) : previousHole;
+      if (!hole || hole < 1 || hole > 18) return null;
+      const scoreValues: Record<string, number> = {
+        'double bogey': 2,
+        double: 2,
+        bogey: 1,
+        birdie: -1,
+        eagle: -2,
+        par: 0,
+        even: 0,
+        level: 0,
+      };
+      if (holeText && !holeMatch) return null;
+      const value = scoreValues[score];
+      return { type: 'setScoreToPar', hole, value, originalText: text };
     }
 
-    // Don't try to extract standalone numbers if they're part of putts/strokes
-    // This prevents "2 putts" from being matched as hole 2
-    if (text.match(/^\d+\s+putts?/i) || text.match(/^\d+\s+strokes?/i)) {
-      return null;
+    const holePutts = text.match(
+      /^hole\s+(\d{1,2})\s+(?:has\s+)?(\d{1,2})\s+putts?$/,
+    );
+    const putts =
+      holePutts ??
+      text.match(/^(\d{1,2})\s+putts?(?:\s+(?:on|for)\s+hole\s+(\d{1,2}))?$/);
+    if (putts) {
+      const value = Number(putts[holePutts ? 2 : 1]);
+      let hole = previousHole;
+      if (holePutts) {
+        hole = Number(putts[1]);
+      } else if (putts[2]) {
+        hole = Number(putts[2]);
+      }
+      if (!hole || hole < 1 || hole > 18 || value > 15) return null;
+      return { type: 'setPutts', hole, value, originalText: text };
     }
 
-    // Look for standalone number that could be hole number
-    const numberMatch = text.match(/\b(\d{1,2})\b/);
-    if (numberMatch) {
-      const num = parseInt(numberMatch[1], 10);
-      if (num >= 1 && num <= 18) {
-        return num;
-      }
+    const actualStrokes = text.match(
+      /^hole\s+(\d{1,2})\s+(?:is\s+)?(\d{1,2})(?:\s+strokes?)?$/,
+    );
+    if (actualStrokes) {
+      const hole = Number(actualStrokes[1]);
+      const value = Number(actualStrokes[2]);
+      if (hole < 1 || hole > 18 || value < 1 || value > 20) return null;
+      return { type: 'setStrokes', hole, value, originalText: text };
+    }
+
+    const addStroke = text.match(
+      /^(?:add|plus|increase)\s+(?:1\s+)?(?:stroke(?:s)?\s+)?(?:on\s+)?hole\s+(\d{1,2})$/,
+    );
+    if (addStroke) {
+      const hole = Number(addStroke[1]);
+      return hole <= 18
+        ? { type: 'plusOneStroke', hole, originalText: text }
+        : null;
+    }
+
+    const minusStroke = text.match(
+      /^(?:minus|subtract|remove|decrease)\s+(?:1\s+)?(?:stroke(?:s)?\s+)?(?:on\s+)?hole\s+(\d{1,2})$/,
+    );
+    if (minusStroke) {
+      const hole = Number(minusStroke[1]);
+      return hole >= 1 && hole <= 18
+        ? { type: 'minusOneStroke', hole, originalText: text }
+        : null;
     }
 
     return null;
+  }
+
+  private parseNumberSequence(text: string): number[] | null {
+    const parts = text.split(/[,;]/).map((part) => part.trim());
+    if (parts.length < 2 || parts.length > 18) {
+      return null;
+    }
+    if (parts.some((part) => !/^\d{1,2}$/.test(part))) {
+      return null;
+    }
+    return parts.map(Number);
   }
 }

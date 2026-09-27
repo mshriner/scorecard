@@ -87,6 +87,51 @@ describe('EditRoundComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should only apply spoken opponent strokes in match play', () => {
+    const course: Course = {
+      id: 'match-course',
+      name: 'Match Course',
+      numberOfHoles: CourseVariety.EIGHTEEN,
+      par: Array.from({ length: 18 }, () => 4) as Course['par'],
+    };
+    component.currentCourse.set(course);
+    component.editingRound = {
+      id: 'match-round',
+      dateStringISO: new Date().toISOString(),
+      courseId: course.id,
+      strokes: Array.from({ length: 18 }, () => null) as any,
+      putts: Array.from({ length: 18 }, () => null) as any,
+      roundVariety: RoundVariety.EIGHTEEN,
+      generalNotes: '',
+      matchPlay: {
+        isMatchPlay: true,
+        opponentStrokes: Array.from({ length: 18 }, () => null) as any,
+        opponentAdvantage: Array.from({ length: 18 }, () => 0) as any,
+      },
+    };
+    component.isMatchPlay.set(true);
+
+    (component as any).handleSpeechTranscript('opponent four on hole five');
+
+    expect(component.editingRound.matchPlay?.opponentStrokes?.[4]).toBe(4);
+    expect(component.editingRound.strokes[4]).toBeNull();
+
+    component.isMatchPlay.set(true);
+    component.editingRound.roundVariety = RoundVariety.BACK_NINE;
+    (component as any).handleSpeechTranscript('opponent strokes 5, 4, 4');
+    expect(
+      component.editingRound.matchPlay?.opponentStrokes?.slice(9, 12),
+    ).toEqual([5, 4, 4]);
+
+    component.isMatchPlay.set(false);
+    (component as any).handleSpeechTranscript('opponent three on hole five');
+
+    expect(component.editingRound.matchPlay?.opponentStrokes?.[4]).toBe(4);
+    expect(snackBarService.openTemporarySnackBar).toHaveBeenCalledWith(
+      'Enable Match Play to record opponent strokes.',
+    );
+  });
+
   it('should import a round successfully', async () => {
     const mockCourse: Course = {
       id: 'course-id',

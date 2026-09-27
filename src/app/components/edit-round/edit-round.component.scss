@@ -72,3 +72,45 @@ th {
 .pre {
   font-family: monospace;
 }
+
+.voice-mode-overlay {
+  position: fixed;
+  inset: var(--mat-toolbar-mobile-height) 0 0;
+  z-index: 100;
+  border: 6px solid var(--mat-sys-tertiary);
+  pointer-events: none;
+}
+
+.speech-fab-stack {
+  position: fixed;
+  left: 16px;
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  z-index: 102;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: calc(100vw - 32px);
+}
+
+.speech-transcript {
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+  box-shadow: var(--mat-sys-level2);
+  overflow-wrap: anywhere;
+}
+
+.speech-status {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+  overflow-wrap: anywhere;
+}
+
+.voice-help-heading {
+  font-weight: 700;
+}

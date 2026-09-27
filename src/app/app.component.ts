@@ -44,6 +44,7 @@ import { NavigationMessageService } from './services/navigation-message.service'
 import { RoundService } from './services/round.service';
 import { SharingService } from './services/sharing.service';
 import { SnackBarService } from './services/snack-bar.service';
+import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { UserService } from './services/user.service';
 @Component({
   selector: 'app-root',
@@ -81,6 +82,7 @@ export class AppComponent implements OnInit {
   private readonly roundService = inject(RoundService);
   private readonly courseService = inject(CourseService);
   private readonly sharingService = inject(SharingService);
+  private readonly speechRecognitionService = inject(SpeechRecognitionService);
 
   public readonly showSpinner = signal(false);
   public readonly APP_THEMES = Object.values(AppTheme).filter(
@@ -317,6 +319,18 @@ export class AppComponent implements OnInit {
       return structuredClone(user);
     });
     setTimeout(() => this.appStateService.appTheming());
+  }
+
+  public setSpeechCommandsEnabled(enabled: boolean): void {
+    if (!enabled) {
+      this.speechRecognitionService.stopListening();
+    }
+    this.appStateService.currentUser.update((user) => {
+      if (user) {
+        user.speechCommandsEnabled = enabled;
+      }
+      return structuredClone(user);
+    });
   }
 
   public get currentUser(): LocalUserWithFilters | null {

@@ -9,6 +9,7 @@ import {
   HostListener,
   inject,
   Injector,
+  OnDestroy,
   OnInit,
   signal,
   Signal,
@@ -119,7 +120,7 @@ import { StatsComponent } from '../stats/stats.component';
   templateUrl: './edit-round.component.html',
   styleUrl: './edit-round.component.scss',
 })
-export class EditRoundComponent implements OnInit {
+export class EditRoundComponent implements OnInit, OnDestroy {
   appStateService = inject(AppStateService);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly _injector = inject(Injector);
@@ -131,9 +132,12 @@ export class EditRoundComponent implements OnInit {
   private readonly sharingService = inject(SharingService);
   public readonly snackBarService = inject(SnackBarService);
   private readonly roundVarietyScoresPipe = inject(RoundVarietyScoresPipe);
-  private readonly speechRecognitionService = inject(SpeechRecognitionService);
+  public readonly speechRecognitionService = inject(SpeechRecognitionService);
 
   private readonly originalRound: Round;
+  private speechResultCleanup?: () => void;
+  private speechErrorCleanup?: () => void;
+  private lastSpeechHole?: number;
   private readonly redirectToHome: boolean = false;
   public editingRound: Round;
   public coursesToChooseFrom: Course[];
@@ -147,6 +151,7 @@ export class EditRoundComponent implements OnInit {
   public imported = false;
   private needToSaveImportedCourse = false;
   readonly isMatchPlay = signal(false);
+  public readonly voiceMode = signal(false);
   public readonly SNACKBAR_MESSAGES = SNACKBAR_MESSAGES;
   public readonly ROUND_NOTES_MAX_LENGTH = ROUND_NOTES_MAX_LENGTH;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
@@ -311,6 +316,15 @@ export class EditRoundComponent implements OnInit {
       });
     });
 
+    effect(() => {
+      if (
+        this.voiceMode() &&
+        this.appStateService.currentUser()?.speechCommandsEnabled === false
+      ) {
+        this.exitVoiceMode();
+      }
+    });
+
     if (this.roundIdToEdit) {
       const retrieved = this.roundService.getRoundById(this.roundIdToEdit);
       if (!retrieved) {
@@ -367,18 +381,25 @@ export class EditRoundComponent implements OnInit {
     }
     this.editingRound.matchPlay.isMatchPlay = this.isMatchPlay();
     this.editingRound.matchPlay.opponentStrokes ??= structuredClone(
-      EMPTY_EIGHTEEN_NUMBERS
+      EMPTY_EIGHTEEN_NUMBERS,
     );
     this.editingRound.matchPlay.opponentAdvantage ??= structuredClone(
-      EIGHTEEN_NUMBERS_ZEROED
+      EIGHTEEN_NUMBERS_ZEROED,
     );
     this.editingRound.matchPlay.opponentName ??= 'Opponent';
   }
 
   ngOnInit(): void {
+    this.setupSpeechRecognition();
     if (this.redirectToHome) {
       this.router.navigateByUrl(APP_ROUTES.HOME);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.speechRecognitionService.stopListening();
+    this.speechResultCleanup?.();
+    this.speechErrorCleanup?.();
   }
 
   triggerResize() {
@@ -489,6 +510,11 @@ export class EditRoundComponent implements OnInit {
 
   public setPutts(index: number, puttsValue: number | null): void {
     this.editingRound.putts[index] = puttsValue;
+    this.updateUnsavedData();
+  }
+
+  public setStrokes(index: number, strokesValue: number | null): void {
+    this.editingRound.strokes[index] = strokesValue;
     this.updateUnsavedData();
   }
 
@@ -643,6 +669,7 @@ export class EditRoundComponent implements OnInit {
   }
 
   public saveRound(): void {
+    this.exitVoiceMode();
     if (this.currentCourse() && this.needToSaveImportedCourse) {
       this.courseService.setCourse(this.currentCourse()!);
       this.needToSaveImportedCourse = false;
@@ -732,6 +759,8 @@ export class EditRoundComponent implements OnInit {
       importedRound.round.courseId = newCourseId;
     }
     this.needToSaveImportedCourse = false;
+    this.exitVoiceMode();
+    this.lastSpeechHole = undefined;
     this.imported = true;
     this.appStateService.setPageTitle(`Import Round`);
     const existingCourse = this.courseService.getCourse(
@@ -828,20 +857,49 @@ export class EditRoundComponent implements OnInit {
    * Toggle speech recognition on/off
    */
   public toggleSpeechRecognition(): void {
-    if (this.speechRecognitionService.isListening()) {
-      this.speechRecognitionService.stopListening();
-    } else {
-      this.setupSpeechRecognition();
-      this.speechRecognitionService.startListening();
+    if (this.voiceMode()) {
+      this.exitVoiceMode();
+      return;
     }
+    if (this.imported || !this.speechRecognitionService.isBrowserSupported()) {
+      this.snackBarService.openTemporarySnackBar(
+        this.imported
+          ? SNACKBAR_MESSAGES.IMPORTED_ROUND
+          : 'Speech recognition is not supported in this browser.',
+      );
+      return;
+    }
+    this.lastSpeechHole = undefined;
+    this.voiceMode.set(true);
+    this.speechRecognitionService.startListening();
+  }
+
+  public exitVoiceMode(): void {
+    this.speechRecognitionService.stopListening();
+    this.voiceMode.set(false);
   }
 
   /**
    * Setup speech recognition callbacks
    */
   private setupSpeechRecognition(): void {
-    this.speechRecognitionService.onResult((transcript: string) => {
-      this.handleSpeechTranscript(transcript);
+    this.speechResultCleanup = this.speechRecognitionService.onResult(
+      (transcript: string) => {
+        this.handleSpeechTranscript(transcript);
+      },
+    );
+    this.speechErrorCleanup = this.speechRecognitionService.onError((error) => {
+      const messages: Record<string, string> = {
+        'not-allowed': 'Allow microphone access to use speech commands.',
+        'service-not-allowed': 'The browser speech service is unavailable.',
+        'audio-capture': 'No microphone is available.',
+        network: 'Speech recognition needs a network connection.',
+      };
+      const message = messages[error];
+      if (message) {
+        this.exitVoiceMode();
+        this.snackBarService.openTemporarySnackBar(message);
+      }
     });
   }
 
@@ -853,25 +911,50 @@ export class EditRoundComponent implements OnInit {
       return;
     }
 
-    const intents = this.speechRecognitionService.parseCommands(transcript);
+    const intents = this.speechRecognitionService.parseCommands(
+      transcript,
+      this.lastSpeechHole,
+    );
     if (intents.length === 0) {
       return;
     }
 
     const appliedActions: string[] = [];
+    const roundBeforeSpeech = structuredClone(this.editingRound);
 
     for (const intent of intents) {
       const action = this.applyIntent(intent);
       if (action) {
         appliedActions.push(action);
+        if (intent.hole !== undefined) {
+          this.lastSpeechHole = intent.hole;
+        } else if (
+          (intent.type === 'setStrokeSequence' ||
+            intent.type === 'setOpponentStrokeSequence') &&
+          intent.values?.length
+        ) {
+          this.lastSpeechHole =
+            (this.editingRound.roundVariety === RoundVariety.BACK_NINE
+              ? 10
+              : 1) +
+            intent.values.length -
+            1;
+        }
       }
     }
 
     // Show feedback if any actions were applied
     if (appliedActions.length > 0) {
       const message = appliedActions.join('; ');
+      const previousHole = this.lastSpeechHole;
       this.snackBarService.openTemporarySnackBar(
         `Applied: ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}`,
+        'Undo',
+        () => {
+          this.editingRound = roundBeforeSpeech;
+          this.lastSpeechHole = previousHole;
+          this.updateUnsavedData();
+        },
       );
     }
   }
@@ -881,25 +964,41 @@ export class EditRoundComponent implements OnInit {
    * Returns a human-readable description of the action taken, or null if no action
    */
   private applyIntent(intent: SpeechIntent): string | null {
-    // Validate hole number is within valid range for current round variety
-    if (intent.hole !== undefined) {
-      const maxHoles = this.editingRound.strokes.length;
-      if (intent.hole < 1 || intent.hole > maxHoles) {
-        return null;
-      }
+    if (intent.type === 'setStrokeSequence') {
+      return this.applyStrokeSequence(intent.values ?? []);
+    }
+    if (intent.type === 'setOpponentStrokeSequence') {
+      return this.applyOpponentStrokeSequence(intent.values ?? []);
+    }
+    if (intent.type === 'setOpponentStrokes' && !this.isMatchPlay()) {
+      this.snackBarService.openTemporarySnackBar(
+        'Enable Match Play to record opponent strokes.',
+      );
+      return null;
     }
 
-    const holeIndex = intent.hole !== undefined ? intent.hole - 1 : null;
+    // Validate hole number is within valid range for current round variety
+    if (intent.hole === undefined || !this.isHoleInCurrentRound(intent.hole)) {
+      return null;
+    }
+
+    const holeIndex = intent.hole - 1;
 
     switch (intent.type) {
       case 'setStrokes': {
-        if (holeIndex === null || intent.value === undefined) {
+        if (intent.value === undefined) {
           return null;
         }
-        // Convert score-to-par value to actual strokes
-        // intent.value represents score relative to par (0=par, 1=bogey, -1=birdie, etc.)
-        const parValue = this.currentCourse?.par[holeIndex];
-        if (!parValue) {
+        this.setStrokes(holeIndex, intent.value);
+        return `Hole ${intent.hole} strokes = ${intent.value}`;
+      }
+
+      case 'setScoreToPar': {
+        if (intent.value === undefined) {
+          return null;
+        }
+        const parValue = this.currentCourse()?.par[holeIndex];
+        if (parValue === undefined || parValue === null || parValue <= 0) {
           return null;
         }
         const strokes = parValue + intent.value;
@@ -920,36 +1019,35 @@ export class EditRoundComponent implements OnInit {
       }
 
       case 'setPutts': {
-        if (holeIndex === null || intent.value === undefined) {
+        if (
+          intent.value === undefined ||
+          intent.value < 0 ||
+          intent.value > 15
+        ) {
           return null;
         }
         this.setPutts(holeIndex, intent.value);
         return `Hole ${intent.hole} putts = ${intent.value}`;
       }
 
-      case 'plusOneStroke': {
-        if (holeIndex === null) {
+      case 'setOpponentStrokes': {
+        if (!this.isMatchPlay() || intent.value === undefined) {
           return null;
         }
+        this.setOpponentStrokes(holeIndex, intent.value);
+        return `Opponent hole ${intent.hole} strokes = ${intent.value}`;
+      }
+
+      case 'plusOneStroke': {
         this.strokesPlusOne(holeIndex);
         return `Hole ${intent.hole} + 1 stroke`;
       }
 
       case 'minusOneStroke': {
-        if (holeIndex === null) {
-          return null;
-        }
         this.strokesMinusOne(holeIndex);
         return `Hole ${intent.hole} - 1 stroke`;
       }
 
-      case 'save': {
-        // Don't auto-save, just indicate it was recognized
-        return 'Save recognized (use button to confirm)';
-      }
-
-      case 'setCourse':
-      case 'unknown':
       default:
         return null;
     }
@@ -979,5 +1077,97 @@ export class EditRoundComponent implements OnInit {
         this.updateUnsavedData();
         this.changeDetector.detectChanges();
       });
+  }
+
+  private isHoleInCurrentRound(hole: number): boolean {
+    const course = this.currentCourse();
+    if (!Number.isInteger(hole) || !course) {
+      return false;
+    }
+    const lastHole = course.numberOfHoles === CourseVariety.NINE ? 9 : 18;
+    switch (this.editingRound.roundVariety) {
+      case RoundVariety.FRONT_NINE:
+      case RoundVariety.FULL_NINE:
+        return hole >= 1 && hole <= Math.min(9, lastHole);
+      case RoundVariety.BACK_NINE:
+        return hole >= 10 && hole <= lastHole;
+      case RoundVariety.EIGHTEEN:
+        return hole >= 1 && hole <= lastHole;
+      default:
+        return false;
+    }
+  }
+
+  private applyStrokeSequence(values: number[]): string | null {
+    if (!this.currentCourse() || !values.length) {
+      return null;
+    }
+    const firstHole =
+      this.editingRound.roundVariety === RoundVariety.BACK_NINE ? 10 : 1;
+    const holesInRound =
+      this.editingRound.roundVariety === RoundVariety.EIGHTEEN ? 18 : 9;
+    if (values.length > holesInRound) {
+      return null;
+    }
+    const holes = values.map((value, offset) => firstHole + offset);
+    if (
+      holes.some(
+        (hole, index) =>
+          !this.isHoleInCurrentRound(hole) ||
+          hole - 1 >= this.editingRound.strokes.length ||
+          !Number.isInteger(values[index]) ||
+          values[index] < 1 ||
+          values[index] > 20,
+      )
+    ) {
+      return null;
+    }
+    values.forEach((value, offset) =>
+      this.setStrokes(firstHole - 1 + offset, value),
+    );
+    return `Strokes recorded for holes ${firstHole}-${holes.at(-1)}`;
+  }
+
+  private setOpponentStrokes(index: number, strokes: number): void {
+    this.editingRound.matchPlay ??= {};
+    this.editingRound.matchPlay.opponentStrokes ??= structuredClone(
+      EMPTY_EIGHTEEN_NUMBERS,
+    );
+    this.editingRound.matchPlay.opponentStrokes[index] = strokes;
+    this.updateUnsavedData();
+  }
+
+  private applyOpponentStrokeSequence(values: number[]): string | null {
+    if (!this.isMatchPlay()) {
+      this.snackBarService.openTemporarySnackBar(
+        'Enable Match Play to record opponent strokes.',
+      );
+      return null;
+    }
+    const opponentStrokes = this.editingRound.matchPlay?.opponentStrokes;
+    if (!opponentStrokes || !values.length) {
+      return null;
+    }
+    const firstHole =
+      this.editingRound.roundVariety === RoundVariety.BACK_NINE ? 10 : 1;
+    const holesInRound =
+      this.editingRound.roundVariety === RoundVariety.EIGHTEEN ? 18 : 9;
+    if (
+      values.length > holesInRound ||
+      values.some(
+        (value, offset) =>
+          !Number.isInteger(value) ||
+          value < 1 ||
+          value > 20 ||
+          !this.isHoleInCurrentRound(firstHole + offset) ||
+          firstHole - 1 + offset >= opponentStrokes.length,
+      )
+    ) {
+      return null;
+    }
+    values.forEach((value, offset) =>
+      this.setOpponentStrokes(firstHole - 1 + offset, value),
+    );
+    return `Opponent strokes recorded for holes ${firstHole}-${firstHole + values.length - 1}`;
   }
 }

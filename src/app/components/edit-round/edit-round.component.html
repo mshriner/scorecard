@@ -320,6 +320,75 @@
 </form>
 <br />
 
+@if (voiceMode()) {
+  <div class="voice-mode-overlay" aria-hidden="true"></div>
+}
+
+@if (
+  coursesToChooseFrom.length &&
+  appStateService.currentUser()?.speechCommandsEnabled !== false &&
+  !imported
+) {
+  <div class="speech-fab-stack">
+    @if (voiceMode()) {
+      <button
+        mat-fab
+        [matMenuTriggerFor]="voiceHelpMenu"
+        aria-label="Show voice command examples and tips"
+        matTooltip="Voice command help"
+      >
+        <mat-icon>help_outline</mat-icon>
+      </button>
+      <mat-menu #voiceHelpMenu="matMenu" xPosition="after" yPosition="above">
+        <button mat-menu-item disabled class="voice-help-heading">
+          Voice command examples
+        </button>
+        <button mat-menu-item disabled>Par on hole 5</button>
+        <button mat-menu-item disabled>Par on hole 5, 2 putts</button>
+        <button mat-menu-item disabled>Hole 5 is 4 strokes</button>
+        <button mat-menu-item disabled>5, 5, 4, 3, 5, 4, 4, 5, 3</button>
+        @if (isMatchPlay()) {
+          <button mat-menu-item disabled>Opponent 4 on hole 5</button>
+          <button mat-menu-item disabled>Opponent strokes 5, 4, 4, 3...</button>
+        }
+        <button mat-menu-item disabled>
+          Putts without a hole use the last hole you named.
+        </button>
+        <button mat-menu-item disabled>
+          Listening continues until you press the muted microphone.
+        </button>
+      </mat-menu>
+      <button
+        mat-fab
+        (click)="exitVoiceMode()"
+        aria-label="Exit voice mode and mute microphone"
+        matTooltip="Exit voice mode"
+      >
+        <mat-icon>mic_off</mat-icon>
+      </button>
+    } @else {
+      <button
+        mat-fab
+        (click)="toggleSpeechRecognition()"
+        [disabled]="!speechRecognitionService.isBrowserSupported()"
+        [attr.aria-pressed]="voiceMode()"
+        aria-label="Enter voice mode"
+        matTooltip="Enter voice mode"
+      >
+        <mat-icon>mic_none</mat-icon>
+      </button>
+    }
+    @if (speechRecognitionService.transcript()) {
+      <span aria-live="polite" class="speech-transcript">
+        {{ speechRecognitionService.transcript() }}
+      </span>
+    }
+    @if (!speechRecognitionService.isBrowserSupported()) {
+      <span class="speech-status">Speech recognition unavailable</span>
+    }
+  </div>
+}
+
 <ng-template
   #scoreGraphic
   let-scoreToPar="scoreToPar"
@@ -648,32 +717,6 @@
       />
     }
     @if (coursesToChooseFrom.length) {
-      <!-- Microphone button for speech commands -->
-      @if (speechRecognitionService.isBrowserSupported()) {
-        <button
-          mat-icon-button
-          (click)="toggleSpeechRecognition()"
-          [attr.aria-pressed]="speechRecognitionService.isListening()"
-          [attr.aria-label]="
-            speechRecognitionService.isListening()
-              ? 'Stop speech recognition'
-              : 'Start speech recognition'
-          "
-          [class.speech-active]="speechRecognitionService.isListening()"
-          matTooltip="Speech commands (say 'par on hole 5, 2 putts')"
-          class="speech-button"
-        >
-          <mat-icon
-            [style.color]="
-              speechRecognitionService.isListening()
-                ? 'var(--color-warn)'
-                : 'inherit'
-            "
-          >
-            {{ speechRecognitionService.isListening() ? 'mic' : 'mic_none' }}
-          </mat-icon>
-        </button>
-      }
       <div
         (click)="
           disableSaveButton.result &&

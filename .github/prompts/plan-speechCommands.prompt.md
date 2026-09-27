@@ -17,6 +17,7 @@ TL;DR - Add a small SpeechRecognitionService that wraps the Web Speech API, impl
      - "hole (\d{1,2}) (is )?(\d+)" -> set strokes
      - "add one stroke on hole 5", "minus one on hole 5" -> strokesPlusOne / strokesMinusOne
      - Combined utterances separated by commas or "and" -> split by `/[\.,]| and |, /i` then parse each segment
+     - allow for filling in all holes in one utterance: "5, 5, 4, 3, 5, 4, 4, 5, 3" -> set strokes for holes 1-9
    - Return normalized intents: { type: 'setStrokes'|'setPutts'|'plusOneStroke'|'minusOneStroke'|'setCourse'|'save'|... , hole?: number, value?: number }
    - Add unit tests for many phrasings and edge cases. _parallel with step 1._
 

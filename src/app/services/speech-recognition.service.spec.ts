@@ -21,7 +21,7 @@ describe('SpeechRecognitionService', () => {
         expect(intents).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              type: 'setStrokes',
+              type: 'setScoreToPar',
               hole: 5,
               value: 0,
             }),
@@ -34,7 +34,7 @@ describe('SpeechRecognitionService', () => {
         expect(intents).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              type: 'setStrokes',
+              type: 'setScoreToPar',
               hole: 5,
               value: -1,
             }),
@@ -47,7 +47,7 @@ describe('SpeechRecognitionService', () => {
         expect(intents).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              type: 'setStrokes',
+              type: 'setScoreToPar',
               hole: 3,
               value: -2,
             }),
@@ -60,7 +60,7 @@ describe('SpeechRecognitionService', () => {
         expect(intents).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              type: 'setStrokes',
+              type: 'setScoreToPar',
               hole: 7,
               value: 1,
             }),
@@ -73,7 +73,7 @@ describe('SpeechRecognitionService', () => {
         expect(intents).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              type: 'setStrokes',
+              type: 'setScoreToPar',
               hole: 9,
               value: 2,
             }),
@@ -83,12 +83,13 @@ describe('SpeechRecognitionService', () => {
     });
 
     describe('Putts', () => {
-      it('should parse "2 putts"', () => {
-        const intents = service.parseCommands('2 putts');
+      it('should apply standalone putts to the previous hole', () => {
+        const intents = service.parseCommands('2 putts', 5);
         expect(intents).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               type: 'setPutts',
+              hole: 5,
               value: 2,
             }),
           ]),
@@ -120,6 +121,10 @@ describe('SpeechRecognitionService', () => {
           ]),
         );
       });
+
+      it('should not apply standalone putts without a previous hole', () => {
+        expect(service.parseCommands('2 putts')).toEqual([]);
+      });
     });
 
     describe('Stroke Plus/Minus One', () => {
@@ -148,55 +153,77 @@ describe('SpeechRecognitionService', () => {
       });
     });
 
-    describe('Save Command', () => {
-      it('should parse "save"', () => {
-        const intents = service.parseCommands('save');
-        expect(intents).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              type: 'save',
-            }),
-          ]),
-        );
-      });
-
-      it('should parse "done"', () => {
-        const intents = service.parseCommands('done');
-        expect(intents).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              type: 'save',
-            }),
-          ]),
-        );
-      });
-    });
-
     describe('Multi-Intent Utterances', () => {
       it('should parse "par on hole 5, 2 putts"', () => {
         const intents = service.parseCommands('par on hole 5, 2 putts');
         expect(intents.length).toBe(2);
         expect(intents[0]).toEqual(
           expect.objectContaining({
-            type: 'setStrokes',
+            type: 'setScoreToPar',
             hole: 5,
             value: 0,
           }),
         );
-        // When parsed as separate segments, "2 putts" loses hole context
         expect(intents[1]).toEqual(
           expect.objectContaining({
             type: 'setPutts',
+            hole: 5,
             value: 2,
           }),
         );
       });
 
-      it('should parse "bogey 9 then save"', () => {
-        const intents = service.parseCommands('bogey 9 then save');
-        expect(intents.length).toBe(2);
-        expect(intents[0]?.type).toBe('setStrokes');
-        expect(intents[1]?.type).toBe('save');
+      it('should ignore voice save commands', () => {
+        expect(service.parseCommands('save')).toEqual([]);
+        expect(service.parseCommands('bogey 9 then save')).toEqual([
+          expect.objectContaining({
+            type: 'setScoreToPar',
+            hole: 9,
+          }),
+        ]);
+      });
+
+      it('should parse a stroke-count sequence for the active round', () => {
+        const intents = service.parseCommands('five, five, four, three');
+        expect(intents).toEqual([
+          expect.objectContaining({
+            type: 'setStrokeSequence',
+            values: [5, 5, 4, 3],
+          }),
+        ]);
+      });
+
+      it('should parse an opponent stroke count on a hole', () => {
+        expect(service.parseCommands('opponent four on hole five')).toEqual([
+          expect.objectContaining({
+            type: 'setOpponentStrokes',
+            hole: 5,
+            value: 4,
+          }),
+        ]);
+      });
+
+      it('should parse opponent stroke counts as a sequence', () => {
+        expect(service.parseCommands('opponent strokes 5, 4, 4')).toEqual([
+          expect.objectContaining({
+            type: 'setOpponentStrokeSequence',
+            values: [5, 4, 4],
+          }),
+        ]);
+      });
+
+      it('should parse literal strokes separately from score-to-par terms', () => {
+        expect(service.parseCommands('hole five is four strokes')).toEqual([
+          expect.objectContaining({
+            type: 'setStrokes',
+            hole: 5,
+            value: 4,
+          }),
+        ]);
+      });
+
+      it('should not parse an opponent hole without a stroke count', () => {
+        expect(service.parseCommands('opponent hole 5')).toEqual([]);
       });
     });
 
@@ -227,7 +254,7 @@ describe('SpeechRecognitionService', () => {
           'foobar and par hole 5 and bazzle',
         );
         expect(intents.length).toBe(1);
-        expect(intents[0]?.type).toBe('setStrokes');
+        expect(intents[0]?.type).toBe('setScoreToPar');
       });
 
       it('should handle hole numbers 1-18', () => {
