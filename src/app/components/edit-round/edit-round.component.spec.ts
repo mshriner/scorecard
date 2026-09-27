@@ -87,6 +87,21 @@ describe('EditRoundComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should show a snackbar when entering voice mode', () => {
+    component.speechRecognitionService.isBrowserSupported.set(true);
+    vi.spyOn(component.speechRecognitionService, 'startListening');
+
+    component.toggleSpeechRecognition();
+
+    expect(component.voiceMode()).toBe(true);
+    expect(snackBarService.openTemporarySnackBar).toHaveBeenCalledWith(
+      'Entering voice mode. Speak a command or use Help for examples.',
+    );
+    expect(
+      component.speechRecognitionService.startListening,
+    ).toHaveBeenCalledOnce();
+  });
+
   it('should only apply spoken opponent strokes in match play', () => {
     const course: Course = {
       id: 'match-course',

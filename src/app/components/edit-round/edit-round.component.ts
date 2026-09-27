@@ -875,6 +875,9 @@ export class EditRoundComponent implements OnInit, OnDestroy {
     }
     this.lastSpeechHole = undefined;
     this.voiceMode.set(true);
+    this.snackBarService.openTemporarySnackBar(
+      'Entering voice mode. Speak a command or use Help for examples.',
+    );
     this.speechRecognitionService.startListening();
   }
 
