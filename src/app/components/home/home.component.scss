@@ -1,7 +1,15 @@
 @use '../../../mixins.scss' as mixins;
 
-.font-slider {
-  min-width: 175px;
+.flex-score {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  column-gap: 4px;
+}
+
+.match-play-finished-score {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .select-all {
@@ -16,30 +24,15 @@
 }
 
 .mat-column-courseName {
-  flex: 0 0 50%;
+  flex: 0 0 45%;
 }
 
 .mat-column-roundScore {
-  flex: 0 0 25%;
+  flex: 0 0 30%;
 }
 
 .mat-column-courseName-best {
   flex: 0 0 75%;
-}
-
-.stat-cards {
-  mat-card {
-    height: max-content;
-    mat-card-content {
-      padding-bottom: 6px;
-    }
-    mat-card-footer {
-      padding: 4px;
-    }
-  }
-  .average-result {
-    margin-top: -4px;
-  }
 }
 
 mat-table.round-results-table {

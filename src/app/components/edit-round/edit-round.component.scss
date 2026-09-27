@@ -1,7 +1,17 @@
 @use '../../../mixins.scss' as mixins;
 
-td {
-  padding-inline: 4px;
+td,
+th {
+  padding-inline: 0;
+
+  .header-button {
+    height: min-content;
+    width: min-content;
+    border-radius: 16px;
+    padding-inline: 4px;
+    margin-bottom: 2px;
+    margin-top: 2px;
+  }
 }
 
 .border-above {
@@ -21,4 +31,44 @@ td {
     white-space: pre-line;
     line-height: normal;
   }
+}
+
+.hole-number-with-strokes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.stroke-given-markers {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.match-indicator-cell,
+.match-indicator-header {
+  padding: 0 !important;
+  overflow: visible !important;
+  width: 0;
+}
+
+.match-indicator-spacer {
+  display: block;
+  width: 0;
+  height: 1rem;
+}
+
+.large-font {
+  font-size: xxx-large;
+}
+
+.halved-hole {
+  opacity: 0.5;
+}
+
+.pre {
+  font-family: monospace;
 }

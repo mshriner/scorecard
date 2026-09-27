@@ -1,7 +1,6 @@
 import { CourseDTO } from './course';
 import { ExportedItem } from './data-transfer';
 import { RoundDTO } from './round';
-import { StorageObject } from './storage-object';
 
 export enum AppTheme {
   SYSTEM,
@@ -9,7 +8,8 @@ export enum AppTheme {
   DARK,
 }
 
-interface UserBaseData extends StorageObject {
+interface UserBaseData {
+  id: string;
   name: string;
   appFontScaling: number;
   scoringGender?: GenderForScoring;
@@ -31,7 +31,6 @@ export interface LocalFilters {
   sortBy?: ResultsSorting;
   homeTabIndex?: number;
   pwaPrompted?: boolean;
-  newStrokesUI?: boolean;
   theme?: AppTheme;
   evenSpaceGraph?: boolean;
   graphRegression?: boolean;

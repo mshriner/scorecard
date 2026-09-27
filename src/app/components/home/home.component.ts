@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -7,9 +7,7 @@ import {
   inject,
   OnInit,
   Signal,
-  signal,
   ViewChild,
-  WritableSignal,
 } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,30 +33,14 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { TypedTemplateDirective } from '../../directives/typed-template.directive';
 import { APP_ROUTES, NAVIGATION_STATE_KEYS } from '../../models/constants';
-import {
-  Course,
-  CourseVariety,
-  NINE_NUMBERS_ZEROED,
-} from '../../models/course';
-import {
-  createEmptyHoleResults,
-  GRAPH_VARIETIES,
-  HoleResults,
-  PerformanceGraphData,
-  PerformanceGraphDataPoint,
-  PerformanceGraphMetric,
-} from '../../models/graph';
+import { CourseVariety } from '../../models/course';
+import { GRAPH_VARIETIES } from '../../models/graph';
 import {
   BestRound,
   compareRoundsByDateDescending,
-  EMPTY_EIGHTEEN_NUMBERS,
-  EMPTY_NINE_NUMBERS,
   FullRoundVarietyAtCourse,
   Round,
-  RoundCompletion,
-  RoundVariety,
 } from '../../models/round';
 import {
   LocalUserWithFilters,
@@ -72,9 +54,10 @@ import { AppStateService } from '../../services/app-state.service';
 import { CourseService } from '../../services/course.service';
 import { NavigationMessageService } from '../../services/navigation-message.service';
 import { RoundService } from '../../services/round.service';
+import { StatisticsService } from '../../services/statistics.service';
 import { DataUtils } from '../../util/data-utils';
 import { BestRoundDialogComponent } from '../best-round-dialog/best-round-dialog.component';
-import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/performance-graph-dialog.component';
+import { StatsComponent } from '../stats/stats.component';
 
 @Component({
   selector: 'app-home',
@@ -98,9 +81,8 @@ import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/per
     MatCheckboxModule,
     MatDividerModule,
     MatDialogModule,
-    TypedTemplateDirective,
+    StatsComponent,
     DatePipe,
-    DecimalPipe,
     NgTemplateOutlet,
   ],
   providers: [provideNativeDateAdapter()],
@@ -110,7 +92,8 @@ import { PerformanceGraphDialogComponent } from '../performance-graph-dialog/per
 export class HomeComponent implements OnInit, AfterViewInit {
   appStateService = inject(AppStateService);
   private readonly roundService = inject(RoundService);
-  courseService = inject(CourseService);
+  readonly statisticsService = inject(StatisticsService);
+  readonly courseService = inject(CourseService);
   private readonly roundScorePipe = inject(TotalRoundScorePipe);
   private readonly router = inject(NavigationMessageService);
   readonly dialog = inject(MatDialog);
@@ -121,227 +104,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
   public readonly FullRoundVarietyAtCourse = FullRoundVarietyAtCourse;
   public readonly CourseVariety = CourseVariety;
   public readonly GRAPH_VARIETIES = GRAPH_VARIETIES;
-  public TREND_GRAPH_PARAMS!: {
-    which: PerformanceGraphMetric;
-  };
-  public rounds: WritableSignal<Round[]> = signal([]);
-  public filteredRounds: WritableSignal<Round[]> = signal([]);
-  public courseMap: Signal<Map<string, Course | null>> = computed(() => {
-    const map: Map<string, Course | null> = new Map();
-    for (const round of this.rounds()) {
-      if (!map.has(round.courseId)) {
-        const course = this.courseService.getCourse(round.courseId);
-        map.set(round.courseId, course);
-      }
-    }
-    return map;
-  });
-  public holeResultTotals: Signal<HoleResults> = computed(() => {
-    const holeResults: HoleResults = createEmptyHoleResults();
-    if (!this.filteredRounds()?.length) {
-      return holeResults;
-    }
-    for (const round of this.filteredRounds()) {
-      this.processHoles(round, holeResults);
-    }
-    return holeResults;
-  });
-  public coursesWithHoleResults: Signal<string[]> = computed(() => {
-    return Array.from(this.holeResultTotals().theoreticalBestRound.keys()).sort(
-      (a, b) => a.localeCompare(b),
-    );
-  });
-
-  /**
-   * @returns whether there is a course associated with this round (should always be true)
-   */
-  private processHoles(round: Round, holeResults: HoleResults): boolean {
-    const course = this.courseMap().get(round.courseId);
-    if (!course) {
-      return false;
-    }
-    const roundSegmentsComplete = this.calculateRoundCompletion(round);
-    holeResults.completed18HoleRounds +=
-      +roundSegmentsComplete.eighteenHolesComplete;
-    holeResults.completedNinesInAllRounds +=
-      +roundSegmentsComplete.firstNineComplete +
-      +roundSegmentsComplete.secondNineComplete;
-    for (let index = 0; index < round.strokes.length; index++) {
-      this.processHoleResult(
-        holeResults,
-        round,
-        course,
-        index,
-        roundSegmentsComplete,
-      );
-    }
-    return true;
-  }
-
-  private calculateRoundCompletion(round: Round): RoundCompletion {
-    const strokes = round?.strokes ?? [];
-    const firstNine =
-      strokes.slice(0, 9).length === 9
-        ? strokes.slice(0, 9)
-        : NINE_NUMBERS_ZEROED;
-    const secondNine =
-      strokes.slice(9, 18).length === 9
-        ? strokes.slice(9, 18)
-        : NINE_NUMBERS_ZEROED;
-
-    const firstNineComplete = !firstNine.some((stroke) => !stroke);
-    const secondNineComplete = !secondNine.some((stroke) => !stroke);
-
-    return {
-      firstNineComplete,
-      secondNineComplete,
-      eighteenHolesComplete: firstNineComplete && secondNineComplete,
-    };
-  }
-
-  private processHoleResult(
-    holeResults: HoleResults,
-    round: Round,
-    course: Course,
-    index: number,
-    roundSegmentsComplete: RoundCompletion,
-  ): void {
-    const strokes = round.strokes[index];
-    if (!strokes) {
-      return;
-    }
-
-    this.updateTheoreticalBestRound(
-      holeResults,
-      course,
-      index,
-      strokes,
-      round.dateStringISO,
-    );
-
-    holeResults.holesPlayed++;
-    const parOnHole = course?.par[index] ?? 0;
-    const holeResultToPar = strokes - parOnHole;
-
-    this.updateParStats(
-      holeResults,
-      holeResultToPar,
-      parOnHole,
-      strokes,
-      index,
-      roundSegmentsComplete,
-    );
-
-    if (round.putts[index] || round.putts[index] === 0) {
-      holeResults.holesPlayedWithPutts++;
-      const putts = round.putts[index];
-      holeResults.putts += putts;
-      if (strokes - putts <= parOnHole - 2) {
-        holeResults.inferredGreensInRegulation++;
-      } else {
-        holeResults.inferredHolesScramblingNeeded++;
-        if (strokes <= parOnHole) {
-          holeResults.inferredHolesScramblingSuccessfully++;
-        }
-      }
-      if (round.roundVariety === RoundVariety.EIGHTEEN) {
-        holeResults.holesPlayedWithPuttsInFullRounds++;
-        holeResults.puttsInFullRounds += putts;
-      }
-    }
-  }
-
-  private updateTheoreticalBestRound(
-    holeResults: HoleResults,
-    course: Course,
-    index: number,
-    strokes: number,
-    dateStringISO: string,
-  ): void {
-    if (!holeResults.theoreticalBestRound.has(course.id)) {
-      switch (course.numberOfHoles) {
-        case CourseVariety.NINE: {
-          holeResults.theoreticalBestRound.set(course.id, {
-            roundVariety: RoundVariety.FULL_NINE,
-            strokes: [...EMPTY_NINE_NUMBERS],
-            course: course,
-            bestScoresRecordedDateISO: new Array<string>(9),
-          });
-          break;
-        }
-        case CourseVariety.EIGHTEEN:
-        default: {
-          holeResults.theoreticalBestRound.set(course.id, {
-            roundVariety: RoundVariety.EIGHTEEN,
-            strokes: [...EMPTY_EIGHTEEN_NUMBERS],
-            course: course,
-            bestScoresRecordedDateISO: new Array<string>(18),
-          });
-          break;
-        }
-      }
-    }
-    const theoreticalBestRound = holeResults.theoreticalBestRound.get(
-      course.id,
-    );
-    if ((theoreticalBestRound?.strokes?.[index] || Infinity) > strokes) {
-      theoreticalBestRound!.strokes[index] = strokes;
-      theoreticalBestRound!.bestScoresRecordedDateISO[index] = dateStringISO;
-    }
-  }
-
-  private updateParStats(
-    holeResults: HoleResults,
-    holeResultToPar: number,
-    parOnHole: number,
-    strokes: number,
-    index: number,
-    roundSegmentsComplete: RoundCompletion,
-  ): void {
-    switch (parOnHole) {
-      case 3: {
-        holeResults.par3sPlayed++;
-        holeResults.totalStrokesOnPar3s += strokes;
-        break;
-      }
-      case 4: {
-        holeResults.par4sPlayed++;
-        holeResults.totalStrokesOnPar4s += strokes;
-        break;
-      }
-      case 5: {
-        holeResults.par5sPlayed++;
-        holeResults.totalStrokesOnPar5s += strokes;
-        break;
-      }
-    }
-
-    const addHoleToAllCompletedRoundTotals =
-      roundSegmentsComplete.eighteenHolesComplete ||
-      (index < 9 && roundSegmentsComplete.firstNineComplete) ||
-      (index >= 9 && roundSegmentsComplete.secondNineComplete);
-
-    if (holeResultToPar <= -2) {
-      holeResults.eaglesOrBetter++;
-    } else if (holeResultToPar === -1) {
-      holeResults.birdies++;
-    } else if (holeResultToPar === 0) {
-      holeResults.pars++;
-    } else if (holeResultToPar === 1) {
-      holeResults.bogeys++;
-    } else if (holeResultToPar >= 2) {
-      holeResults.doubleBogeysOrWorse++;
-    }
-
-    if (addHoleToAllCompletedRoundTotals) {
-      holeResults.totalScoreToParInAllCompletedRounds += holeResultToPar;
-      holeResults.totalStrokesInAllCompletedRounds += strokes;
-    }
-    if (roundSegmentsComplete.eighteenHolesComplete) {
-      holeResults.totalScoreToParInCompleted18HoleRounds += holeResultToPar;
-      holeResults.totalStrokesInCompleted18HoleRounds += strokes;
-    }
-  }
 
   public datePickerFilterOutBefore = (d: Date | null): boolean => {
     if (!this.currentUser?.earliestDateISO || !d) {
@@ -360,7 +122,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   courseStatsFilter = new FormControl<string[]>([]);
   allSelected = false;
   courseIdOptions: Signal<string[]> = computed(() => [
-    ...this.courseMap().keys(),
+    ...this.statisticsService.courseMap().keys(),
   ]);
 
   public readonly COURSE_NAME_COL = 'courseName';
@@ -387,7 +149,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.setPageTitle();
-    this.rounds.set(
+    this.statisticsService.rounds.set(
       this.roundService
         .getRoundsByIds(this.currentUser?.roundIds || [])
         .sort(compareRoundsByDateDescending),
@@ -405,7 +167,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (courseStatsFilterSelect?.length) {
       this.courseStatsFilter.setValue(
         courseStatsFilterSelect.filter((courseId) =>
-          this.courseMap().has(courseId),
+          this.statisticsService.courseMap().has(courseId),
         ),
       );
     } else {
@@ -513,20 +275,32 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   private updateFilteredRounds(): void {
     const roundsToShow =
-      this.rounds()?.filter((round) => this.shouldShowRound(round)) || [];
+      this.statisticsService
+        .rounds()
+        ?.filter((round) => this.shouldShowRound(round)) || [];
     if (this.currentUser && !this.currentUser?.sortBy) {
       this.currentUser.sortBy = ROUND_DATE_SORT_COL;
     }
     roundsToShow.sort((a, b) => {
-      const roundAScore = Number(this.roundScorePipe.transform(a));
-      const roundBScore = Number(this.roundScorePipe.transform(b));
-      const isRoundAComplete = Number.isFinite(roundAScore);
-      const isRoundBComplete = Number.isFinite(roundBScore);
-      if (!isRoundAComplete) {
-        return -1;
-      }
-      if (!isRoundBComplete) {
-        return 1;
+      const roundAScore = Number(
+        this.roundScorePipe.transform(a, a.roundVariety),
+      );
+      const roundBScore = Number(
+        this.roundScorePipe.transform(b, b.roundVariety),
+      );
+      const isRoundAComplete = Number.isFinite(
+        this.roundScorePipe.transform(a),
+      );
+      const isRoundBComplete = Number.isFinite(
+        this.roundScorePipe.transform(b),
+      );
+      if (isRoundAComplete !== isRoundBComplete) {
+        if (!isRoundAComplete) {
+          return -1;
+        }
+        if (!isRoundBComplete) {
+          return 1;
+        }
       }
       if (this.currentUser?.sortBy === this.ROUND_DATE_COL) {
         return this.currentUser?.sortDescending
@@ -541,7 +315,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
       return 0;
     });
-    this.filteredRounds.set(roundsToShow);
+    this.statisticsService.filteredRounds.set(roundsToShow);
   }
 
   private shouldShowRound(round: Round) {
@@ -619,39 +393,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   public viewBestRoundOnCourse(courseId: string): void {
-    const bestRound: BestRound =
-      this.holeResultTotals().theoreticalBestRound.get(courseId)!;
+    const bestRound: BestRound = this.statisticsService
+      .holeResultTotals()
+      .theoreticalBestRound.get(courseId)!;
     this.dialog.open(BestRoundDialogComponent, {
       data: bestRound,
-    });
-  }
-
-  public openTrendGraphDialog(which: PerformanceGraphMetric): void {
-    const graphDetails = GRAPH_VARIETIES[which];
-    const data: PerformanceGraphData = {
-      yAxisLabel: graphDetails.yAxisLabel,
-      percent: graphDetails.percent,
-      scoreToPar: graphDetails.scoreToPar,
-      sortedDataPoints: this.filteredRounds()
-        .map((round) => {
-          const holeResults: HoleResults = createEmptyHoleResults();
-          const dataPoint: PerformanceGraphDataPoint = {
-            yValue: null,
-            roundId: round.id,
-            date: new Date(round.dateStringISO),
-            roundVariety: round.roundVariety,
-          };
-          const addYValue = this.processHoles(round, holeResults);
-          if (addYValue) {
-            dataPoint.yValue = graphDetails.yValueExtractor(holeResults);
-          }
-          return dataPoint;
-        })
-        .filter((round) => round.yValue !== null)
-        .sort((a, b) => a.date.getTime() - b.date.getTime()),
-    };
-    this.dialog.open(PerformanceGraphDialogComponent, {
-      data: data,
     });
   }
 }

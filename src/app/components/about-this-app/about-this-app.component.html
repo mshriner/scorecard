@@ -7,9 +7,22 @@
       <p>This project was created by <b>Marshall Shriner</b>.</p>
       <p>
         <strong>App Data:</strong> All app data is stored locally on your
-        device. Except when checking for feature updates, no network connection
-        is necessary to use this app.
+        device. No network connection is necessary to use this app, except in
+        the following cases:
       </p>
+      <ul>
+        <li>Checking for feature updates</li>
+        <li>
+          Searching for new golf courses using the
+          <a
+            href="https://golfcourseapi.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GolfCourseAPI</a
+          >
+        </li>
+      </ul>
       <p>
         <strong>Privacy:</strong> This app is hosted on DigitalOcean. For more
         information, see the
@@ -44,11 +57,144 @@
     </mat-card-header>
     <mat-card-content>
       <div>
+        <p>9/21/2026</p>
+        <ul>
+          <li>
+            When a match play round ends in a tie, the score will now show as
+            "½-½". If not all holes have been played, it will show as "AS" (All
+            Square)
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p>9/14/2026</p>
+        <ul>
+          <li>
+            Fixed a bug where, when opening rounds created before the match play
+            update (8/18/2026), the "Edit Round" page would trigger the "unsaved
+            changes" warning even if no changes were made
+          </li>
+          <li>
+            Upgraded underlying libraries for bug fixes and performance
+            improvements
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p>9/12/2026</p>
+        <ul>
+          <li>
+            Enhancements to match play rounds:
+            <ul>
+              <li>UP/DN scores show on the home page results list</li>
+              <li>
+                To help make room for this, the "thru" label for in-progress
+                rounds has shrunk slightly
+              </li>
+            </ul>
+          </li>
+          <li>
+            Fixed issues with the "search for a new course" feature, addressing
+            an unannounced breaking format change to the data coming from the
+            <a
+              href="https://golfcourseapi.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GolfCourseAPI</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p>8/18/2026</p>
+        <ul>
+          <li>
+            Added a new <b>Match Play</b> feature, allowing you to record rounds
+            played against an opponent with a different handicap. You can now
+            see how many holes you won, lost, or tied against your opponent.
+            <ul>
+              <li>
+                On the "View/Edit Round" page, click the "Match Play" button to
+                enable this feature. A new column will appear in the scorecard
+                showing your opponent's strokes for each hole.
+              </li>
+              <li>
+                Click the "Opp. Strokes" button in the scorecard table header to
+                adjust the holes where you or your opponent receives strokes.
+              </li>
+            </ul>
+          </li>
+          <li>
+            To make room for the new feature, the legacy user interface pattern
+            for entering strokes and putts has been removed. The new interface
+            requires fewer clicks and takes up less space on the screen.
+          </li>
+          <li>
+            Adjusted the "App Info" section to clarify that internet connection
+            is used when searching for new courses through the
+            <a
+              href="https://golfcourseapi.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GolfCourseAPI</a
+            >.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p>7/25/2026</p>
+        <ul>
+          <li>
+            Made it easier to export a user profile -- there is now a button at
+            the top of the side menu
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p>7/13/2026</p>
+        <ul>
+          <li>
+            Added statistics counting holes with
+            <b>0 putts, 1 putt, 2 putts, and 3+ putts</b>. These are also
+            visible when viewing individual rounds.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p>7/10/2026</p>
+        <ul>
+          <li>
+            Added the ability to see a few
+            <b>stats while viewing individual rounds</b>. After logging putts,
+            Greens in Regulation and Scrambling Success will show at the bottom
+            of the "View/Edit Round" page
+          </li>
+          <li>
+            Adjusted some behavior for sorting in-progress rounds on the
+            "Results" page
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p>6/28/2026</p>
+        <ul>
+          <li>
+            Split the "doubles or worse" statistic into "double bogeys" and
+            "triples or worse"
+          </li>
+          <li>
+            Added precision to average strokes on par 3s, par 4s, and par 5s
+          </li>
+        </ul>
+      </div>
+      <div>
         <p>6/12/2026</p>
         <ul>
           <li>
-            When adding a new golf course, you can now search for it using an
-            internet connection. This is powered by
+            When adding a new golf course, you can now <b>search</b> for it
+            using an internet connection. This is powered by
             <a
               href="https://golfcourseapi.com/"
               target="_blank"
@@ -58,7 +204,7 @@
             >, so thank you to them for making this API free and accessible!
             <ul>
               <li>
-                The new search workflow will pull up a short step-by-step
+                The <b>new search workflow</b> will pull up a short step-by-step
                 process to find the course you are thinking of.
               </li>
             </ul>

@@ -1,11 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { Course } from '../models/course';
 import { AppStateService } from './app-state.service';
 import { LocalStorageService } from './local-storage.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class CourseService {
   private readonly appStateService = inject(AppStateService);
   private readonly localStorageService = inject(LocalStorageService);

@@ -1,0 +1,16 @@
+@use '../../../mixins.scss' as mixins;
+
+.stat-cards-wrapper {
+  mat-card {
+    height: max-content;
+    mat-card-content {
+      padding-bottom: 4px;
+    }
+    mat-card-footer {
+      padding: 4px;
+    }
+  }
+  .average-result {
+    margin-top: -4px;
+  }
+}

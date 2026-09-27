@@ -1,5 +1,9 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
-import { RoundLike, RoundVariety } from '../models/round';
+import {
+  EMPTY_EIGHTEEN_NUMBERS,
+  RoundLike,
+  RoundVariety,
+} from '../models/round';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 
 @Pipe({
@@ -9,12 +13,27 @@ import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
 export class TotalRoundScorePipe implements PipeTransform {
   private readonly roundVarietyScores = inject(RoundVarietyScoresPipe);
 
+  /**
+   * Calculates the total score for the provided round.
+   *
+   * If a half round variety is not provided, this pipe returns a "Thru X"
+   * string when the round is not yet complete. Once all holes are completed,
+   * it returns the total stroke count.
+   *
+   * @param round The round data containing strokes and variety.
+   * @param halfToPreventThruFormat Optional variety used for calculating
+   *   half-round scores while avoiding the incomplete round formatting.
+   * @returns The round total score or a progress string if the round is incomplete.
+   */
   transform(
     round: RoundLike,
     halfToPreventThruFormat?: RoundVariety,
+    opponentScore?: boolean,
   ): number | string {
     const validStrokes = this.roundVarietyScores.transform(
-      round.strokes,
+      opponentScore
+        ? round.matchPlay?.opponentStrokes || EMPTY_EIGHTEEN_NUMBERS
+        : round.strokes,
       halfToPreventThruFormat ?? round.roundVariety,
     );
 

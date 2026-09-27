@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { assert, Mocked } from 'vitest';
+import { assert, describe, expect, it, Mocked, vi } from 'vitest';
 import { SNACKBAR_MESSAGES } from '../../models/constants';
 import { Course, CourseVariety } from '../../models/course';
 import { Round, RoundVariety } from '../../models/round';
@@ -129,7 +129,7 @@ describe('EditRoundComponent', () => {
 
     expect(component.editingRound.id).toBe('round-id');
     expect(component.imported).toBe(true);
-    expect(component.currentCourse?.name).toBe('Imported Course');
+    expect(component.currentCourse()?.name).toBe('Imported Course');
     expect(snackBarService.openTemporarySnackBar).toHaveBeenCalledWith(
       'Round at "Imported Course" was imported successfully.',
     );
@@ -171,7 +171,7 @@ describe('EditRoundComponent', () => {
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     courseService.getCourse.mockReturnValue(course);
-    component.currentCourse = course;
+    component.currentCourse.set(course);
     component.editingRound = {
       id: 'r1',
       dateStringISO: new Date().toISOString(),
@@ -193,7 +193,7 @@ describe('EditRoundComponent', () => {
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     };
     courseService.getCourse.mockReturnValue(course);
-    component.currentCourse = course;
+    component.currentCourse.set(course);
     component.editingRound = {
       id: 'r2',
       dateStringISO: new Date().toISOString(),
@@ -266,27 +266,73 @@ describe('EditRoundComponent', () => {
   });
 
   it('should return true for showSummaryRow at index 8 for 18-hole course', () => {
-    component.currentCourse = {
+    component.currentCourse.set({
       id: 'c5',
       name: 'Eighteen Hole',
       numberOfHoles: CourseVariety.EIGHTEEN,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    };
+    });
     expect(component.showSummaryRow(8)).toBe(true);
   });
 
   it('should return false for showSummaryRow at index 8 for 9-hole course', () => {
-    component.currentCourse = {
+    component.currentCourse.set({
       id: 'c6',
       name: 'Nine Hole',
       numberOfHoles: CourseVariety.NINE,
       par: [4, 4, 4, 4, 4, 4, 4, 4, 4],
-    };
+    });
     expect(component.showSummaryRow(8)).toBe(false);
   });
 
   it('should return true from returnTrue()', () => {
     expect(component.returnTrue()).toBe(true);
+  });
+
+  it('should show stroke markers and match indicators for net score comparison', () => {
+    component.editingRound = {
+      id: 'r-match-indicator',
+      dateStringISO: new Date().toISOString(),
+      courseId: 'c-match',
+      strokes: [4, 5, 3, 0, 0, 0, 0, 0, 0],
+      putts: [1, 2, 1, 0, 0, 0, 0, 0, 0],
+      roundVariety: RoundVariety.EIGHTEEN,
+      generalNotes: '',
+      matchPlay: {
+        opponentStrokes: [5, 4, 4, 0, 0, 0, 0, 0, 0],
+        opponentAdvantage: [-1, 0, 1, 0, 0, 0, 0, 0, 0],
+        opponentName: 'Opponent',
+        isMatchPlay: true,
+      },
+    };
+
+    expect(component.getStrokeCountForHole(0)).toBe(1);
+    expect(component.getStrokeCountForHole(2)).toBe(1);
+    expect(component.getMatchIndicator(0)).toBe('right');
+    expect(component.getMatchIndicator(1)).toBe('left');
+    expect(component.getMatchIndicator(2)).toBe('=');
+  });
+
+  it('should mark which player gets strokes and which player wins each hole', () => {
+    component.editingRound = {
+      id: 'r-match',
+      dateStringISO: new Date().toISOString(),
+      courseId: 'c-match',
+      strokes: [4, 5, 3, 0, 0, 0, 0, 0, 0],
+      putts: [1, 2, 1, 0, 0, 0, 0, 0, 0],
+      roundVariety: RoundVariety.EIGHTEEN,
+      generalNotes: '',
+      matchPlay: {
+        opponentStrokes: [5, 4, 4, 0, 0, 0, 0, 0, 0],
+        opponentAdvantage: [-1, 0, 1, 0, 0, 0, 0, 0, 0],
+        opponentName: 'Opponent',
+        isMatchPlay: true,
+      },
+    };
+
+    expect(component.getMatchIndicator(0)).toBe('right');
+    expect(component.getMatchIndicator(1)).toBe('left');
+    expect(component.getMatchIndicator(2)).toBe('=');
   });
 
   it('should update date on dateChanged()', () => {

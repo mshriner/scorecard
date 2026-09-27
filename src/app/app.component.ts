@@ -39,7 +39,10 @@ import {
 } from './models/user';
 import { PipesModule } from './pipes/pipes.module';
 import { AppStateService } from './services/app-state.service';
+import { CourseService } from './services/course.service';
 import { NavigationMessageService } from './services/navigation-message.service';
+import { RoundService } from './services/round.service';
+import { SharingService } from './services/sharing.service';
 import { SnackBarService } from './services/snack-bar.service';
 import { UserService } from './services/user.service';
 @Component({
@@ -73,8 +76,11 @@ export class AppComponent implements OnInit {
   private readonly snackBarService = inject(SnackBarService);
   private readonly serviceWorker = inject(SwUpdate);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly changeDetection = inject(ChangeDetectorRef);
+  readonly changeDetection = inject(ChangeDetectorRef);
   private readonly userService = inject(UserService);
+  private readonly roundService = inject(RoundService);
+  private readonly courseService = inject(CourseService);
+  private readonly sharingService = inject(SharingService);
 
   public readonly showSpinner = signal(false);
   public readonly APP_THEMES = Object.values(AppTheme).filter(
@@ -330,13 +336,28 @@ export class AppComponent implements OnInit {
         const sanitizedName = newProfileName?.trim();
         if (sanitizedName?.length && this.currentUser) {
           this.currentUser.name = sanitizedName;
-          this.userService.setCurrentUser(this.currentUser);
-          this.appStateService.currentUser.set(
-            this.userService.getCurrentUser(),
-          );
+          this.updateCurrentUser(this.currentUser);
           this.changeDetection.markForCheck();
         }
       });
+  }
+
+  public updateCurrentUser(user: LocalUserWithFilters): void {
+    this.userService.setCurrentUser(user);
+    this.appStateService.currentUser.set(this.userService.getCurrentUser());
+  }
+
+  public shareUserProfile(userToEdit: LocalUserWithFilters): void {
+    this.sharingService
+      .shareData({
+        data: {
+          user: userToEdit,
+          rounds: this.roundService.getRoundsByIds(userToEdit.roundIds),
+          courses: this.courseService.getCoursesByIds(userToEdit.courseIds),
+        },
+        objectType: 'user',
+      })
+      .subscribe();
   }
 
   private get isInWebAppiOS(): boolean {

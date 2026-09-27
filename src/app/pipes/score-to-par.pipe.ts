@@ -1,6 +1,10 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { Course } from '../models/course';
-import { RoundLike, RoundVariety } from '../models/round';
+import {
+  EMPTY_EIGHTEEN_NUMBERS,
+  RoundLike,
+  RoundVariety,
+} from '../models/round';
 import { EighteenNumbers, NineNumbers } from '../models/storage-object';
 import { CourseService } from '../services/course.service';
 import { RoundVarietyScoresPipe } from './round-variety-scores.pipe';
@@ -17,6 +21,7 @@ export class ScoreToParPipe implements PipeTransform {
     round: RoundLike,
     course?: Course | null,
     half?: RoundVariety,
+    opponentScore?: boolean,
   ): string {
     course ??= this.courseService.getCourse(round.courseId);
     if (!course) {
@@ -25,7 +30,10 @@ export class ScoreToParPipe implements PipeTransform {
     const toPar =
       this.roundVarietyScores
         .transform(
-          round.strokes.map(
+          (opponentScore
+            ? round.matchPlay?.opponentStrokes || EMPTY_EIGHTEEN_NUMBERS
+            : round.strokes
+          ).map(
             (holeScore, index) =>
               (holeScore || course.par[index]) - course.par[index],
           ) as NineNumbers | EighteenNumbers,

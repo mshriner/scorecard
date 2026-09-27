@@ -2,8 +2,8 @@ import {
   computed,
   effect,
   inject,
-  Injectable,
   OnDestroy,
+  Service,
   signal,
   WritableSignal,
 } from '@angular/core';
@@ -12,9 +12,7 @@ import { AppTheme, LocalUserWithFilters } from '../models/user';
 import { NavigationMessageService } from './navigation-message.service';
 import { UserService } from './user.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class AppStateService implements OnDestroy {
   private readonly userService = inject(UserService);
   private readonly router = inject(NavigationMessageService);

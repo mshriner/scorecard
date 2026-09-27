@@ -47,8 +47,10 @@
               }
             }
             @case (STROKES_COL) {
-              <b>
-                {{ bestPossibleRound | totalRoundScore }}
+              <b
+                class="no-wrap"
+                [innerHTML]="bestPossibleRound | totalRoundScore | formatThru"
+              >
               </b>
               @if (bestPossibleRound.course) {
                 <br />
@@ -204,7 +206,13 @@
         }
       }
       @case (STROKES_SUMMARY_COL) {
-        {{ bestPossibleRound | totalRoundScore: outOrIn }}
+        <span
+          class="no-wrap"
+          [innerHTML]="
+            bestPossibleRound | totalRoundScore: outOrIn | formatThru
+          "
+        >
+        </span>
         @if (bestPossibleRound.course) {
           <br />
           ({{

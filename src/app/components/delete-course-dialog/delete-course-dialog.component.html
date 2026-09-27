@@ -22,7 +22,14 @@
     <ng-container matColumnDef="roundScore">
       <mat-header-cell *matHeaderCellDef>Score</mat-header-cell>
       <mat-cell *matCellDef="let round">
-        {{ round | totalRoundScore }} ({{ round | scoreToPar: options.course }})
+        <span>
+          <span
+            class="no-wrap"
+            [innerHTML]="round | totalRoundScore | formatThru"
+          >
+          </span>
+          ({{ round | scoreToPar: options.course }})
+        </span>
       </mat-cell>
     </ng-container>
 

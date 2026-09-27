@@ -1,7 +1,8 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { LOCAL_STORAGE_KEYS } from '../models/constants';
 import { Course } from '../models/course';
 import { Round } from '../models/round';
+import { assertStorageSafe } from '../models/storage-object';
 import { LocalUserWithFilters } from '../models/user';
 import { AppDatabase } from './app-database.service';
 
@@ -10,9 +11,7 @@ const RESERVED_KEYS = new Set([
   LOCAL_STORAGE_KEYS.CURRENT_USER_ID,
 ]);
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class LocalStorageService {
   private readonly db = inject(AppDatabase);
   private initialized = false;
@@ -84,6 +83,12 @@ export class LocalStorageService {
       return false;
     }
 
+    try {
+      assertStorageSafe(user);
+    } catch {
+      return false;
+    }
+
     const clonedUser = structuredClone(user);
     this.userCache.set(user.id, clonedUser);
     void this.db.users.put(clonedUser).catch(console.error);
@@ -102,6 +107,12 @@ export class LocalStorageService {
       return false;
     }
 
+    try {
+      assertStorageSafe(course);
+    } catch {
+      return false;
+    }
+
     const clonedCourse = structuredClone(course);
     this.courseCache.set(course.id, clonedCourse);
     void this.db.courses.put(clonedCourse).catch(console.error);
@@ -117,6 +128,12 @@ export class LocalStorageService {
 
   public setRound(round: Round): boolean {
     if (!round?.id) {
+      return false;
+    }
+
+    try {
+      assertStorageSafe(round);
+    } catch {
       return false;
     }
 

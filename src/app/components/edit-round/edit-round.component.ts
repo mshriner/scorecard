@@ -1,7 +1,10 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   afterNextRender,
+  ChangeDetectorRef,
   Component,
+  computed,
+  effect,
   ElementRef,
   HostListener,
   inject,
@@ -9,6 +12,7 @@ import {
   OnInit,
   signal,
   Signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -29,9 +33,14 @@ import {
   NAVIGATION_STATE_KEYS,
   SNACKBAR_MESSAGES,
 } from '../../models/constants';
-import { Course, CourseVariety } from '../../models/course';
+import {
+  Course,
+  CourseVariety,
+  EIGHTEEN_NUMBERS_ZEROED,
+} from '../../models/course';
 import {
   EMPTY_EIGHTEEN_NUMBERS,
+  MatchPlayDetails,
   Round,
   ROUND_NOTES_MAX_LENGTH,
   RoundVariety,
@@ -43,17 +52,30 @@ import { CourseService } from '../../services/course.service';
 import { RoundService } from '../../services/round.service';
 
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDatepickerInputEvent,
   MatDatepickerModule,
 } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DataToShare,
   RoundWithCourse,
   YesNoReason,
 } from '../../models/data-transfer';
+import {
+  createEmptyHoleResults,
+  GRAPH_VARIETIES,
+  HoleResults,
+} from '../../models/graph';
+import {
+  EighteenNumbersOrNulls,
+  NineNumbersOrNulls,
+} from '../../models/storage-object';
 import { ColumnDef } from '../../models/table';
 import { RoundVarietyScoresPipe } from '../../pipes/round-variety-scores.pipe';
 import { NavigationMessageService } from '../../services/navigation-message.service';
@@ -63,9 +85,12 @@ import {
   SpeechIntent,
   SpeechRecognitionService,
 } from '../../services/speech-recognition.service';
+import { StatisticsService } from '../../services/statistics.service';
 import { DataUtils } from '../../util/data-utils';
 import { AreYouSureDialogComponent } from '../are-you-sure-dialog/are-you-sure-dialog.component';
+import { MatchPlayOpponentStrokesDialogComponent } from '../match-play-opponent-strokes-dialog/match-play-opponent-strokes-dialog.component';
 import { SelectCourseDialogComponent } from '../select-course-dialog/select-course-dialog.component';
+import { StatsComponent } from '../stats/stats.component';
 
 @Component({
   selector: 'app-edit-round',
@@ -77,6 +102,9 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
     MatIconModule,
     MatInputModule,
     MatMenuModule,
+    MatCheckboxModule,
+    MatDividerModule,
+    MatCardModule,
     PipesModule,
     MatSelectModule,
     MatDatepickerModule,
@@ -85,6 +113,7 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
     MatRippleModule,
     NgTemplateOutlet,
     MatTooltipModule,
+    StatsComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './edit-round.component.html',
@@ -92,8 +121,10 @@ import { SelectCourseDialogComponent } from '../select-course-dialog/select-cour
 })
 export class EditRoundComponent implements OnInit {
   appStateService = inject(AppStateService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly _injector = inject(Injector);
   private readonly courseService = inject(CourseService);
+  private readonly statisticsService = inject(StatisticsService);
   private readonly roundService = inject(RoundService);
   private readonly router = inject(NavigationMessageService);
   private readonly dialog = inject(MatDialog);
@@ -106,27 +137,44 @@ export class EditRoundComponent implements OnInit {
   private readonly redirectToHome: boolean = false;
   public editingRound: Round;
   public coursesToChooseFrom: Course[];
-  public currentCourse: Course | null = null;
+  public readonly currentCourse = signal<Course | null>(null);
+  public readonly currentCourseMap = signal<Map<string, Course | null>>(
+    this.currentCourse()
+      ? new Map([[this.currentCourse()!.id, this.currentCourse()!]])
+      : new Map(),
+  );
   public roundIdToEdit: string;
   public imported = false;
   private needToSaveImportedCourse = false;
+  readonly isMatchPlay = signal(false);
   public readonly SNACKBAR_MESSAGES = SNACKBAR_MESSAGES;
   public readonly ROUND_NOTES_MAX_LENGTH = ROUND_NOTES_MAX_LENGTH;
   public readonly BACK_NINE = RoundVariety.BACK_NINE;
   public readonly FRONT_NINE = RoundVariety.FRONT_NINE;
+  public readonly GRAPH_VARIETIES = GRAPH_VARIETIES;
   public readonly HOLE_COL = 'hole';
-  public readonly STROKES_COL = 'par';
+  public readonly OPPONENT_STROKES_COL = 'opponentStrokes';
+  public readonly MATCH_INDICATOR_COL = 'matchIndicator';
+  public readonly YOUR_STROKES_COL = 'strokes';
   public readonly PUTTS_COL = 'putts';
   public readonly HOLE_SUMMARY_COL = 'holeSummary';
-  public readonly STROKES_SUMMARY_COL = 'parSummary';
+  public readonly OPPONENT_STROKES_SUMMARY_COL = 'opponentStrokesSummary';
+  public readonly YOUR_STROKES_SUMMARY_COL = 'strokesSummary';
+  public readonly MATCH_INDICATOR_SUMMARY_COL = 'matchIndicatorSummary';
   public readonly PUTTS_SUMMARY_COL = 'puttsSummary';
-  public readonly ROUND_TABLE_COLUMNS: ColumnDef[] = [
+  readonly roundTableColumns = computed(() => {
+    if (this.isMatchPlay()) {
+      return this.ROUND_TABLE_COLUMNS_OPPONENT_MODE_ON;
+    }
+    return this.ROUND_TABLE_COLUMNS_OPPONENT_MODE_OFF;
+  });
+  public readonly ROUND_TABLE_COLUMNS_OPPONENT_MODE_OFF: ColumnDef[] = [
     {
       columnDef: this.HOLE_COL,
       header: 'Hole',
     },
     {
-      columnDef: this.STROKES_COL,
+      columnDef: this.YOUR_STROKES_COL,
       header: 'Strokes',
     },
     {
@@ -134,19 +182,73 @@ export class EditRoundComponent implements OnInit {
       header: 'Putts',
     },
   ];
-  public readonly ROUND_TABLE_COLUMN_IDS = [
+  public readonly ROUND_TABLE_COLUMNS_OPPONENT_MODE_ON: ColumnDef[] = [
+    {
+      columnDef: this.HOLE_COL,
+      header: 'Hole',
+    },
+    {
+      columnDef: this.OPPONENT_STROKES_COL,
+      header: 'Opp.<br />Strokes',
+    },
+    {
+      columnDef: this.MATCH_INDICATOR_COL,
+      header: '',
+    },
+    {
+      columnDef: this.YOUR_STROKES_COL,
+      header: 'Your<br />Strokes',
+    },
+    {
+      columnDef: this.PUTTS_COL,
+      header: 'Putts',
+    },
+  ];
+  readonly roundTableColumnIds = computed(() => {
+    if (this.isMatchPlay()) {
+      return this.ROUND_TABLE_COLUMN_IDS_OPPONENT_MODE_ON;
+    }
+    return this.ROUND_TABLE_COLUMN_IDS_OPPONENT_MODE_OFF;
+  });
+  readonly roundTableSummaryColumnIds = computed(() => {
+    if (this.isMatchPlay()) {
+      return this.ROUND_TABLE_SUMMARY_COLUMN_IDS_OPPONENT_MODE_ON;
+    }
+    return this.ROUND_TABLE_SUMMARY_COLUMN_IDS_OPPONENT_MODE_OFF;
+  });
+  private readonly ROUND_TABLE_COLUMN_IDS_OPPONENT_MODE_OFF = [
     this.HOLE_COL,
-    this.STROKES_COL,
+    this.YOUR_STROKES_COL,
     this.PUTTS_COL,
   ];
-  public readonly ROUND_TABLE_SUMMARY_COLUMN_IDS = [
+  private readonly ROUND_TABLE_SUMMARY_COLUMN_IDS_OPPONENT_MODE_OFF = [
     this.HOLE_SUMMARY_COL,
-    this.STROKES_SUMMARY_COL,
+    this.YOUR_STROKES_SUMMARY_COL,
+    this.PUTTS_SUMMARY_COL,
+  ];
+  private readonly ROUND_TABLE_COLUMN_IDS_OPPONENT_MODE_ON = [
+    this.HOLE_COL,
+    this.OPPONENT_STROKES_COL,
+    this.MATCH_INDICATOR_COL,
+    this.YOUR_STROKES_COL,
+    this.PUTTS_COL,
+  ];
+  private readonly ROUND_TABLE_SUMMARY_COLUMN_IDS_OPPONENT_MODE_ON = [
+    this.HOLE_SUMMARY_COL,
+    this.OPPONENT_STROKES_SUMMARY_COL,
+    this.MATCH_INDICATOR_SUMMARY_COL,
+    this.YOUR_STROKES_SUMMARY_COL,
     this.PUTTS_SUMMARY_COL,
   ];
   public SCORE_GRAPHIC_TYPES!: {
     score: number;
     scoreToPar: number;
+  };
+  public PAR_ADJUSTMENT_TYPES!: {
+    holeIndex: number;
+    strokesArray: NineNumbersOrNulls | EighteenNumbersOrNulls;
+    menuIdentifier: string;
+    opponentAdvantage?: NineNumbersOrNulls | EighteenNumbersOrNulls;
   };
   public HOLE_ROW_TYPES!: {
     holeIndex: number;
@@ -171,6 +273,7 @@ export class EditRoundComponent implements OnInit {
 
   notesTextarea: Signal<ElementRef<HTMLTextAreaElement> | undefined> =
     viewChild('notesForRoundInput');
+  roundStats: HoleResults = createEmptyHoleResults();
 
   @HostListener('document:keydown.enter', ['$event'])
   handleEnterKey(event: Event): void {
@@ -197,6 +300,17 @@ export class EditRoundComponent implements OnInit {
     const navState = this.router.getCurrentNavigation()?.extras?.state;
     this.roundIdToEdit = navState?.[NAVIGATION_STATE_KEYS.ROUND_ID_TO_EDIT];
 
+    effect(() => {
+      this.isMatchPlay();
+      if (!this.editingRound) {
+        return;
+      }
+      this.setMatchPlayPropertiesIfMissing();
+      untracked(() => {
+        this.updateUnsavedData();
+      });
+    });
+
     if (this.roundIdToEdit) {
       const retrieved = this.roundService.getRoundById(this.roundIdToEdit);
       if (!retrieved) {
@@ -207,6 +321,8 @@ export class EditRoundComponent implements OnInit {
       }
 
       this.editingRound = structuredClone(retrieved);
+      this.isMatchPlay.set(!!this.editingRound.matchPlay?.isMatchPlay);
+      this.setMatchPlayPropertiesIfMissing();
       this.appStateService.setPageTitle(
         `Editing ${datePipe.transform(retrieved.dateStringISO)}`,
       );
@@ -216,9 +332,14 @@ export class EditRoundComponent implements OnInit {
       return;
     }
 
-    // Create new round
-    this.editingRound = {
+    const newRound: Round = {
       id: DataUtils.generateUUID('round'),
+      matchPlay: {
+        opponentStrokes: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
+        opponentAdvantage: structuredClone(EIGHTEEN_NUMBERS_ZEROED),
+        opponentName: 'Opponent',
+        isMatchPlay: false,
+      },
       strokes: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
       putts: structuredClone(EMPTY_EIGHTEEN_NUMBERS),
       courseId: '',
@@ -226,6 +347,9 @@ export class EditRoundComponent implements OnInit {
       roundVariety: RoundVariety.EIGHTEEN,
       generalNotes: '',
     };
+
+    // Create new round
+    this.editingRound = newRound;
     this.appStateService.setPageTitle(`Create Round`);
     this.originalRound = structuredClone(this.editingRound);
 
@@ -235,6 +359,20 @@ export class EditRoundComponent implements OnInit {
     }
 
     setTimeout(() => this.updateUnsavedData());
+  }
+
+  private setMatchPlayPropertiesIfMissing() {
+    if (!this.editingRound.matchPlay) {
+      this.editingRound.matchPlay = {};
+    }
+    this.editingRound.matchPlay.isMatchPlay = this.isMatchPlay();
+    this.editingRound.matchPlay.opponentStrokes ??= structuredClone(
+      EMPTY_EIGHTEEN_NUMBERS
+    );
+    this.editingRound.matchPlay.opponentAdvantage ??= structuredClone(
+      EIGHTEEN_NUMBERS_ZEROED
+    );
+    this.editingRound.matchPlay.opponentName ??= 'Opponent';
   }
 
   ngOnInit(): void {
@@ -256,7 +394,7 @@ export class EditRoundComponent implements OnInit {
   }
 
   public updateCurrentCourse(newCourseId: string): void {
-    this.currentCourse = this.courseService.getCourse(newCourseId);
+    this.currentCourse.set(this.courseService.getCourse(newCourseId));
 
     if (this.isNineHoleCourse) {
       this.editingRound.roundVariety = RoundVariety.FULL_NINE;
@@ -267,6 +405,21 @@ export class EditRoundComponent implements OnInit {
           RoundVariety.EIGHTEEN,
         );
       }
+      if (this.editingRound.matchPlay?.opponentStrokes?.length === 9) {
+        this.editingRound.matchPlay.opponentStrokes =
+          this.roundVarietyScoresPipe.transform(
+            this.editingRound.matchPlay?.opponentStrokes,
+            RoundVariety.EIGHTEEN,
+          );
+      }
+      if (this.editingRound.matchPlay?.opponentAdvantage?.length === 9) {
+        this.editingRound.matchPlay.opponentAdvantage =
+          this.roundVarietyScoresPipe.transform(
+            this.editingRound.matchPlay?.opponentAdvantage,
+            RoundVariety.EIGHTEEN,
+          );
+      }
+
       if (this.editingRound.putts.length === 9) {
         this.editingRound.putts = this.roundVarietyScoresPipe.transform(
           this.editingRound.putts,
@@ -319,11 +472,6 @@ export class EditRoundComponent implements OnInit {
     this.updateUnsavedData();
   }
 
-  public setStrokes(index: number, strokesValue: number | null): void {
-    this.editingRound.strokes[index] = strokesValue;
-    this.updateUnsavedData();
-  }
-
   public puttsPlusOne(index: number) {
     this.editingRound.putts[index] ??= -1;
     this.editingRound.putts[index]++;
@@ -348,14 +496,51 @@ export class EditRoundComponent implements OnInit {
     this.appStateService.unsavedDataOnPage.set(
       !DataUtils.deepEqual(this.originalRound, this.editingRound),
     );
+    this.updateStats();
   }
 
   public get isNineHoleCourse(): boolean {
-    return this.currentCourse?.numberOfHoles === CourseVariety.NINE;
+    return this.currentCourse()?.numberOfHoles === CourseVariety.NINE;
   }
 
   public showSummaryRow(index: number): boolean {
     return !this.isNineHoleCourse && (index + 1) % 9 === 0;
+  }
+
+  public getStrokeCountForHole(holeIndex: number): number {
+    const advantage =
+      this.editingRound.matchPlay?.opponentAdvantage?.[holeIndex] ?? 0;
+    return Math.abs(advantage || 0);
+  }
+
+  public getStrokeMarkersForHole(holeIndex: number): number[] {
+    return Array.from(
+      { length: this.getStrokeCountForHole(holeIndex) },
+      (_, i) => i,
+    );
+  }
+
+  public getMatchIndicator(holeIndex: number): 'left' | 'right' | '=' {
+    const playerScore = this.editingRound.strokes[holeIndex];
+    const opponentScore =
+      this.editingRound.matchPlay?.opponentStrokes?.[holeIndex];
+
+    if (!playerScore || !opponentScore) {
+      return '=';
+    }
+
+    const advantage =
+      this.editingRound.matchPlay?.opponentAdvantage?.[holeIndex] ?? 0;
+    const playerNet = playerScore;
+    const opponentNet = opponentScore - advantage;
+
+    if (playerNet < opponentNet) {
+      return 'right';
+    }
+    if (opponentNet < playerNet) {
+      return 'left';
+    }
+    return '=';
   }
 
   public returnTrue(): boolean {
@@ -367,6 +552,16 @@ export class EditRoundComponent implements OnInit {
       this.editingRound.dateStringISO = event.value.toISOString();
     }
     this.updateUnsavedData();
+  }
+
+  public updateStats(): void {
+    const roundStatsProcessing = createEmptyHoleResults();
+    this.statisticsService.processHoles(
+      this.editingRound,
+      roundStatsProcessing,
+      this.currentCourse(),
+    );
+    this.roundStats = roundStatsProcessing;
   }
 
   public get disableNumberOfHolesPlayed(): YesNoReason {
@@ -448,8 +643,8 @@ export class EditRoundComponent implements OnInit {
   }
 
   public saveRound(): void {
-    if (this.currentCourse && this.needToSaveImportedCourse) {
-      this.courseService.setCourse(this.currentCourse);
+    if (this.currentCourse() && this.needToSaveImportedCourse) {
+      this.courseService.setCourse(this.currentCourse()!);
       this.needToSaveImportedCourse = false;
     }
     this.roundService.saveRounds([this.editingRound]);
@@ -457,12 +652,12 @@ export class EditRoundComponent implements OnInit {
   }
 
   public shareRound(): void {
-    if (!this.roundIdToEdit || !this.currentCourse) {
+    if (!this.roundIdToEdit || !this.currentCourse()) {
       return;
     }
     this.sharingService
       .shareData({
-        data: { round: this.editingRound, course: this.currentCourse },
+        data: { round: this.editingRound, course: this.currentCourse()! },
         objectType: 'round',
       })
       .subscribe();
@@ -489,10 +684,11 @@ export class EditRoundComponent implements OnInit {
   ): void {
     this.editingRound = importedRound.round;
     this.roundIdToEdit = importedRound.round.id;
-    this.coursesToChooseFrom = [this.currentCourse!];
+    this.coursesToChooseFrom = [this.currentCourse()!];
+    this.isMatchPlay.set(!!this.editingRound.matchPlay?.isMatchPlay);
     this.updateUnsavedData();
     setTimeout(() => {
-      this.courseSelectInput()?.writeValue(this.currentCourse?.id);
+      this.courseSelectInput()?.writeValue(this.currentCourse()?.id);
     });
     this.snackBarService.openTemporarySnackBar(
       `Round at "${courseName}" was imported successfully.`,
@@ -542,9 +738,9 @@ export class EditRoundComponent implements OnInit {
       importedRound.round.courseId,
     );
     if (existingCourse) {
-      this.currentCourse = existingCourse;
+      this.currentCourse.set(existingCourse);
     } else {
-      this.currentCourse = importedRound.course;
+      this.currentCourse.set(importedRound.course);
       this.needToSaveImportedCourse = true;
 
       // Filter available courses to those that exactly match the imported
@@ -580,18 +776,20 @@ export class EditRoundComponent implements OnInit {
               const pickedCourse =
                 this.courseService.getCourse(selectedCourseId);
               if (selectedCourseId && pickedCourse) {
-                this.currentCourse = pickedCourse;
-                this.coursesToChooseFrom = [this.currentCourse];
+                this.currentCourse.set(pickedCourse);
+                this.coursesToChooseFrom = [this.currentCourse()!];
                 importedRound.round.courseId = pickedCourse.id;
                 this.needToSaveImportedCourse = false;
                 this.updateUnsavedData();
                 setTimeout(() => {
                   this.courseSelectInput()?.writeValue(pickedCourse.id);
+                  this.changeDetector.markForCheck();
                 });
                 this.setRoundAndCourse(pickedCourse?.name, importedRound);
               } else {
                 this.setRoundAndCourse(originalCourseName, importedRound);
               }
+              this.changeDetector.markForCheck();
             });
         });
       }
@@ -605,6 +803,7 @@ export class EditRoundComponent implements OnInit {
         importedRound,
       );
     }
+    this.changeDetector.markForCheck();
     return true;
   }
 
@@ -754,5 +953,31 @@ export class EditRoundComponent implements OnInit {
       default:
         return null;
     }
+  }
+
+  public openEditOpponentAdvantageDialog(): void {
+    this.dialog
+      .open(MatchPlayOpponentStrokesDialogComponent, {
+        data: this.editingRound,
+        width: '42rem',
+      })
+      .afterClosed()
+      .subscribe((updatedMatchPlay: MatchPlayDetails) => {
+        if (!updatedMatchPlay) {
+          return;
+        }
+
+        this.editingRound.matchPlay ??= {};
+        this.editingRound.matchPlay.opponentName =
+          updatedMatchPlay.opponentName ??
+          this.editingRound.matchPlay.opponentName;
+        this.editingRound.matchPlay.opponentAdvantage =
+          updatedMatchPlay.opponentAdvantage ??
+          this.editingRound.matchPlay.opponentAdvantage;
+        this.editingRound.matchPlay.isMatchPlay = true;
+        this.isMatchPlay.set(true);
+        this.updateUnsavedData();
+        this.changeDetector.detectChanges();
+      });
   }
 }

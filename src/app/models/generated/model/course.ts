@@ -11,9 +11,16 @@ import { CourseTees } from './courseTees';
 import { CourseLocation } from './courseLocation';
 
 export interface Course {
-  id?: number;
+  /**
+   * Opaque 8-character course identifier. Always lowercase on output; accepted case-insensitively on input.
+   */
+  id?: string;
   club_name?: string;
   course_name?: string;
+  /**
+   * URL to the course\'s online scorecard. Omitted when not set.
+   */
+  scorecard_url?: string;
   location?: CourseLocation;
   tees?: CourseTees;
 }

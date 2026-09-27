@@ -1,4 +1,4 @@
-@if (rounds().length) {
+@if (statisticsService.rounds().length) {
   <div class="padding-inline-8">
     <mat-expansion-panel
       class="outlined"
@@ -31,8 +31,9 @@
                   All Courses
                 } @else {
                   {{
-                    courseMap().get(courseStatsFilter.value?.[0] || '')?.name ||
-                      ''
+                    statisticsService
+                      .courseMap()
+                      .get(courseStatsFilter.value?.[0] || '')?.name || ''
                   }}
                   @if ((courseStatsFilter.value?.length || 0) > 1) {
                     <span>
@@ -66,7 +67,9 @@
                   [value]="topping"
                   (click)="reevaluateAllSelectedStatus()"
                   (keydown)="reevaluateAllSelectedStatus()"
-                  >{{ courseMap().get(topping)?.name }}</mat-option
+                  >{{
+                    statisticsService.courseMap().get(topping)?.name
+                  }}</mat-option
                 >
               }
             </mat-select>
@@ -139,17 +142,21 @@
 
   <br />
 
-  @if (filteredRounds().length) {
+  @if (statisticsService.filteredRounds().length) {
     <div class="full-width-center">
       <mat-card appearance="outlined" class="center-text">
         <mat-card-content>
           <span>
             Showing
 
-            @if (filteredRounds().length === rounds().length) {
-              all rounds ({{ rounds().length }})
+            @if (
+              statisticsService.filteredRounds().length ===
+              statisticsService.rounds().length
+            ) {
+              all rounds ({{ statisticsService.rounds().length }})
             } @else {
-              {{ filteredRounds().length }} of {{ rounds().length }} rounds
+              {{ statisticsService.filteredRounds().length }} of
+              {{ statisticsService.rounds().length }} rounds
             }
           </span>
         </mat-card-content>
@@ -170,7 +177,7 @@
           matSort
           [matSortActive]="currentUser?.sortBy || ''"
           [matSortDirection]="currentUser?.sortDescending ? 'desc' : 'asc'"
-          [dataSource]="filteredRounds()"
+          [dataSource]="statisticsService.filteredRounds()"
           (matSortChange)="sortData($event)"
         >
           <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
@@ -191,7 +198,7 @@
               Course
             </mat-header-cell>
             <mat-cell *matCellDef="let round" class="center-text">
-              {{ courseMap().get(round.courseId)?.name }}
+              {{ statisticsService.courseMap().get(round.courseId)?.name }}
             </mat-cell>
           </ng-container>
           <ng-container matColumnDef="{{ ROUND_SCORE_COL }}">
@@ -204,9 +211,34 @@
               Score
             </mat-header-cell>
             <mat-cell *matCellDef="let round" class="center-text">
-              {{ round | totalRoundScore }} ({{
-                round | scoreToPar: courseMap().get(round.courseId)
-              }})
+              @let roundProgress = round | totalRoundScore | formatThru;
+              @let roundFinished = roundProgress | isRoundFinished;
+              <span>
+                @if (round?.matchPlay?.isMatchPlay) {
+                  <span>
+                    {{ round | matchPlayStatus }}
+                    @if (!roundFinished) {
+                      <span class="no-wrap" [innerHTML]="roundProgress"></span>
+                    } @else {
+                      /
+                    }
+                  </span>
+                }
+                <span
+                  [class.match-play-finished-score]="
+                    round?.matchPlay?.isMatchPlay && roundFinished
+                  "
+                >
+                  @if (!round?.matchPlay?.isMatchPlay || roundFinished) {
+                    <span class="no-wrap" [innerHTML]="roundProgress"></span>
+                  }
+                  ({{
+                    round
+                      | scoreToPar
+                        : statisticsService.courseMap().get(round.courseId)
+                  }})
+                </span>
+              </span>
             </mat-cell>
           </ng-container>
           <mat-header-row
@@ -222,383 +254,13 @@
       <mat-tab label="Stats">
         <br />
         <div class="stat-cards">
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub>
-                  <ng-container *ngTemplateOutlet="averageLabel" />
-                  9 Holes
-                </sub>
-                <br />
-                <sup>
-                  @if (
-                    filteredRounds() | countValidRoundsToAverage: 9;
-                    as nineCount
-                  ) {
-                    @if (nineCount === 1) {
-                      1 Nine
-                    } @else {
-                      {{ nineCount }} Nines
-                    }
-                  } @else {
-                    Unfinished
-                  }
-                </sup>
-                <h3 class="average-result">
-                  {{ filteredRounds() | averageScore: 9 }} ({{
-                    filteredRounds() | averageScoreToPar: courseMap() : 9
-                  }})
-                </h3>
-              </mat-card-content>
-              @if (holeResultTotals().completedNinesInAllRounds) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'score-to-par-all',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub>
-                  <ng-container *ngTemplateOutlet="averageLabel" />
-                  18 Holes
-                </sub>
-                <br />
-                <sup>
-                  @if (
-                    (filteredRounds() | countValidRoundsToAverage: 18) / 2;
-                    as eighteenCount
-                  ) {
-                    @if (eighteenCount === 1) {
-                      1 Full Round
-                    } @else {
-                      {{ eighteenCount }} Full Rounds
-                    }
-                  } @else {
-                    No Full Rounds
-                  }
-                </sup>
-                <h3 class="average-result">
-                  {{ filteredRounds() | averageScore: 18 }} ({{
-                    filteredRounds() | averageScoreToPar: courseMap() : 18
-                  }})
-                </h3>
-              </mat-card-content>
-              @if (holeResultTotals().completed18HoleRounds) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'score-to-par-18',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-          </div>
-          <br />
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub>
-                  <ng-container *ngTemplateOutlet="averageLabel" />
-                  Putts
-                </sub>
-                <br />
-                <sup> Per 9 Holes </sup>
-                <h3 class="average-result">
-                  @if (holeResultTotals().holesPlayedWithPutts) {
-                    {{
-                      GRAPH_VARIETIES['putts-all'].yValueExtractor(
-                        holeResultTotals()
-                      ) ?? 0 | number: '1.1-1'
-                    }}
-                  } @else {
-                    --
-                  }
-                </h3>
-              </mat-card-content>
-              @if (
-                holeResultTotals().holesPlayedWithPutts &&
-                holeResultTotals().completedNinesInAllRounds
-              ) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'putts-all',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub>
-                  <ng-container *ngTemplateOutlet="averageLabel" />
-                  Putts
-                </sub>
-                <br />
-                <sup> Full Rounds </sup>
-                <h3 class="average-result">
-                  @if (holeResultTotals().holesPlayedWithPuttsInFullRounds) {
-                    {{
-                      GRAPH_VARIETIES['putts-18'].yValueExtractor(
-                        holeResultTotals()
-                      ) ?? 0 | number: '1.1-1'
-                    }}
-                  } @else {
-                    --
-                  }
-                </h3>
-              </mat-card-content>
-              @if (
-                holeResultTotals().holesPlayedWithPuttsInFullRounds &&
-                holeResultTotals().completed18HoleRounds
-              ) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'putts-18',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-          </div>
-          <mat-divider class="divider-padding" />
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Holes Played </sub>
-                <h3>{{ holeResultTotals().holesPlayed }}</h3>
-              </mat-card-content>
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Strokes Taken </sub>
-                <h3>
-                  {{ holeResultTotals().totalStrokesInAllCompletedRounds }}
-                </h3>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <br />
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Eagles or Better </sub>
-                <h3>{{ holeResultTotals().eaglesOrBetter }}</h3>
-              </mat-card-content>
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Birdies </sub>
-                <h3>{{ holeResultTotals().birdies }}</h3>
-              </mat-card-content>
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Pars </sub>
-                <h3>{{ holeResultTotals().pars }}</h3>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <br />
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Bogeys </sub>
-                <h3>{{ holeResultTotals().bogeys }}</h3>
-              </mat-card-content>
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Doubles or Worse </sub>
-                <h3>{{ holeResultTotals().doubleBogeysOrWorse }}</h3>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <mat-divider class="divider-padding" />
-          <div
-            class="full-width-center space-evenly padding-inline-4 padding-bottom-12"
-          >
-            <sub> Average Strokes On: </sub>
-          </div>
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Par 3s </sub>
-                <h3>
-                  @if (holeResultTotals().par3sPlayed) {
-                    {{
-                      GRAPH_VARIETIES['score-on-par-3s'].yValueExtractor(
-                        holeResultTotals()
-                      ) ?? 0 | number: '1.1-1'
-                    }}
-                  } @else {
-                    --
-                  }
-                </h3>
-              </mat-card-content>
-              @if (holeResultTotals().par3sPlayed) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'score-on-par-3s',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Par 4s </sub>
-                <h3>
-                  @if (holeResultTotals().par4sPlayed) {
-                    {{
-                      GRAPH_VARIETIES['score-on-par-4s'].yValueExtractor(
-                        holeResultTotals()
-                      ) ?? 0 | number: '1.1-1'
-                    }}
-                  } @else {
-                    --
-                  }
-                </h3>
-              </mat-card-content>
-              @if (holeResultTotals().par4sPlayed) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'score-on-par-4s',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-          </div>
-          <br />
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Par 5s </sub>
-                <h3>
-                  @if (holeResultTotals().par5sPlayed) {
-                    {{
-                      GRAPH_VARIETIES['score-on-par-5s'].yValueExtractor(
-                        holeResultTotals()
-                      ) ?? 0 | number: '1.1-1'
-                    }}
-                  } @else {
-                    --
-                  }
-                </h3>
-              </mat-card-content>
-              @if (holeResultTotals().par5sPlayed) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'score-on-par-5s',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-          </div>
-          <mat-divider class="divider-padding" />
-          <div class="full-width-center space-evenly padding-inline-4">
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Greens in </sub>
-                <br />
-                <sup> Regulation </sup>
-                <h3>
-                  @if (holeResultTotals().holesPlayedWithPutts) {
-                    {{
-                      100 *
-                        (GRAPH_VARIETIES[
-                          'greens-in-regulation'
-                        ].yValueExtractor(holeResultTotals()) ?? 0)
-                        | number: '1.0-0'
-                    }}%
-                    <br />
-                    ({{ holeResultTotals().inferredGreensInRegulation }} /
-                    {{ holeResultTotals().holesPlayedWithPutts }})
-                  } @else {
-                    --
-                  }
-                </h3>
-              </mat-card-content>
-              @if (holeResultTotals().holesPlayedWithPutts) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'greens-in-regulation',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-            <mat-card appearance="outlined" class="center-text">
-              <mat-card-title />
-              <mat-card-content class="padding-inline-8">
-                <sub> Scrambling </sub>
-                <br />
-                <sup> Success </sup>
-                <h3>
-                  @if (holeResultTotals().inferredHolesScramblingNeeded) {
-                    {{
-                      100 *
-                        (GRAPH_VARIETIES['scrambling'].yValueExtractor(
-                          holeResultTotals()
-                        ) ?? 0) | number: '1.0-0'
-                    }}%
-                    <br />
-                    ({{
-                      holeResultTotals().inferredHolesScramblingSuccessfully
-                    }}
-                    / {{ holeResultTotals().inferredHolesScramblingNeeded }})
-                  } @else {
-                    --
-                  }
-                </h3>
-              </mat-card-content>
-              @if (holeResultTotals().inferredHolesScramblingNeeded) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    trendGraphButton;
-                    context: {
-                      which: 'scrambling',
-                    }
-                  "
-                />
-              }
-            </mat-card>
-          </div>
+          <app-stats
+            [filteredRounds]="statisticsService.filteredRounds()"
+            [courseMap]="statisticsService.courseMap()"
+            [holeResultTotals]="statisticsService.holeResultTotals()"
+            mode="homepage"
+          />
+
           <mat-divider class="divider-padding" />
           <div
             class="full-width-center space-evenly padding-inline-4 padding-bottom-12"
@@ -608,14 +270,14 @@
 
           <mat-table
             class="round-results-table"
-            [dataSource]="coursesWithHoleResults()"
+            [dataSource]="statisticsService.coursesWithHoleResults()"
           >
             <ng-container matColumnDef="{{ BEST_ROUND_COURSE_NAME_COL }}">
               <mat-header-cell *matHeaderCellDef class="center-text">
                 Course
               </mat-header-cell>
               <mat-cell *matCellDef="let courseId" class="center-text">
-                {{ courseMap().get(courseId)?.name }}
+                {{ statisticsService.courseMap().get(courseId)?.name }}
               </mat-cell>
             </ng-container>
             <ng-container matColumnDef="{{ ROUND_DATE_COL }}">
@@ -623,19 +285,25 @@
                 Score
               </mat-header-cell>
               <mat-cell *matCellDef="let courseId" class="center-text">
-                @let course = courseMap().get(courseId)!;
+                @let course = statisticsService.courseMap().get(courseId)!;
                 @let round =
                   {
-                    strokes:
-                      holeResultTotals().theoreticalBestRound.get(courseId)!,
+                    strokes: statisticsService
+                      .holeResultTotals()
+                      .theoreticalBestRound.get(courseId)!,
                     roundVariety:
                       FullRoundVarietyAtCourse[
                         course.numberOfHoles ?? CourseVariety.EIGHTEEN
                       ],
                   };
-                {{ round.strokes | totalRoundScore }} ({{
-                  round.strokes | scoreToPar: course
-                }})
+                <span>
+                  <span
+                    class="no-wrap"
+                    [innerHTML]="round.strokes | totalRoundScore | formatThru"
+                  >
+                  </span>
+                  ({{ round.strokes | scoreToPar: course }})
+                </span>
               </mat-cell>
             </ng-container>
             <mat-header-row
@@ -667,19 +335,6 @@
   <ng-container *ngTemplateOutlet="addActions" />
 }
 
-<ng-template
-  #trendGraphButton
-  [typedTemplate]="TREND_GRAPH_PARAMS"
-  let-which="which"
->
-  <mat-card-footer class="show-trend">
-    <button mat-stroked-button (click)="openTrendGraphDialog(which)">
-      <mat-icon>timeline</mat-icon>
-      Trend
-    </button>
-  </mat-card-footer>
-</ng-template>
-
 <ng-template #addActions>
   <div class="full-width-center space-evenly">
     <button mat-stroked-button (click)="addNewCourse()">
@@ -697,12 +352,4 @@
       Round
     </button>
   </div>
-</ng-template>
-
-<ng-template #averageLabel>
-  @if (appStateService.useSmallerButtons()) {
-    Avg.
-  } @else {
-    Average
-  }
 </ng-template>
