@@ -220,7 +220,9 @@ export class PerformanceGraphDialogComponent implements AfterViewInit {
 
   private formatDiscreteDate(idx: number): string {
     const date = this.graphData.sortedDataPoints[idx]?.date;
-    if (!date) return '';
+    if (!date) {
+      return '';
+    }
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const year = date.getFullYear() % 100;
