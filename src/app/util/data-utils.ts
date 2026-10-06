@@ -20,7 +20,9 @@ export class DataUtils {
   Needed ESM support or else Angular complains about treeshaking
   */
   public static deepEqual(a: any, b: any): boolean {
-    if (a === b) return true;
+    if (a === b) {
+      return true;
+    }
     if (
       typeof a !== 'object' ||
       typeof b !== 'object' ||
@@ -29,9 +31,13 @@ export class DataUtils {
     ) {
       return Number.isNaN(a) && Number.isNaN(b);
     }
-    if (a.constructor !== b.constructor) return false;
+    if (a.constructor !== b.constructor) {
+      return false;
+    }
     if (Array.isArray(a)) {
-      if (a.length !== b.length) return false;
+      if (a.length !== b.length) {
+        return false;
+      }
       return a.every((item, index) => DataUtils.deepEqual(item, b[index]));
     }
     if (a instanceof RegExp) {
@@ -45,10 +51,13 @@ export class DataUtils {
     }
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
-    if (keysA.length !== keysB.length) return false;
+    if (keysA.length !== keysB.length) {
+      return false;
+    }
     for (const key of keysA) {
-      if (!b.hasOwnProperty(key) || !DataUtils.deepEqual(a[key], b[key]))
+      if (!b.hasOwnProperty(key) || !DataUtils.deepEqual(a[key], b[key])) {
         return false;
+      }
     }
     return true;
   }

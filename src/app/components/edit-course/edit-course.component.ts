@@ -540,11 +540,11 @@ export class EditCourseComponent implements OnInit {
               (roundId) => !roundIdsToRemove.includes(roundId),
             ) || [];
           this.roundService.deleteRounds(roundIdsToRemove);
-          updatedCurrentUser.courseStatsFilterSelect =
-            updatedCurrentUser.courseStatsFilterSelect?.filter(
-              (courseId) => courseId !== this.courseIdToEdit,
-            ) || [];
         }
+        updatedCurrentUser.courseStatsFilterSelect =
+          updatedCurrentUser.courseStatsFilterSelect?.filter(
+            (courseId) => courseId !== this.courseIdToEdit,
+          ) || [];
         updatedCurrentUser.courseIds =
           updatedCurrentUser.courseIds?.filter(
             (courseId) => courseId !== this.courseIdToEdit,

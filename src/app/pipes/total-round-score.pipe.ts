@@ -41,7 +41,7 @@ export class TotalRoundScorePipe implements PipeTransform {
       const numberOfCompletedHoles = validStrokes.filter(
         (hole) => (hole ?? 0) > 0,
       ).length;
-      let numberOfHolesNeededForCompletion =
+      const numberOfHolesNeededForCompletion =
         round.roundVariety === RoundVariety.EIGHTEEN ? 18 : 9;
 
       if (numberOfCompletedHoles !== numberOfHolesNeededForCompletion) {

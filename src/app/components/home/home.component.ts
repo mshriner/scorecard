@@ -149,14 +149,40 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.setPageTitle();
-    this.statisticsService.rounds.set(
-      this.roundService
-        .getRoundsByIds(this.currentUser?.roundIds || [])
-        .sort(compareRoundsByDateDescending),
-    );
+    this.handleOrphanedRounds();
   }
 
-  private setPageTitle() {
+  private handleOrphanedRounds(): void {
+    const roundIds = this.currentUser?.roundIds || [];
+    const rounds = this.roundService.getRoundsByIds(roundIds);
+    const roundsWithCourses = rounds.filter((round) =>
+      this.courseService.getCourse(round.courseId),
+    );
+    const validRoundIds = new Set(roundsWithCourses.map((round) => round.id));
+    const orphanedRoundIds = roundIds.filter(
+      (roundId) => !validRoundIds.has(roundId),
+    );
+
+    if (orphanedRoundIds.length) {
+      this.appStateService.currentUser.update((user) => {
+        if (user) {
+          user.roundIds = user.roundIds.filter(
+            (roundId) => !orphanedRoundIds.includes(roundId),
+          );
+        }
+        return structuredClone(user);
+      });
+      this.roundService.deleteRounds(orphanedRoundIds);
+    }
+
+    const sortedRounds = roundsWithCourses.toSorted(
+      compareRoundsByDateDescending,
+    );
+    this.statisticsService.rounds.set(sortedRounds);
+    this.statisticsService.filteredRounds.set(sortedRounds);
+  }
+
+  private setPageTitle(): void {
     this.appStateService.setPageTitle(
       `${this.currentUser?.name?.trim()}'s Results`,
     );

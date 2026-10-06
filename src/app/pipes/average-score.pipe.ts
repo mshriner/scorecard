@@ -45,7 +45,7 @@ export class AverageScoreToParPipe implements PipeTransform {
     courseMap: Map<string, Course | null>,
     eighteenHolesOnly: 9 | 18,
   ): string {
-    let scoresToPar: number[] = [];
+    const scoresToPar: number[] = [];
     const roundHalvesThatCount = getNineHoleRoundsToCount(
       rounds,
       eighteenHolesOnly,
