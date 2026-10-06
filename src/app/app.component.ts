@@ -143,11 +143,9 @@ export class AppComponent implements OnInit {
     }
   }
 
-  public logout(): void {
+  public logout(): Promise<void> {
     this.appStateService.currentUser.set(null);
-    void this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
-      void this.sidenav?.close();
-    });
+    return this.safeNavigate(APP_ROUTES.PROFILES, true);
   }
 
   public goBack(): void {
@@ -214,44 +212,52 @@ export class AppComponent implements OnInit {
     if (hasPreviousHistory) {
       this.location.back();
     } else {
-      void this.router.navigateByUrl(APP_ROUTES.HOME);
+      void this.safeNavigate(APP_ROUTES.HOME);
     }
   }
 
-  public goToHome(): void {
-    void this.router.navigateByUrl(APP_ROUTES.HOME).then(() => {
-      void this.sidenav?.close();
-    });
+  public goToHome(): Promise<void> {
+    return this.safeNavigate(APP_ROUTES.HOME, true);
   }
 
-  public goToProfiles(): void {
-    void this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
-      void this.sidenav?.close();
-    });
+  public goToProfiles(): Promise<void> {
+    return this.safeNavigate(APP_ROUTES.PROFILES, true);
   }
 
-  public viewCourses(): void {
-    void this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
-      void this.sidenav?.close();
-    });
+  public viewCourses(): Promise<void> {
+    return this.safeNavigate(APP_ROUTES.COURSES, true);
   }
 
-  public addNewCourse(): void {
-    void this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE).then(() => {
-      void this.sidenav?.close();
-    });
+  public addNewCourse(): Promise<void> {
+    return this.safeNavigate(APP_ROUTES.ADD_EDIT_COURSE, true);
   }
 
-  public addNewRound(): void {
-    void this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND).then(() => {
-      void this.sidenav?.close();
-    });
+  public addNewRound(): Promise<void> {
+    return this.safeNavigate(APP_ROUTES.ADD_EDIT_ROUND, true);
   }
 
-  public async goToAbout(): Promise<void> {
-    return this.router.navigateByUrl(APP_ROUTES.ABOUT).then(() => {
-      void this.sidenav?.close();
-    });
+  public goToAbout(): Promise<void> {
+    return this.safeNavigate(APP_ROUTES.ABOUT, true);
+  }
+
+  private async safeNavigate(url: string, closeSidenav = false): Promise<void> {
+    try {
+      const navigated = await this.router.navigateByUrl(url);
+      if (!navigated) {
+        this.snackBarService.openTemporarySnackBar(
+          'Unable to navigate. Please try again.',
+        );
+        return;
+      }
+      if (closeSidenav) {
+        await this.sidenav?.close();
+      }
+    } catch (error) {
+      console.error('Navigation failed', error);
+      this.snackBarService.openTemporarySnackBar(
+        'Unable to navigate. Please try again.',
+      );
+    }
   }
 
   public checkForUpdates(showFailureMessages: boolean): void {
