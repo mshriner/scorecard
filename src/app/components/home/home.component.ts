@@ -344,7 +344,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.statisticsService.filteredRounds.set(roundsToShow);
   }
 
-  private shouldShowRound(round: Round) {
+  private shouldShowRound(round: Round): boolean {
     if (
       this.courseStatsFilter.value?.length &&
       this.courseStatsFilter.value.length !== this.courseIdOptions()?.length &&

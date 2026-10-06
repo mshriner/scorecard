@@ -16,7 +16,7 @@ export class ClearDataComponent implements OnInit {
     this.appStateService.currentUser.set(null);
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.localStorageService.clear().then(() => {
       this.appStateService.setPageTitle('App Data Cleared! Reloading...');
       setTimeout(() => {

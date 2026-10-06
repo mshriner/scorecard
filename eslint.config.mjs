@@ -22,6 +22,12 @@ export default defineConfig(
     },
   },
   {
+    files: ['**/*.spec.ts', '**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+    },
+  },
+  {
     rules: {
       curly: 'error',
     },

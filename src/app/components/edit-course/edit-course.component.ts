@@ -244,12 +244,12 @@ export class EditCourseComponent implements OnInit {
     globalThis.addEventListener('offline', () => this.isOnline.set(false));
   }
 
-  public parPlusOne(index: number) {
+  public parPlusOne(index: number): void {
     this.editingCourse.par[index]++;
     this.updateUnsavedData();
   }
 
-  public parMinusOne(index: number) {
+  public parMinusOne(index: number): void {
     if (this.editingCourse.par[index]) {
       this.editingCourse.par[index]--;
     }
@@ -340,7 +340,9 @@ export class EditCourseComponent implements OnInit {
               }
 
               // Check if any tee set has 9 or 18 holes
-              return Object.values(tees).some((genderTees: TeeBox[]) => !!tees);
+              return Object.values(tees).some(
+                (eachTeeBoxSet: TeeBox[]) => !!eachTeeBoxSet,
+              );
             },
           );
 

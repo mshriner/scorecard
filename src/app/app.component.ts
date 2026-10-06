@@ -91,10 +91,10 @@ export class AppComponent implements OnInit {
   @ViewChild('sidenav')
   sidenav?: MatSidenav;
 
-  ngOnInit() {
+  ngOnInit(): void {
     requestAnimationFrame(() => {
       if (sessionStorage.getItem(SESSION_STORAGE_KEYS.GO_TO_CHANGELOG)) {
-        this.goToAbout();
+        void this.goToAbout();
       } else if (
         !this.hasNoRoute &&
         !this.isOnProfilesScreen &&
@@ -145,8 +145,8 @@ export class AppComponent implements OnInit {
 
   public logout(): void {
     this.appStateService.currentUser.set(null);
-    this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
-      this.sidenav?.close();
+    void this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
+      void this.sidenav?.close();
     });
   }
 
@@ -214,43 +214,43 @@ export class AppComponent implements OnInit {
     if (hasPreviousHistory) {
       this.location.back();
     } else {
-      this.router.navigateByUrl(APP_ROUTES.HOME);
+      void this.router.navigateByUrl(APP_ROUTES.HOME);
     }
   }
 
   public goToHome(): void {
-    this.router.navigateByUrl(APP_ROUTES.HOME).then(() => {
-      this.sidenav?.close();
+    void this.router.navigateByUrl(APP_ROUTES.HOME).then(() => {
+      void this.sidenav?.close();
     });
   }
 
   public goToProfiles(): void {
-    this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
-      this.sidenav?.close();
+    void this.router.navigateByUrl(APP_ROUTES.PROFILES).then(() => {
+      void this.sidenav?.close();
     });
   }
 
   public viewCourses(): void {
-    this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
-      this.sidenav?.close();
+    void this.router.navigateByUrl(APP_ROUTES.COURSES).then(() => {
+      void this.sidenav?.close();
     });
   }
 
   public addNewCourse(): void {
-    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE).then(() => {
-      this.sidenav?.close();
+    void this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_COURSE).then(() => {
+      void this.sidenav?.close();
     });
   }
 
   public addNewRound(): void {
-    this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND).then(() => {
-      this.sidenav?.close();
+    void this.router.navigateByUrl(APP_ROUTES.ADD_EDIT_ROUND).then(() => {
+      void this.sidenav?.close();
     });
   }
 
   public async goToAbout(): Promise<void> {
     return this.router.navigateByUrl(APP_ROUTES.ABOUT).then(() => {
-      this.sidenav?.close();
+      void this.sidenav?.close();
     });
   }
 
@@ -364,7 +364,7 @@ export class AppComponent implements OnInit {
     return (globalThis.navigator as any).standalone === true;
   }
 
-  private get isInWebAppChromium() {
+  private get isInWebAppChromium(): boolean {
     return globalThis.matchMedia('(display-mode: standalone)').matches;
   }
 
