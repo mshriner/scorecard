@@ -32,11 +32,11 @@ export class PreformattedDialogComponent implements OnInit, OnDestroy {
   downloadHref: string | null = null;
   downloadName: string | null = null;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.createDownloadContent();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     try {
       URL.revokeObjectURL(this.downloadHref || '');
     } finally {
@@ -44,7 +44,7 @@ export class PreformattedDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  private createDownloadContent() {
+  private createDownloadContent(): void {
     const blob = new Blob([this.data.content], { type: 'application/json' });
 
     // Create a temporary URL for the Blob

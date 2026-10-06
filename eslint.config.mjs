@@ -2,6 +2,9 @@ import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
+  {
+    ignores: ['dist/**', 'node_modules/**', '.angular/**'],
+  },
   ...tseslint.configs.recommended,
   {
     files: ['**/*.ts'],
@@ -19,6 +22,12 @@ export default defineConfig(
     files: ['**/*.spec.ts', '**/*.test.ts', '**/*.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: ['**/*.spec.ts', '**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
   {

@@ -375,7 +375,7 @@ export class EditRoundComponent implements OnInit, OnDestroy {
     setTimeout(() => this.updateUnsavedData());
   }
 
-  private setMatchPlayPropertiesIfMissing() {
+  private setMatchPlayPropertiesIfMissing(): void {
     if (!this.editingRound.matchPlay) {
       this.editingRound.matchPlay = {};
     }
@@ -402,7 +402,7 @@ export class EditRoundComponent implements OnInit, OnDestroy {
     this.speechErrorCleanup?.();
   }
 
-  triggerResize() {
+  triggerResize(): void {
     // Wait for content to render, then trigger textarea resize.
     afterNextRender(
       () => {
@@ -475,13 +475,13 @@ export class EditRoundComponent implements OnInit, OnDestroy {
     this.updateUnsavedData();
   }
 
-  public strokesPlusOne(index: number) {
+  public strokesPlusOne(index: number): void {
     this.editingRound.strokes[index] ??= 0;
     this.editingRound.strokes[index]++;
     this.updateUnsavedData();
   }
 
-  public strokesMinusOne(index: number) {
+  public strokesMinusOne(index: number): void {
     if (
       !this.editingRound.strokes[index] ||
       this.editingRound.strokes[index] === 1
@@ -493,13 +493,13 @@ export class EditRoundComponent implements OnInit, OnDestroy {
     this.updateUnsavedData();
   }
 
-  public puttsPlusOne(index: number) {
+  public puttsPlusOne(index: number): void {
     this.editingRound.putts[index] ??= -1;
     this.editingRound.putts[index]++;
     this.updateUnsavedData();
   }
 
-  public puttsMinusOne(index: number) {
+  public puttsMinusOne(index: number): void {
     if (!this.editingRound.putts[index]) {
       this.editingRound.putts[index] = null;
     } else {

@@ -86,7 +86,9 @@ export class SpeechRecognitionService {
    * Setup event handlers for the recognition object
    */
   private setupRecognitionHandlers(): void {
-    if (!this.recognition) return;
+    if (!this.recognition) {
+      return;
+    }
 
     this.recognition.onstart = () => {
       this.recognitionState = 'listening';
@@ -393,10 +395,14 @@ export class SpeechRecognitionService {
     );
     if (opponentHoleFirst || opponentScoreFirst) {
       const rawValue = opponentHoleFirst?.[2] ?? opponentScoreFirst?.[1];
-      if (rawValue === undefined) return null;
+      if (rawValue === undefined) {
+        return null;
+      }
       const hole = Number(opponentHoleFirst?.[1] ?? opponentScoreFirst?.[2]);
       const value = Number(rawValue);
-      if (hole < 1 || hole > 18 || value < 1 || value > 20) return null;
+      if (hole < 1 || hole > 18 || value < 1 || value > 20) {
+        return null;
+      }
       return { type: 'setOpponentStrokes', hole, value, originalText: text };
     }
 
@@ -407,8 +413,12 @@ export class SpeechRecognitionService {
       const holeText = text.slice(score.length).trim();
       const holeMatch = holeText.match(/^(?:on )?(?:hole )?(\d{1,2})$/);
       const hole = holeMatch ? Number(holeMatch[1]) : previousHole;
-      if (!hole || hole < 1 || hole > 18) return null;
-      if (holeText && !holeMatch) return null;
+      if (!hole || hole < 1 || hole > 18) {
+        return null;
+      }
+      if (holeText && !holeMatch) {
+        return null;
+      }
       const value = scoreValues[score];
       return { type: 'setScoreToPar', hole, value, originalText: text };
     }
@@ -427,7 +437,9 @@ export class SpeechRecognitionService {
       } else if (putts[2]) {
         hole = Number(putts[2]);
       }
-      if (!hole || hole < 1 || hole > 18 || value > 15) return null;
+      if (!hole || hole < 1 || hole > 18 || value > 15) {
+        return null;
+      }
       return { type: 'setPutts', hole, value, originalText: text };
     }
 
@@ -437,7 +449,9 @@ export class SpeechRecognitionService {
     if (actualStrokes) {
       const hole = Number(actualStrokes[1]);
       const value = Number(actualStrokes[2]);
-      if (hole < 1 || hole > 18 || value < 1 || value > 20) return null;
+      if (hole < 1 || hole > 18 || value < 1 || value > 20) {
+        return null;
+      }
       return { type: 'setStrokes', hole, value, originalText: text };
     }
 

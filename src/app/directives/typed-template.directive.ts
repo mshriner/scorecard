@@ -10,8 +10,9 @@ export class TypedTemplateDirective<TypeToken> {
   // this magic is how we tell Angular the context type for this directive, which then propagates down to the type of the template
   static ngTemplateContextGuard<TypeToken>(
     _dir: TypedTemplateDirective<TypeToken>,
-    ctx: unknown,
-  ): ctx is TypeToken {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _ctx: unknown,
+  ): _ctx is TypeToken {
     return true;
   }
 }
