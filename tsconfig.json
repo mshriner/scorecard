@@ -18,9 +18,9 @@
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
     "importHelpers": true,
-    "target": "ES2022",
-    "module": "ES2022",
-    "lib": ["ES2022", "dom"],
+    "target": "es2025",
+    "module": "preserve",
+    "lib": ["ES2025", "dom"],
     "types": ["vitest/globals"]
   },
   "angularCompilerOptions": {

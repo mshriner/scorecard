@@ -51,17 +51,25 @@ const createLocalStorageMock = (): Storage => {
 
   return new Proxy({} as Storage, {
     get(target, prop, receiver) {
-      if (prop === 'getItem')
+      if (prop === 'getItem') {
         return (key: string) => store.get(String(key)) ?? null;
-      if (prop === 'setItem')
+      }
+      if (prop === 'setItem') {
         return (key: string, value: string) =>
           store.set(String(key), String(value));
-      if (prop === 'removeItem')
+      }
+      if (prop === 'removeItem') {
         return (key: string) => store.delete(String(key));
-      if (prop === 'clear') return () => store.clear();
-      if (prop === 'key')
+      }
+      if (prop === 'clear') {
+        return () => store.clear();
+      }
+      if (prop === 'key') {
         return (idx: number) => Array.from(store.keys())[idx] ?? null;
-      if (prop === 'length') return store.size;
+      }
+      if (prop === 'length') {
+        return store.size;
+      }
 
       // Ensure internal JS calls (like Symbol.toStringTag) don't crash
       return Reflect.get(target, prop, receiver);

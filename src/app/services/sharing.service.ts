@@ -91,7 +91,10 @@ export class SharingService {
     }
   }
 
-  private openExportDialog(exportedItem: ExportedItem, shareFileName: string) {
+  private openExportDialog(
+    exportedItem: ExportedItem,
+    shareFileName: string,
+  ): void {
     this.dialog
       .open(PreformattedDialogComponent, {
         data: {
@@ -104,7 +107,7 @@ export class SharingService {
       .subscribe();
   }
 
-  private getShareFileName(dataToShare: DataToShare) {
+  private getShareFileName(dataToShare: DataToShare): string {
     switch (dataToShare.objectType) {
       case 'course': {
         const exportedCourseName = (dataToShare.data as Course)?.name
