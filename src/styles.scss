@@ -28,6 +28,9 @@ body {
   height: 100%;
   overscroll-behavior: none;
   --mat-toolbar-mobile-height: 56px;
+  --app-toolbar-total-height: calc(
+    var(--mat-toolbar-mobile-height) + env(safe-area-inset-top, 0px)
+  );
   -webkit-text-size-adjust: none;
   font-size-adjust: none;
   width: 100vw;
