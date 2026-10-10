@@ -90,7 +90,7 @@ mat-divider {
 .bottom-options {
   display: block;
   position: absolute;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom, 0px);
   width: calc(100% - 16px);
 }
 
