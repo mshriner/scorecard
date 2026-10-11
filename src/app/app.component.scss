@@ -1,9 +1,11 @@
 $main-padding: 8px;
 
 mat-toolbar {
-  padding-inline: 6px;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-inline: calc(6px + env(safe-area-inset-left, 0px))
+    calc(6px + env(safe-area-inset-right, 0px));
   position: fixed;
-  height: var(--mat-toolbar-mobile-height);
+  height: var(--app-toolbar-total-height);
   top: 0;
   left: 0;
   right: 0;
