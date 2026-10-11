@@ -1,9 +1,11 @@
 $main-padding: 8px;
 
 mat-toolbar {
-  padding-inline: 6px;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-inline: calc(6px + env(safe-area-inset-left, 0px))
+    calc(6px + env(safe-area-inset-right, 0px));
   position: fixed;
-  height: var(--mat-toolbar-mobile-height);
+  height: var(--app-toolbar-total-height);
   top: 0;
   left: 0;
   right: 0;
@@ -52,12 +54,18 @@ mat-toolbar {
 }
 
 div.under-toolbar {
-  height: var(--mat-toolbar-mobile-height);
+  flex: 0 0 var(--app-toolbar-total-height);
+  height: var(--app-toolbar-total-height);
 }
 
 div.main-content {
-  height: calc(100% - var(--mat-toolbar-mobile-height));
+  box-sizing: border-box;
+  flex: 1;
+  height: auto;
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+  padding-bottom: var(--app-bottom-bar-height);
   overflow-y: auto;
+
   div.main-content-padding {
     padding-top: $main-padding;
   }
@@ -80,6 +88,15 @@ div.flex-menu-option {
 .sidenav {
   max-width: 80vw;
   display: block;
+  /* Removed the padding-top from here */
+  padding-inline: calc(8px + env(safe-area-inset-left, 0px))
+    calc(8px + env(safe-area-inset-right, 0px));
+
+  /* Force the safe-area inset down into the internal scroll wrapper */
+  ::ng-deep .mat-drawer-inner-container,
+  ::ng-deep .mat-mdc-drawer-inner-container {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
 }
 
 mat-divider {
@@ -90,12 +107,16 @@ mat-divider {
 .bottom-options {
   display: block;
   position: absolute;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom, 0px);
   width: calc(100% - 16px);
 }
 
 .nav-container {
-  height: 100dvh;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 @keyframes spinner {
@@ -110,4 +131,9 @@ mat-icon.rotate {
 
 .toolbar-padding {
   margin-inline: auto;
+}
+
+mat-sidenav-content {
+  display: flex;
+  flex-direction: column;
 }
