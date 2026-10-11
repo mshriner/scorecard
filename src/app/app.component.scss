@@ -54,11 +54,11 @@ mat-toolbar {
 }
 
 div.under-toolbar {
-  height: var(--mat-toolbar-mobile-height);
+  height: var(--app-toolbar-total-height);
 }
 
 div.main-content {
-  height: calc(100% - var(--mat-toolbar-mobile-height));
+  height: calc(100% - var(--app-toolbar-total-height));
   overflow-y: auto;
   div.main-content-padding {
     padding-top: $main-padding;
@@ -97,7 +97,11 @@ mat-divider {
 }
 
 .nav-container {
-  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 @keyframes spinner {
