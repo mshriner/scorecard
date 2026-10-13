@@ -9,13 +9,17 @@ export class SnackBarService {
   public openTemporarySnackBar(
     message: string,
     action: string = 'Dismiss',
+    onAction?: () => void,
   ): void {
     const trimmed = message?.trim();
     if (!trimmed) {
       return;
     }
-    this._snackBar.open(trimmed, action, {
+    const snackBarRef = this._snackBar.open(trimmed, action, {
       duration: 4000,
     });
+    if (onAction) {
+      snackBarRef.onAction().subscribe(onAction);
+    }
   }
 }

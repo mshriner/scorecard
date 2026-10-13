@@ -1,0 +1,358 @@
+import { TestBed } from '@angular/core/testing';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { SpeechRecognitionService } from './speech-recognition.service';
+
+describe('SpeechRecognitionService', () => {
+  let service: SpeechRecognitionService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(SpeechRecognitionService);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  describe('parseCommands', () => {
+    describe('Strokes - Par/Bogey/Birdie/Eagle', () => {
+      it('should parse "par on hole 5"', () => {
+        const intents = service.parseCommands('par on hole 5');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'setScoreToPar',
+              hole: 5,
+              value: 0,
+            }),
+          ]),
+        );
+      });
+
+      it('should parse "birdie 5"', () => {
+        const intents = service.parseCommands('birdie 5');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'setScoreToPar',
+              hole: 5,
+              value: -1,
+            }),
+          ]),
+        );
+      });
+
+      it('should parse "eagle on hole 3"', () => {
+        const intents = service.parseCommands('eagle on hole 3');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'setScoreToPar',
+              hole: 3,
+              value: -2,
+            }),
+          ]),
+        );
+      });
+
+      it('should parse "bogey hole 7"', () => {
+        const intents = service.parseCommands('bogey hole 7');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'setScoreToPar',
+              hole: 7,
+              value: 1,
+            }),
+          ]),
+        );
+      });
+
+      it('should parse "double bogey on hole 9"', () => {
+        const intents = service.parseCommands('double bogey on hole 9');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'setScoreToPar',
+              hole: 9,
+              value: 2,
+            }),
+          ]),
+        );
+      });
+    });
+
+    describe('Putts', () => {
+      it('should apply standalone putts to the previous hole', () => {
+        const intents = service.parseCommands('2 putts', 5);
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'setPutts',
+              hole: 5,
+              value: 2,
+            }),
+          ]),
+        );
+      });
+
+      it('should parse "2 putts on hole 5"', () => {
+        const intents = service.parseCommands('2 putts on hole 5');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'setPutts',
+              hole: 5,
+              value: 2,
+            }),
+          ]),
+        );
+      });
+
+      it('should parse "hole 7 has 3 putts"', () => {
+        const intents = service.parseCommands('hole 7 has 3 putts');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'setPutts',
+              hole: 7,
+              value: 3,
+            }),
+          ]),
+        );
+      });
+
+      it.each(['2 pets', '2 pots'])(
+        'should normalize "%s" to putts',
+        (text) => {
+          expect(service.parseCommands(text, 5)).toEqual([
+            expect.objectContaining({
+              type: 'setPutts',
+              hole: 5,
+              value: 2,
+            }),
+          ]);
+        },
+      );
+
+      it('should normalize a putt transcription variant in a combined command', () => {
+        expect(service.parseCommands('par on hole 5, 2 pots')).toEqual([
+          expect.objectContaining({ type: 'setScoreToPar', hole: 5 }),
+          expect.objectContaining({ type: 'setPutts', hole: 5, value: 2 }),
+        ]);
+      });
+
+      it('should not apply standalone putts without a previous hole', () => {
+        expect(service.parseCommands('2 putts')).toEqual([]);
+      });
+    });
+
+    describe('Stroke Plus/Minus One', () => {
+      it('should parse "add one stroke on hole 5"', () => {
+        const intents = service.parseCommands('add one stroke on hole 5');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'plusOneStroke',
+              hole: 5,
+            }),
+          ]),
+        );
+      });
+
+      it('should parse "minus one on hole 5"', () => {
+        const intents = service.parseCommands('minus one on hole 5');
+        expect(intents).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              type: 'minusOneStroke',
+              hole: 5,
+            }),
+          ]),
+        );
+      });
+    });
+
+    describe('Multi-Intent Utterances', () => {
+      it('should parse "par on hole 5, 2 putts"', () => {
+        const intents = service.parseCommands('par on hole 5, 2 putts');
+        expect(intents.length).toBe(2);
+        expect(intents[0]).toEqual(
+          expect.objectContaining({
+            type: 'setScoreToPar',
+            hole: 5,
+            value: 0,
+          }),
+        );
+        expect(intents[1]).toEqual(
+          expect.objectContaining({
+            type: 'setPutts',
+            hole: 5,
+            value: 2,
+          }),
+        );
+      });
+
+      it('should ignore voice save commands', () => {
+        expect(service.parseCommands('save')).toEqual([]);
+        expect(service.parseCommands('bogey 9 then save')).toEqual([
+          expect.objectContaining({
+            type: 'setScoreToPar',
+            hole: 9,
+          }),
+        ]);
+      });
+
+      it('should parse a stroke-count sequence for the active round', () => {
+        const intents = service.parseCommands('five, five, four, three');
+        expect(intents).toEqual([
+          expect.objectContaining({
+            type: 'setStrokeSequence',
+            values: [5, 5, 4, 3],
+          }),
+        ]);
+      });
+
+      it('should parse an opponent stroke count on a hole', () => {
+        expect(service.parseCommands('opponent four on hole five')).toEqual([
+          expect.objectContaining({
+            type: 'setOpponentStrokes',
+            hole: 5,
+            value: 4,
+          }),
+        ]);
+      });
+
+      it('should parse an opponent score relative to par', () => {
+        expect(service.parseCommands('opponent birdie on hole 2')).toEqual([
+          expect.objectContaining({
+            type: 'setOpponentScoreToPar',
+            hole: 2,
+            value: -1,
+          }),
+        ]);
+      });
+
+      it('should parse a bare numeric hole in an opponent stroke command', () => {
+        expect(service.parseCommands('opponent 2 on 2')).toEqual([
+          expect.objectContaining({
+            type: 'setOpponentStrokes',
+            hole: 2,
+            value: 2,
+          }),
+        ]);
+      });
+
+      it('should parse opponent stroke counts as a sequence', () => {
+        expect(service.parseCommands('opponent strokes 5, 4, 4')).toEqual([
+          expect.objectContaining({
+            type: 'setOpponentStrokeSequence',
+            values: [5, 4, 4],
+          }),
+        ]);
+      });
+
+      it('should parse literal strokes separately from score-to-par terms', () => {
+        expect(service.parseCommands('hole five is four strokes')).toEqual([
+          expect.objectContaining({
+            type: 'setStrokes',
+            hole: 5,
+            value: 4,
+          }),
+        ]);
+      });
+
+      it('should not parse an opponent hole without a stroke count', () => {
+        expect(service.parseCommands('opponent hole 5')).toEqual([]);
+      });
+    });
+
+    describe('Edge Cases', () => {
+      it('should handle empty string', () => {
+        const intents = service.parseCommands('');
+        expect(intents.length).toBe(0);
+      });
+
+      it('should handle null', () => {
+        const intents = service.parseCommands(null as any);
+        expect(intents.length).toBe(0);
+      });
+
+      it('should handle undefined', () => {
+        const intents = service.parseCommands(undefined as any);
+        expect(intents.length).toBe(0);
+      });
+
+      it('should be case-insensitive', () => {
+        const intents1 = service.parseCommands('PAR ON HOLE 5');
+        const intents2 = service.parseCommands('par on hole 5');
+        expect(intents1).toEqual(intents2);
+      });
+
+      it('should ignore unknown commands', () => {
+        const intents = service.parseCommands(
+          'foobar and par hole 5 and bazzle',
+        );
+        expect(intents.length).toBe(1);
+        expect(intents[0]?.type).toBe('setScoreToPar');
+      });
+
+      it('should handle hole numbers 1-18', () => {
+        for (let hole = 1; hole <= 18; hole++) {
+          const intents = service.parseCommands(`par hole ${hole}`);
+          expect(intents[0]?.hole).toBe(hole);
+        }
+      });
+    });
+  });
+
+  describe('Browser Support', () => {
+    it('should indicate browser support status', () => {
+      expect(service.isBrowserSupported()).toBeDefined();
+    });
+  });
+
+  describe('Listening State', () => {
+    it('should expose isListening signal', () => {
+      expect(service.isListening()).toBeDefined();
+    });
+
+    it('should expose transcript signal', () => {
+      expect(service.transcript()).toBeDefined();
+    });
+
+    it('restarts if voice mode is re-entered before stop finishes', () => {
+      vi.useFakeTimers();
+      const recognition = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        onstart: undefined as (() => void) | undefined,
+        onend: undefined as (() => void) | undefined,
+        onresult: undefined as any,
+        onerror: undefined as any,
+      };
+      (service as any).recognition = recognition;
+      (service as any).setupRecognitionHandlers();
+
+      service.startListening();
+      recognition.onstart?.();
+      service.stopListening();
+      service.startListening();
+
+      expect(recognition.start).toHaveBeenCalledTimes(1);
+      recognition.onend?.();
+      vi.runOnlyPendingTimers();
+
+      expect(recognition.start).toHaveBeenCalledTimes(2);
+
+      recognition.onerror?.({
+        error: 'not-allowed',
+      } as SpeechRecognitionErrorEvent);
+      expect(service.permissionDenied()).toBe(true);
+    });
+  });
+});

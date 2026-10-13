@@ -31,6 +31,8 @@ export interface LocalFilters {
   sortBy?: ResultsSorting;
   homeTabIndex?: number;
   pwaPrompted?: boolean;
+  newStrokesUI?: boolean;
+  speechCommandsEnabled?: boolean;
   theme?: AppTheme;
   evenSpaceGraph?: boolean;
   graphRegression?: boolean;
@@ -41,8 +43,7 @@ export interface LocalUserWithFilters extends User, LocalFilters {}
 export const ROUND_DATE_SORT_COL = 'roundDate';
 export const ROUND_SCORE_SORT_COL = 'roundScore';
 export type ResultsSorting =
-  | typeof ROUND_DATE_SORT_COL
-  | typeof ROUND_SCORE_SORT_COL;
+  typeof ROUND_DATE_SORT_COL | typeof ROUND_SCORE_SORT_COL;
 
 export type WhenToShowPWADialogAgain = 'later' | 'never';
 
