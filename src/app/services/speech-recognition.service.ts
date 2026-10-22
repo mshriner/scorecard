@@ -1,5 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 
+export const SPEECH_PERMISSION_DENIED_SESSION_KEY =
+  'scorecard.speechRecognition.permissionDenied';
+
 /**
  * Represents a parsed speech command/intent
  */
@@ -32,7 +35,7 @@ export class SpeechRecognitionService {
   public readonly isListening = signal(false);
   public readonly transcript = signal('');
   public readonly isBrowserSupported = signal(!!this.recognition);
-  public readonly permissionDenied = signal(false);
+  public readonly permissionDenied = signal(this.readPermissionDenied());
 
   private resultCallbacks: ((text: string) => void)[] = [];
   private errorCallbacks: ((error: string) => void)[] = [];
@@ -92,7 +95,7 @@ export class SpeechRecognitionService {
 
     this.recognition.onstart = () => {
       this.recognitionState = 'listening';
-      this.permissionDenied.set(false);
+      this.setPermissionDenied(false);
       this.isListening.set(true);
       this.interimTranscript = '';
       this.transcript.set('');
@@ -121,7 +124,7 @@ export class SpeechRecognitionService {
     this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech Recognition Error:', event.error);
       if (event.error === 'not-allowed') {
-        this.permissionDenied.set(true);
+        this.setPermissionDenied(true);
       }
       this.errorCallbacks.forEach((callback) => callback(event.error));
       if (
@@ -173,7 +176,7 @@ export class SpeechRecognitionService {
     } catch (error) {
       const name = (error as Error)?.name || 'unknown';
       if (name === 'NotAllowedError' || name === 'SecurityError') {
-        this.permissionDenied.set(true);
+        this.setPermissionDenied(true);
       }
       this.recognitionState = 'idle';
       this.listeningRequested = false;
@@ -202,7 +205,37 @@ export class SpeechRecognitionService {
   }
 
   public clearPermissionDenied(): void {
-    this.permissionDenied.set(false);
+    this.setPermissionDenied(false);
+  }
+
+  private readPermissionDenied(): boolean {
+    try {
+      return (
+        globalThis.sessionStorage?.getItem(
+          SPEECH_PERMISSION_DENIED_SESSION_KEY,
+        ) === 'true'
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private setPermissionDenied(denied: boolean): void {
+    this.permissionDenied.set(denied);
+    try {
+      if (denied) {
+        globalThis.sessionStorage?.setItem(
+          SPEECH_PERMISSION_DENIED_SESSION_KEY,
+          'true',
+        );
+      } else {
+        globalThis.sessionStorage?.removeItem(
+          SPEECH_PERMISSION_DENIED_SESSION_KEY,
+        );
+      }
+    } catch {
+      // Permission guidance remains available for this service instance.
+    }
   }
 
   /**

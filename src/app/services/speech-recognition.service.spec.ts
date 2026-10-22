@@ -1,11 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SpeechRecognitionService } from './speech-recognition.service';
+import {
+  SPEECH_PERMISSION_DENIED_SESSION_KEY,
+  SpeechRecognitionService,
+} from './speech-recognition.service';
 
 describe('SpeechRecognitionService', () => {
   let service: SpeechRecognitionService;
 
   beforeEach(() => {
+    sessionStorage.removeItem(SPEECH_PERMISSION_DENIED_SESSION_KEY);
     TestBed.configureTestingModule({});
     service = TestBed.inject(SpeechRecognitionService);
   });
@@ -353,6 +357,40 @@ describe('SpeechRecognitionService', () => {
         error: 'not-allowed',
       } as SpeechRecognitionErrorEvent);
       expect(service.permissionDenied()).toBe(true);
+    });
+
+    it('restores a denied permission after service recreation and clears it on retry', () => {
+      const recognition = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        onstart: undefined as (() => void) | undefined,
+        onend: undefined as (() => void) | undefined,
+        onresult: undefined as any,
+        onerror: undefined as any,
+      };
+      (service as any).recognition = recognition;
+      (service as any).setupRecognitionHandlers();
+
+      recognition.onerror?.({
+        error: 'not-allowed',
+      } as SpeechRecognitionErrorEvent);
+
+      expect(sessionStorage.getItem(SPEECH_PERMISSION_DENIED_SESSION_KEY)).toBe(
+        'true',
+      );
+      const recreatedService = new SpeechRecognitionService();
+      expect(recreatedService.permissionDenied()).toBe(true);
+
+      service.startListening();
+      recognition.onstart?.();
+
+      expect(service.permissionDenied()).toBe(false);
+      expect(
+        sessionStorage.getItem(SPEECH_PERMISSION_DENIED_SESSION_KEY),
+      ).toBeNull();
+
+      service.clearPermissionDenied();
+      expect(service.permissionDenied()).toBe(false);
     });
   });
 });
