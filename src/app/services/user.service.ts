@@ -58,6 +58,8 @@ export class UserService {
       sortBy: ROUND_DATE_SORT_COL,
       sortDescending: true,
       homeTabIndex: 0,
+      newStrokesUI: true,
+      speechCommandsEnabled: true,
     };
 
     // Only set default properties if they are not already present in newUser
