@@ -3,7 +3,13 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['dist/**'],
+    ignores: [
+      'dist/**',
+      '.angular/**',
+      'node_modules/**',
+      'coverage/**',
+      'src/environments/environment.dev.ts',
+    ],
   },
   ...tseslint.configs.recommended,
   {
